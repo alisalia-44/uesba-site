@@ -18,7 +18,7 @@ Ce repo contient la structure initiale du site officiel de l'UESBA pour que l'é
 - `config/config.php` : connexion à la base
 - `sql/uesba.sql` : export initial de la base (optionnel)
 
-## Collaboration
+## Collaboration (Sia Raoul , Ba Yobi , Tall Souleyman)
 - Cloner ce repo pour travailler en local.
 - Faire des commits réguliers.
 - Pousser les modifications pour que tout le monde ait la version à jour.
