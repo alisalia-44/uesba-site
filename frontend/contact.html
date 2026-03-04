@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - UESBA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <header id="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">
+                    <div class="logo-image">
+                        <img src="images/img.jpeg" alt="">
+                    </div>
+                    <div class="logo-text desktop">
+                        <h1>UESBA</h1>
+                        <p>Union des Étudiants  et Stagiaires Burkinabè en Algerie</p>
+                    </div>
+                    
+                </a>
+
+                <nav class="desktop-nav">
+                    <a class="nav-link" href="index.html">Accueil</a>
+                    <a class="nav-link active" href="actualites.html">Actualités</a>
+                    <a class="nav-link" href="evenements.html">Événements</a>
+                    <a class="nav-link" href="apropos.html">À Propos</a>
+                    <a class="nav-link active" href="contact.html">Contact</a>
+                </nav>
+
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                   <img src="https://img.icons8.com/ios-filled/32/198754/menu--v1.png" alt="Menu" class="menu-icon">
+                    <svg class="close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+           </div>
+        </div>
+   </header>
+
+   <div class="mobile-menu" id="mobileMenu">
+     <nav>
+        <a class="mobile-nav-link" href="index.html">Accueil</a>
+        <a class="mobile-nav-link active" href="actualites.html">Actualités</a>
+        <a class="mobile-nav-link" href="evenements.html">Événements</a>
+        <a class="mobile-nav-link" href="apropos.html">À Propos</a>
+        <a class="mobile-nav-link active" href="contact.html">Contact</a>
+     </nav>
+   </div>
+   
+    
+    <div class="container contact-main-grid" style="padding-top: 60px; padding-bottom: 20px; position: relative; z-index: 1;">
+        <div class="contact-form-side">
+            <h2>Envoyez-nous un Message</h2>
+            <form class="contact-form" id="contactForm">
+                <div class="form-group">
+                    <label for="name">Nom Complet *</label>
+                    <input type="text" id="name" name="name" placeholder="Votre nom complet" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" placeholder="votre.email@exemple.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Message *</label>
+                    <textarea id="message" name="message" placeholder="Écrivez votre message ici..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary contact-btn" style="width: 100%; text-align:center; background-color: rgb(25, 135, 84); color: aliceblue;">Envoyer le Message</button>
+                <div class="contact-note" style="text-align: center;" >* Champs obligatoires</div>
+            </form>
+        </div>
+        <div class="contact-info-side">
+            <div class="contact-coord-box">
+                <div class="coord-header">
+                    <img src="https://img.icons8.com/fluency/32/000000/star.png" alt="Star" style="vertical-align:middle;margin-right:8px;">
+                    <span>Coordonnées</span>
+                </div>
+                <ul class="coord-list">
+                    <li><span class="coord-icon"><img src="https://img.icons8.com/ios-filled/24/ffffff/new-post.png"/></span> <strong>Email</strong><br><span class="coord-text">contact@uesba-dz.org</span></li>
+                    <li><span class="coord-icon"><img src="https://img.icons8.com/ios-filled/24/ffffff/phone.png"/></span> <strong>Téléphone</strong><br><span class="coord-text">+213 555 000 000</span></li>
+                    <li><span class="coord-icon"><img src="https://img.icons8.com/ios-filled/24/ffffff/marker.png"/></span> <strong>Adresse</strong><br><span class="coord-text">Cité Universitaire<br>Alger, Algérie</span></li>
+                </ul>
+            </div>
+            <div class="contact-social-box">
+                <h3>Réseaux Sociaux</h3>
+                <p>Suivez-nous sur les réseaux sociaux pour rester informé de toutes nos actualités et événements</p>
+                <div class="social-icons-row">
+                    <a href="#" class="social-icon social-facebook" aria-label="Facebook"><img src="https://img.icons8.com/color/48/000000/facebook-new.png"/></a>
+                    <a href="#" class="social-icon social-twitter" aria-label="Twitter"><img src="https://img.icons8.com/color/48/000000/twitter--v1.png"/></a>
+                    <a href="#" class="social-icon social-instagram" aria-label="Instagram"><img src="https://img.icons8.com/color/48/000000/instagram-new.png"/></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Footer-->
+     <footer class="footer">
+     <div class="container">
+        <div class="footer-content">
+            <div class="footer-column">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <img src="https://img.icons8.com/ios-filled/32/198754/graduation-cap.png" alt="UESBA">
+                    </div>
+                    <h3>UESBA</h3>
+                </div>
+                <p>Union des Étudiants et Stagiaires Burkinabè en Algérie - Solidarité, Excellence, Unité</p>
+            </div>
+
+            <div class="footer-column">
+                <h4>Contact</h4>
+                <div class="contact-item">
+                    <img src="https://img.icons8.com/ios-filled/24/198754/marker.png" alt="Location">
+                    <p>Alger, Algérie</p>
+                </div>
+                <div class="contact-item">
+                    <img src="https://img.icons8.com/ios-filled/24/198754/phone.png" alt="Phone">
+                    <p>+213 XX XXX XXXX</p>
+                </div>
+                <div class="contact-item">
+                    <img src="https://img.icons8.com/ios-filled/24/198754/new-post.png" alt="Email">
+                    <p>contact@uesba-dz.org</p>
+                </div>
+            </div>
+        <div class="footer-column">
+                <h4>Suivez-nous</h4>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook">
+                        <img src="https://img.icons8.com/color/32/000000/facebook-new.png" alt="Facebook">
+                    </a>
+                    <a href="#" aria-label="Twitter">
+                        <img src="https://img.icons8.com/color/32/000000/twitter--v1.png" alt="Twitter">
+                    </a>
+                    <a href="#" aria-label="Instagram">
+                        <img src="https://img.icons8.com/color/32/000000/instagram-new.png" alt="Instagram">
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="developers">
+                <p><strong>Site développé par :</strong></p>
+                <p>SIA RAOUL • ALI SALIA • TALL • BA</p>
+            </div>
+            <div class="footer-legal">
+                <p>© 2026 UESBA. Tous droits réservés.</p>
+                <div class="legal-links">
+                    <a href="#">Mentions Légales</a>
+                    <a href="#">Politique de Confidentialité</a>
+                </div>
+            </div>
+        </div>
+      </div>
+    </footer>
+
+</n> </n>
+<script src="js/script.js" ></script>
+<script>
+// Gestion du formulaire de contact
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Récupérer les données du formulaire
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const message = document.getElementById('message').value.trim();
+    
+    // Validation simple
+    if (!name || !email || !message) {
+        alert('Veuillez remplir tous les champs obligatoires !');
+        return;
+    }
+    
+    // Validation email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert('Veuillez entrer une adresse email valide !');
+        return;
+    }
+    
+    // Afficher un message de confirmation
+    alert(`Merci ${name}!\n\nVotre message a été reçu avec succès.\nNous vous répondrons très bientôt à l'adresse: ${email}`);
+    
+    // Réinitialiser le formulaire
+    document.getElementById('contactForm').reset();
+});
+
+// Navigation via header
+document.querySelectorAll('.nav-link').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const page = btn.getAttribute('data-page');
+        if(page) window.location.href = page;
+    });
+});
+document.querySelectorAll('.mobile-nav-link').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const page = btn.getAttribute('data-page');
+        if(page) window.location.href = page;
+    });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceuil - UESBA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+              /* Activity Carousel Styles */
+.carousel-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    width: 100%;
+}
+
+.carousel-item {
+    flex: 1 0 100%;
+    min-width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+}
+
+.carousel-item > div {
+    width: 100%;
+    max-width: 700px;
+}
+
+#activity-dots {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+}
+
+#activity-dots button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: none;
+    background: #d1d5db;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+#activity-dots button:hover {
+    background: #9ca3af;
+}
+
+#activity-dots button.active {
+    background: #16a34a;
+    width: 32px;
+    border-radius: 6px;
+}
+    </style>
+</head>
+<body>
+
+    <header id="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">
+                    <div class="logo-image">
+                        <img src="images/img.jpeg" alt="">
+                    </div>
+                    <div class="logo-text desktop">
+                        <h1>UESBA</h1>
+                        <p>Union des Étudiants  et Stagiaires Burkinabè en Algerie</p>
+                    </div>
+                    
+                </a>
+
+                <nav class="desktop-nav">
+                    <a class="nav-link" href="index.html" data-page="index.html">Accueil</a>
+                    <a class="nav-link active" href="actualites.html" data-page="actualites.html">Actualités</a>
+                    <a class="nav-link" href="evenements.html" data-page="evenements.html">Événements</a>
+                    <a class="nav-link" href="apropos.html" data-page="apropos.html">À Propos</a>
+                    <a class="nav-link" href="contact.html" data-page="contact.html">Contact</a>
+                </nav>
+
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                   <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-1.svg" alt="Menu" class="menu-icon">
+                    <svg class="close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+           </div>
+        </div>
+   </header>
+
+   <div class="mobile-menu" id="mobileMenu">
+      <nav>
+          <button class="mobile-nav-link" data-page="index.html">Accueil</button>
+          <button class="mobile-nav-link active" data-page="actualites.html">Actualités</button>
+          <button class="mobile-nav-link" data-page="evenements.html">Événements</button>
+          <button class="mobile-nav-link" data-page="apropos.html">À Propos</button>
+          <button class="mobile-nav-link" data-page="contact.html">Contact</button>
+      </nav>
+   </div>    
+    <section class="hero1" style="background-image: url('images/Container.png'); background-position:bottom ; background-size: cover;">
+    <div class="hero1-bg-img" ></div>
+    <div class="hero1-overlay"></div>
+    <div class="hero1-stars" >
+        <img  src="https://img.icons8.com/ios-filled/24/198754/star.png" alt="Star" class="star star-1">
+        <img src="https://img.icons8.com/ios-filled/24/198754/star.png" alt="Star" class="star star-2">
+        <img src="https://img.icons8.com/ios-filled/24/198754/star.png" alt="Star" class="star star-3">
+        <img src="https://img.icons8.com/ios-filled/24/198754/star.png" alt="Star" class="star star-4">
+        <img src="https://img.icons8.com/ios-filled/24/198754/star.png" alt="Star" class="star star-5">
+    </div>
+    <div class="hero1-center-content" >
+        <h1 class="hero1-title" style="animation: fadeInUp 0.8s ease-out forwards; animation-delay: 0.2s; opacity: 0;">Bienvenue à l'UESBA</h1>
+        <h2 class="hero1-subtitle" style="animation: fadeInUp 0.8s ease-out forwards; animation-delay: 0.4s; opacity: 0;">Notre Mission</h2>
+        <p class="hero1-desc" style="animation: fadeInUp 0.8s ease-out forwards; animation-delay: 0.6s; opacity: 0;">L'UESBA a pour mission de rassembler et soutenir les étudiants et stagiaires burkinabè en Algérie. Nous créons des opportunités de développement académique, culturel et social tout en préservant notre identité et nos valeurs burkinabè.</p>
+        <div class="hero1-btns" style="animation: fadeInUp 0.8s ease-out forwards; animation-delay: 0.8s; opacity: 0;">
+            <a style="text-decoration: none;" href="apropos.html" class="btn btn-primary hero1-btn">En Savoir Plus <img src="https://img.icons8.com/ios-filled/24/ffffff/arrow.png" alt="Arrow" style="vertical-align:middle;margin-left:8px;"/></a>
+            <a style="text-decoration: none;"  href="contact.html" class="btn btn-secondary hero1-btn">Nous Contacter</a>
+        </div>
+    </div>
+</section>
+
+  
+
+<section class="activities-section" style="height: auto; border-left: 8px solid #009739; padding-left: 30px; ">
+    <br>
+  <h1 style="font-family: 'Times New Roman', Times, serif; text-align: center; font-size: 2.5rem; font-weight: bold;">Nos Activités</h1>
+        <p style="text-align: center; font-family: Georgia, 'Times New Roman', Times, serif; color: #666; font-size: 1rem; margin-bottom: 40px;">Découvrez comment nous soutenons notre communauté</p>
+
+        <div class="relative max-w-4xl mx-auto group">
+            <button onclick="prevActivity()" class="absolute -left-5 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-lime-800 text-white rounded-full flex items-center justify-center shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+
+            <div class="carousel-container"  >
+                <div id="activity-track" class="carousel-track" style="gap: 32px;">
+                    <!-- 1. Accueil -->
+                    <div class="carousel-item" style="flex: 0 0 100%;">
+                        <div class="text-center" style="padding: 40px; border: 2px solid #009739;border-radius: 15px; height: auto;">
+                            <div style="width: 80px; height: 80px; border-radius: 50%; background-color: #e8f5e9; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 40px;">
+                                👥
+                            </div>
+                            <h3 class="text-2xl font-bold mb-3" style="color: #000;">Accueil et Orientation</h3>
+                            <p style="color: #666; font-size: 1rem; max-width: 500px; margin: 0 auto;">Accompagnement des nouveaux étudiants dans leurs démarches administratives et leur intégration en Algérie.</p>
+                        </div>
+                    </div>
+                    <!-- 2. Culture -->
+                    <div class="carousel-item" style="flex: 0 0 100%;">
+                        <div class="text-center" style="padding: 40px; border: 2px solid #009739;border-radius: 15px; height: auto;">
+                            <div style="width: 80px; height: 80px; border-radius: 50%; background-color: #e8f5e9; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 40px;">
+                                🎭
+                            </div>
+                            <h3 class="text-2xl font-bold mb-3" style="color: #000;">Événements Culturels</h3>
+                            <p style="color: #666; font-size: 1rem; max-width: 500px; margin: 0 auto;">Organisation de journées culturelles pour promouvoir l'identité et les traditions du Burkina Faso.</p>
+                        </div>
+                    </div>
+                    <!-- 3. Soutien -->
+                    <div class="carousel-item" style="flex: 0 0 100%;">
+                        <div class="text-center" style="padding: 40px; border: 2px solid #009739;border-radius: 15px; height: auto;">
+                            <div style="width: 80px; height: 80px; border-radius: 50%; background-color: #e8f5e9; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 40px;">
+                                📚
+                            </div>
+                            <h3 class="text-2xl font-bold mb-3" style="color: #000;">Soutien Académique</h3>
+                            <p style="color: #666; font-size: 1rem; max-width: 500px; margin: 0 auto;">Mise à disposition de ressources d'étude et tutorat pour assurer l'excellence de nos membres.</p>
+                        </div>
+                    </div>
+                    <!-- 4. Sport -->
+                    <div class="carousel-item" style="flex: 0 0 100%;">
+                        <div class="text-center" style="padding: 40px; border: 2px solid #009739;border-radius: 15px; height: auto;">
+                            <div style="width: 80px; height: 80px; border-radius: 50%; background-color: #e8f5e9; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 40px;">
+                                ⚽
+                            </div>
+                            <h3 class="text-2xl font-bold mb-3" style="color: #000;">Activités Sportives</h3>
+                            <p style="color: #666; font-size: 1rem; max-width: 500px; margin: 0 auto;">Tournois sportifs et sorties de détente pour renforcer la cohésion sociale entre étudiants.</p>
+                        </div>
+                    </div>
+                    <!-- 5. Santé -->
+                    <div class="carousel-item" style="flex: 0 0 100%;">
+                        <div class="text-center" style="padding: 40px; border: 2px solid #009739;border-radius: 15px; height: auto;">
+                            <div style="width: 80px; height: 80px; border-radius: 50%; background-color: #e8f5e9; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 40px;">
+                                🤝
+                            </div>
+                            <h3 class="text-2xl font-bold mb-3" style="color: #000;">Assistance Sociale</h3>
+                            <p style="color: #666; font-size: 1rem; max-width: 500px; margin: 0 auto;">Soutien aux membres en difficulté et mise en place d'un fonds de solidarité.</p>
+                        </div>
+                    </div>
+                    <!-- 6. Partenariats -->
+                    <div class="carousel-item" style="flex: 0 0 100%;">
+
+                        <div class="text-center" style="padding: 40px; border: 2px solid #009739;border-radius: 15px; height: auto;">
+                            <div style="width: 80px; height: 80px; border-radius: 50%; background-color: #e8f5e9; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 40px;">
+                                🌐
+                            </div>
+                            <h3 class="text-2xl font-bold mb-3" style="color: #000;">Networking Professionnel</h3>
+                            <p style="color: #666; font-size: 1rem; max-width: 500px; margin: 0 auto;">Établissement de liens avec des professionnels et d'autres associations internationales.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="nextActivity()" class="absolute -right-5 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-lime-800 text-white rounded-full flex items-center justify-center shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+        </div>
+        
+        <div style="display: flex; justify-content: center; gap: 12px; margin-top: 32px;">
+            <span class="activity-dot" style="width: 12px; height: 12px; background-color: #009739; border-radius: 50%; cursor: pointer; transition: all 0.3s;" onclick="goToActivity(0)"></span>
+            <span class="activity-dot" style="width: 12px; height: 12px; background-color: #ccc; border-radius: 50%; cursor: pointer; transition: all 0.3s;" onclick="goToActivity(1)"></span>
+            <span class="activity-dot" style="width: 12px; height: 12px; background-color: #ccc; border-radius: 50%; cursor: pointer; transition: all 0.3s;" onclick="goToActivity(2)"></span>
+            <span class="activity-dot" style="width: 12px; height: 12px; background-color: #ccc; border-radius: 50%; cursor: pointer; transition: all 0.3s;" onclick="goToActivity(3)"></span>
+            <span class="activity-dot" style="width: 12px; height: 12px; background-color: #ccc; border-radius: 50%; cursor: pointer; transition: all 0.3s;" onclick="goToActivity(4)"></span>
+            <span class="activity-dot" style="width: 12px; height: 12px; background-color: #ccc; border-radius: 50%; cursor: pointer; transition: all 0.3s;" onclick="goToActivity(5)"></span>
+        </div>
+</section>
+
+<section class="executive-section">
+    <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-2.svg" alt="Pattern" class="section-pattern">
+    <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-13.svg" alt="Pattern" class="section-pattern-2">
+
+    <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+    </div>
+
+    <div class="container">
+        <div class="section-header">
+            <div class="section-title-with-icons">
+                
+                <h2> ⭐ Bureau Exécutif 2025-2026 ⭐</h2>
+                
+            </div>
+            <p>Rencontrez les leaders de notre communauté</p>
+        </div>
+
+        <div class="executive-grid">
+            <div class="executive-card">
+                <div class="executive-image">
+                    <img src="images/Presi.jpeg" alt="Sal">
+                    <p class="badge">⭐</p>
+                </div>
+                <div class="executive-info">
+                    <h3>SALIA ALI</h3>
+                    <p class="position">Président</p>
+                    <div class="executive-details">
+                        <div class="detail">
+                            <div class="detail-icon red-bg">
+                                <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-16.svg" alt="Icon">
+                            </div>
+                            <p>Master en Analyse de Données</p>
+                        </div>
+                        <div class="detail">
+                            <div class="detail-icon green-bg">
+                                <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-17.svg" alt="Icon">
+                            </div>
+                            <p>Université des Sciences et de la Technologie Houari Boumediene (USTHB)</p>
+                        </div>
+                    </div>
+                    <div class="executive-contact">
+                        <a href="mailto:president@uesba-dz.org">
+                            <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-18.svg" alt="Email">
+                            <span>president@uesba-dz.org</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="executive-card">
+                <div class="executive-image">
+                  <img src="images/chrgorg.jpeg" alt="Job">
+                  <p class="badge">⭐</p>
+                </div>
+              <div class="executive-info">
+              <h3>Job</h3>
+              <p class="position">Chargé Organisation</p>
+              <div class="executive-details">
+                     <div class="detail">
+                         <div class="detail-icon red-bg">
+                             <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-16.svg" alt="Icon">
+                         </div>
+                        <p>Doctorat en Médecine</p>
+                     </div>
+                    <div class="detail">
+                       <div class="detail-icon green-bg">
+                          <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-17.svg" alt="Icon">
+                       </div>
+                            <p>Université d'Alger 1 - Benyoucef Benkhedda</p>
+                        </div>
+                </div>
+    <div class="executive-contact">
+      <a href="mailto:vicepresident@uesba-dz.org">
+        <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-18.svg" alt="Email">
+        <span>vicepresident@uesba-dz.org</span>
+      </a>
+    </div>
+  </div>
+</div>  
+  <div class="executive-card">
+      <div class="executive-image">
+        <img src="images/affuniv.jpeg" alt="Yili">
+        <p class="badge">⭐</p>
+      </div>
+      <div class="executive-info">
+        <h3>Yili</h3>
+        <p class="position">Chargé Académique</p>
+        <div class="executive-details">
+          <div class="detail">
+            <div class="detail-icon red-bg">
+              <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-16.svg" alt="Icon">
+            </div>
+            <p>Master en Informatique</p>
+          </div>
+          <div class="detail">
+            <div class="detail-icon green-bg">
+              <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-17.svg" alt="Icon">
+            </div>
+            <p>École Nationale Supérieure d'Informatique (ESI)</p>
+          </div>
+        </div>
+        <div class="executive-contact">
+          <a href="mailto:secretaire@uesba-dz.org">
+            <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-18.svg" alt="Email">
+            <span>secretaire@uesba-dz.org</span>
+          </a>
+        </div>
+      </div>
+    </div>
+        <div class="executive-card">
+    <div class="executive-image">
+        <img src="images/ancientresorier.jpeg" alt="Sia RAO">
+        <p class="badge">⭐</p>
+    </div>
+    <div class="executive-info">
+        <h3>Sia RAOUL</h3>
+        <p class="position">Trésorier Général</p>
+        <div class="executive-details">
+            <div class="detail">
+                <div class="detail-icon red-bg">
+                    <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-16.svg" alt="Icon">
+                </div>
+                <p>Développeur Web et Infographie</p>
+            </div>
+            <div class="detail">
+                <div class="detail-icon green-bg">
+                    <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-17.svg" alt="Icon">
+                </div>
+                <p>Université d'Alger 3</p>
+            </div>
+        </div>
+        <div class="executive-contact">
+            <a href="mailto:tresorier@uesba-dz.org">
+                <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-18.svg" alt="Email">
+                <span>tresorier@uesba-dz.org</span>
+            </a>
+        </div>
+    </div>
+   </div>
+   <div class="executive-card">
+    <div class="executive-image">
+        <img src="images/vicepre.jpeg" alt="Cheick">
+        <p class="badge">⭐</p>
+    </div>
+    <div class="executive-info">
+        <h3>Cheick</h3>
+        <p class="position">Vice-Président</p>
+        <div class="executive-details">
+            <div class="detail">
+                <div class="detail-icon red-bg">
+                    <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-16.svg" alt="Icon">
+                </div>
+                <p>Master en Économie</p>
+            </div>
+            <div class="detail">
+                <div class="detail-icon green-bg">
+                    <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-17.svg" alt="Icon">
+                </div>
+                <p>Université d'Alger 2 - Abou El Kacem Saâdallah</p>
+            </div>
+        </div>
+        <div class="executive-contact">
+            <a href="mailto:commissaire@uesba-dz.org">
+                <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-18.svg" alt="Email">
+                <span>commissaire@uesba-dz.org</span>
+            </a>
+        </div>
+    </div>
+</div>
+<div class="executive-card">
+  <div class="executive-image">
+    <img src="images/patrice.jpeg" alt="Patrice">
+    <p class="badge">⭐</p>
+  </div>
+  <div class="executive-info">
+    <h3>Patrice</h3>
+    <p class="position">Responsable Communication</p>
+    <div class="executive-details">
+      <div class="detail">
+        <div class="detail-icon red-bg">
+          <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-16.svg" alt="Icon">
+        </div>
+        <p>Master en Communication et Journalisme</p>
+      </div>
+      <div class="detail">
+        <div class="detail-icon green-bg">
+          <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-17.svg" alt="Icon">
+        </div>
+        <p>Université d'Alger 3</p>
+      </div>
+    </div>
+    <div class="executive-contact">
+      <a href="mailto:communication@uesba-dz.org">
+        <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-18.svg" alt="Email">
+        <span>communication@uesba-dz.org</span>
+      </a>
+    </div>
+  </div>
+</div>
+</div>
+<div class="section-footer">
+    <a style="text-decoration: none;" href="apropos.html" class="btn btn-primary">
+     Voir Tous les Bureaux <img src="https://img.icons8.com/ios-filled/24/ffffff/arrow.png" alt="Arrow" style="vertical-align:middle;margin-left:8px;"/>
+        
+    </a>
+</div>
+</div> 
+
+    <section style="margin-top: 40px;" class="events-section">
+         <div class="section">
+           <a href="evenements.html" class="btn-top-right">
+              Voir Tout →
+           </a>
+        </div>
+        <div class="flex justify-between items-end mb-12 max-w-6xl mx-auto">
+            <div>
+                <h2 class="text-3xl md:text-4xl mb-2 text-left">Événements à Venir</h2>
+                <p class="text-gray-500 text-sm">Découvrez nos prochains événements</p>
+            </div>
+            
+        </div>
+       
+            <div style="margin-top: 20px;" class="container">
+                
+                
+                <div style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: flex-start;">
+                                    
+                                        
+                    
+                    <!-- Carte 1 : conference-->
+                    <div style="background: #fff; border-radius: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); width: 350px; overflow: hidden; display: flex; flex-direction: column;">
+                        <div style="position: relative;">
+                            <img src="images/img.jpeg" alt="Conférence" style="width: 100%; height: 220px; object-fit: cover;">
+                            <span style="position: absolute; top: 1rem; right: 1rem; background: #e74c3c; color: #fff; border-radius: 1.5rem; padding: 0.5rem 1.2rem; font-weight: bold; font-size: 1rem;">Conférence</span>
+                        </div>
+                        <div style="padding: 1.5rem 1.2rem 1rem 1.2rem; flex: 1; display: flex; flex-direction: column;">
+                            <div style="display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 220px;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem; color: #27ae60; font-size: 1rem; margin-bottom: 0.5rem;">
+                                        <span style="font-size: 1.2rem;">&#128197;</span>
+                                        <span>15 février 2026</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem; color: #555; font-size: 1rem; margin-bottom: 1rem;">
+                                        <span style="font-size: 1.2rem;">&#128205;</span>
+                                        <span>Université d'Alger 1, Amphithéâtre Central</span>
+                                    </div>
+                                    <h3 style="font-size: 1.3rem; font-weight: bold; margin: 0 0 0.5rem 0;">Conférence sur l'Entrepreneuriat Étudiant</h3>
+                                    <p style="color: #333; font-size: 1rem; margin-bottom: 1.5rem;">Participez à notre conférence sur l'entrepreneuriat étudiant animée par des entrepreneurs burkinabè à succès établis …</p>
+                                </div>
+                                <a href="conference-details.html" style="background: #219653; color: #fff; border-radius: 0.5rem; padding: 0.7rem 2rem; text-align: center; text-decoration: none; font-weight: 600; margin-top: auto;">Voir Détails</a>
+                            </div>
+                        </div>
+                    </div>
+                   
+
+                    <!-- Carte 2 :Culture-->
+                                 <div style="background: #fff; border-radius: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); width: 350px; overflow: hidden; display: flex; flex-direction: column;">
+                                        <div style="position: relative;">
+                                          <img src="images/img.jpeg" alt="Soirée Culturelle" style="width: 100%; height: 220px; object-fit: cover;">
+                                          <span style="position: absolute; top: 1rem; right: 1rem; background: #e74c3c; color: #fff; border-radius: 1.5rem; padding: 0.5rem 1.2rem; font-weight: bold; font-size: 1rem;">Culturel</span>
+                                        </div>
+                                     <div style="padding: 1.5rem 1.2rem 1rem 1.2rem; flex: 1; display: flex; flex-direction: column;">
+                                        <div style="display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 220px;">
+                                            <div>
+                                                <div style="display: flex; align-items: center; gap: 0.5rem; color: #27ae60; font-size: 1rem; margin-bottom: 0.5rem;">
+                                                   <span style="font-size: 1.2rem;">&#128197;</span>
+                                                   <span>5 août 2026</span>
+                                                </div>
+                                                <div style="display: flex; align-items: center; gap: 0.5rem; color: #555; font-size: 1rem; margin-bottom: 1rem;">
+                                                     <span style="font-size: 1.2rem;">&#128205;</span>
+                                                    <span>Palais de la Culture Moufdi Zakaria, Alger</span>
+                                              </div>
+                                                  <h3 style="font-size: 1.3rem; font-weight: bold; margin: 0 0 0.5rem 0;">Soirée Culturelle : Fête de l'Indépendance</h3>
+                                                  <p style="color: #333; font-size: 1rem; margin-bottom: 1.5rem;">Célébrons ensemble le 65ème anniversaire de l'indépendance du Burkina Faso avec une grande soirée cultu..</p>
+                                            </div>
+                                               <a href="culture-details.html" style="background: #219653; color: #fff; border-radius: 0.5rem; padding: 0.7rem 2rem; text-align: center; text-decoration: none; font-weight: 600; margin-top: auto;">Voir Détails</a>
+                                        </div>
+                                      </div>
+                                 </div>
+                                     
+                                        
+                </div>
+            </div>
+   </section>
+
+    <!-- Section Actualités Récentes  -->
+<section style="margin-top: 60px; padding: 60px 0; background: #f8f9fa;">
+    <div class="container">
+         <div style="position: relative; margin-bottom: 50px;">
+           <a href="actualites.html" class="btn-top-right">
+              Voir Tout →
+           </a>
+           <div>
+                <h2 style="font-size: 2.5rem; font-weight: bold; margin-bottom: 8px; color: #000;">Actualités Récentes</h2>
+                <p style="color: #666; font-size: 1rem;">Restez informés de nos dernières nouvelles</p>
+            </div>
+        </div>
+
+        <div class="relative max-w-5xl mx-auto group">
+            <button onclick="prevNews()" class="absolute -left-5 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-lime-800 text-white rounded-full flex items-center justify-center shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+
+            <div class="carousel-container">
+                <div id="news-track" class="carousel-track">
+                    <!-- News 1 -->
+                    <div class="carousel-item" style="flex: 0 0 100%;">
+                        <div class="bg-white rounded-lg overflow-hidden shadow-md flex flex-col md:flex-row" style="min-height: 340px;">
+                            <div class="md:w-2/5 relative h-64 md:h-auto overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=500&h=400&q=80" alt="AG" class="w-full h-full object-cover">
+                                <span class="absolute top-4 left-4 bg-lime-700 text-white text-xs px-4 py-1 rounded-full uppercase font-bold">Événements</span>
+                            </div>
+                            <div class="md:w-3/5 p-8 md:p-10 flex flex-col justify-center">
+                                <div class="flex items-center gap-2 text-lime-700 text-sm font-medium mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M6 2h12a2 2 0 012 2v16a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/>
+                                    </svg>
+                                    15 janvier 2026
+                                </div>
+                                <h3 class="text-2xl font-bold mb-4" style="color: #000;">Assemblée Générale 2026 :<br>Bilan et Perspectives</h3>
+                                <p class="text-gray-600 text-base mb-6 flex-1">Retour sur l'assemblée générale annuelle qui s'est tenue le 15 janvier 2026 à Alger.</p>
+                                <button class="bg-lime-700 hover:bg-lime-800 text-white px-6 py-3 rounded font-medium w-full transition-all text-center">
+                                    Lire Plus →
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- News 2 -->
+                    <div class="carousel-item" style="flex: 0 0 100%;">
+                        <div class="bg-white rounded-lg overflow-hidden shadow-md flex flex-col md:flex-row" style="min-height: 340px;">
+                            <div class="md:w-2/5 relative h-64 md:h-auto overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=500&h=400&q=80" alt="Culture" class="w-full h-full object-cover">
+                                <span class="absolute top-4 left-4 bg-lime-700 text-white text-xs px-4 py-1 rounded-full uppercase font-bold">Culture</span>
+                            </div>
+                            <div class="md:w-3/5 p-8 md:p-10 flex flex-col justify-center">
+                                <div class="flex items-center gap-2 text-lime-700 text-sm font-medium mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M6 2h12a2 2 0 012 2v16a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/>
+                                    </svg>
+                                    05 février 2026
+                                </div>
+                                <h3 class="text-2xl font-bold mb-4" style="color: #000;">Soirée Culturelle :<br>Célébrer nos Racines</h3>
+                                <p class="text-gray-600 text-base mb-6 flex-1">Une soirée exceptionnelle dédiée aux danses et mets traditionnels du Faso pour tous les étudiants burkinabè.</p>
+                                <button class="bg-lime-700 hover:bg-lime-800 text-white px-6 py-3 rounded font-medium w-full transition-all text-center">
+                                    Lire Plus →
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- News 3 -->
+                    <div class="carousel-item" style="flex: 0 0 100%;">
+                        <div class="bg-white rounded-lg overflow-hidden shadow-md flex flex-col md:flex-row" style="min-height: 340px;">
+                            <div class="md:w-2/5 relative h-64 md:h-auto overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=500&h=400&q=80" alt="Sport" class="w-full h-full object-cover">
+                                <span class="absolute top-4 left-4 bg-lime-700 text-white text-xs px-4 py-1 rounded-full uppercase font-bold">Sport</span>
+                            </div>
+                            <div class="md:w-3/5 p-8 md:p-10 flex flex-col justify-center">
+                                <div class="flex items-center gap-2 text-lime-700 text-sm font-medium mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M6 2h12a2 2 0 012 2v16a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/>
+                                    </svg>
+                                    12 mars 2026
+                                </div>
+                                <h3 class="text-2xl font-bold mb-4" style="color: #000;">Coupe de l'Espoir :<br>Finale en Vue</h3>
+                                <p class="text-gray-600 text-base mb-6 flex-1">Le tournoi de football inter-villes touche à sa fin. Rejoignez-nous pour soutenir vos équipes favorites !</p>
+                                <button class="bg-lime-700 hover:bg-lime-800 text-white px-6 py-3 rounded font-medium w-full transition-all text-center">
+                                    Lire Plus →
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="nextNews()" class="absolute -right-5 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-lime-800 text-white rounded-full flex items-center justify-center shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</section>
+   </section>
+
+  <!-- Footer-->
+     <footer class="footer">
+     <div class="container">
+        <div class="footer-content">
+            <div class="footer-column">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <p class="badge">⭐</p>
+                    </div>
+                    <h3>UESBA</h3>
+                </div>
+                <p>Union des Étudiants et Stagiaires Burkinabè en Algérie - Solidarité, Excellence, Unité</p>
+            </div>
+
+            <div class="footer-column">
+                <h4>Contact</h4>
+                <div class="contact-item">
+                    <img src="https://img.icons8.com/ios-filled/24/198754/marker.png" alt="Location">
+                    <p>Alger, Algérie</p>
+                </div>
+                <div class="contact-item">
+                    <img src="https://img.icons8.com/ios-filled/24/198754/phone.png" alt="Phone">
+                    <p>+213 XX XXX XXXX</p>
+                </div>
+                <div class="contact-item">
+                    <img src="https://img.icons8.com/ios-filled/24/198754/new-post.png" alt="Email">
+                    <p>contact@uesba-dz.org</p>
+                </div>
+            </div>
+        <div class="footer-column">
+                <h4>Suivez-nous</h4>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook">
+                        <img src="https://img.icons8.com/color/32/000000/facebook-new.png" alt="Facebook">
+                    </a>
+                    <a href="#" aria-label="Twitter">
+                        <img src="https://img.icons8.com/color/32/000000/twitter--v1.png" alt="Twitter">
+                    </a>
+                    <a href="#" aria-label="Instagram">
+                        <img src="https://img.icons8.com/color/32/000000/instagram-new.png" alt="Instagram">
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="developers">
+                <p><strong>Site développé par :</strong></p>
+                <p>SIA RAOUL • ALI SALIA • TALL • BA</p>
+            </div>
+            <div class="footer-legal">
+                <p>© 2026 UESBA. Tous droits réservés.</p>
+                <div class="legal-links">
+                    <a href="#">Mentions Légales</a>
+                    <a href="#">Politique de Confidentialité</a>
+                </div>
+            </div>
+        </div>
+      </div>
+    </footer>
+
+
+<script src="js/script.js"></script>
+<script>
+document.querySelectorAll('.nav-link').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const page = btn.getAttribute('data-page');
+        if(page) window.location.href = page;
+    });
+});
+document.querySelectorAll('.mobile-nav-link').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const page = btn.getAttribute('data-page');
+        if(page) window.location.href = page;
+    });
+});
+</script>
+    <script>
+        // Configuration Activités (6 items)
+        const activityTrack = document.getElementById('activity-track');
+        const activityCount = 6;
+        let currentActivityIndex = 0;
+
+        function updateActivityCarousel() {
+            activityTrack.style.transform = `translateX(-${currentActivityIndex * 100}%)`;
+            document.querySelectorAll('.activity-dot').forEach((dot, idx) => {
+                if (idx === currentActivityIndex) {
+                    dot.style.backgroundColor = '#009739';
+                } else {
+                    dot.style.backgroundColor = '#ccc';
+                }
+            });
+        }
+
+        function nextActivity() {
+            currentActivityIndex = (currentActivityIndex + 1) % activityCount;
+            updateActivityCarousel();
+        }
+
+        function prevActivity() {
+            currentActivityIndex = (currentActivityIndex - 1 + activityCount) % activityCount;
+            updateActivityCarousel();
+        }
+
+        function goToActivity(index) {
+            currentActivityIndex = index;
+            updateActivityCarousel();
+        }
+
+        // Auto-play (5 secondes)
+        let activityInterval = setInterval(nextActivity, 5000);
+
+        // Configuration Actualités (3 items)
+        const newsTrack = document.getElementById('news-track');
+        const newsCount = 3;
+        let currentNewsIndex = 0;
+
+        function updateNewsCarousel() {
+            newsTrack.style.transform = `translateX(-${currentNewsIndex * 100}%)`;
+        }
+
+        function nextNews() {
+            currentNewsIndex = (currentNewsIndex + 1) % newsCount;
+            updateNewsCarousel();
+        }
+
+        function prevNews() {
+            currentNewsIndex = (currentNewsIndex - 1 + newsCount) % newsCount;
+            updateNewsCarousel();
+        }
+
+        // Auto-play pour les actualités (5 secondes)
+        let newsInterval = setInterval(nextNews, 5000);
+
+        // Pause auto-play sur hover
+        activityTrack.parentElement.parentElement.addEventListener('mouseenter', () => clearInterval(activityInterval));
+        activityTrack.parentElement.parentElement.addEventListener('mouseleave', () => activityInterval = setInterval(nextActivity, 5000));
+
+        // Pause auto-play des actualités sur hover
+        newsTrack.parentElement.parentElement.addEventListener('mouseenter', () => clearInterval(newsInterval));
+        newsTrack.parentElement.parentElement.addEventListener('mouseleave', () => newsInterval = setInterval(nextNews, 5000));
+    </script>
+</body>
+</html>

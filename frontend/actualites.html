@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualités - UESBA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <header id="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">
+                    <div class="logo-image">
+                        <img src="images/img.jpeg" alt="">
+                    </div>
+                    <div class="logo-text desktop">
+                        <h1>UESBA</h1>
+                        <p>Union des Étudiants  et Stagiaires Burkinabè en Algerie</p>
+                    </div>
+                    
+                </a>
+
+                <nav class="desktop-nav">
+                    <a class="nav-link" href="index.html">Accueil</a>
+                    <a class="nav-link active" href="actualites.html">Actualités</a>
+                    <a class="nav-link" href="evenements.html">Événements</a>
+                    <a class="nav-link" href="apropos.html">À Propos</a>
+                    <a class="nav-link" href="contact.html">Contact</a>
+                </nav>
+
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                   <img src="https://img.icons8.com/ios-filled/32/198754/menu--v1.png" alt="Menu" class="menu-icon">
+                    <svg class="close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+           </div>
+        </div>
+   </header>
+
+   <div class="mobile-menu" id="mobileMenu">
+     <nav>
+        <button class="mobile-nav-link" data-page="index.html">Accueil</button>
+        <button class="mobile-nav-link active" data-page="actualites.html">Actualités</button>
+        <button class="mobile-nav-link" data-page="evenements.html">Événements</button>
+        <button class="mobile-nav-link" data-page="apropos.html">À Propos</button>
+        <button class="mobile-nav-link" data-page="contact.html">Contact</button>
+     </nav>
+   </div>
+        
+     <h1 style="text-align:center; margin-top:32px;">DGCOB - Burkina Faso</h1>
+     <p style="text-align: center;">Direction Générale de la Coopération et des Bourses</p>
+
+        <!-- Encadré DGCOB -->
+        <section class="dgcob-box">
+             <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-2.svg" alt="Pattern" class="section-pattern">
+    <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-13.svg" alt="Pattern" class="section-pattern-2">
+
+    <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+    </div>
+            <div class="dgcob-flex">
+                <div class="dgcob-about">
+                    <h2>À propos de la DGCOB</h2>
+                    <p>La Direction Générale de la Coopération et des Bourses (DGCOB) du Burkina Faso gère les programmes de bourses et la coopération éducative internationale. Elle accompagne les étudiants burkinabè dans leur parcours académique à l'étranger.</p>
+                    <ul class="dgcob-services">
+                        <li><span class="dgcob-icon" style="background:#e6f4ea;"><img src="https://img.icons8.com/ios-filled/24/009739/scholarship.png" alt="Bourse"/></span> Gestion des bourses d'études</li>
+                        <li><span class="dgcob-icon" style="background:#fdeaea;"><img src="https://img.icons8.com/ios-filled/24/fa314a/globe--v1.png" alt="Coopération"/></span> Coopération éducative internationale</li>
+                        <li><span class="dgcob-icon" style="background:#fdf7e3;"><img src="https://img.icons8.com/ios-filled/24/ffc107/graduation-cap.png" alt="Suivi"/></span> Suivi des étudiants à l'étranger</li>
+                    </ul>
+                </div>
+                <div class="dgcob-links">
+                    <h2>Liens Utiles</h2>
+                    <a class="dgcob-link dgcob-link-green" href="https://dgcob.gov.bf" target="_blank">
+                        <img src="https://img.icons8.com/ios-filled/20/ffffff/external-link.png" alt="Site"/> Site Officiel DGCOB
+                        <span class="dgcob-link-url">dgcob.gov.bf</span>
+                    </a>
+                    <a class="dgcob-link dgcob-link-red" href="https://facebook.com/DGCOB.BurkinaFaso" target="_blank">
+                        <img src="https://img.icons8.com/ios-filled/20/ffffff/facebook-new.png" alt="Facebook"/> Page Facebook DGCOB
+                        <span class="dgcob-link-url">@DGCOB.BurkinaFaso</span>
+                    </a>
+                    <div class="dgcob-note">
+                        <img src="https://img.icons8.com/ios-filled/18/009739/info.png" alt="Info"/>
+                        Consultez régulièrement ces plateformes pour les appels à candidatures et les annonces officielles
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+
+    <section class="news-section">
+         
+       <div class="container">
+       
+       <div class="news-tabs">
+            <button class="news-tab active" data-filter="all">Toutes</button>
+            <button class="news-tab" data-filter="annonces">Annonces</button>
+            <button class="news-tab" data-filter="evenements">Événements</button>
+            <button class="news-tab" data-filter="academique">Académique</button>
+            <button class="news-tab" data-filter="social">Social</button>
+        </div>
+        <div class="news-grid">
+            <!-- Événements -->
+            <article class="news-card" data-category="evenements">
+                <div class="news-image news-image-badge">
+                    <span class="news-badge badge-green">Événements</span>
+                    <img src="https://images.unsplash.com/photo-1758611974036-56eb4dd33872?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="Assemblée Générale">
+                </div>
+                <div class="news-meta">
+                    <span class="news-date"><img src="https://img.icons8.com/ios-glyphs/16/888888/calendar--v1.png"/> 15 janvier 2026</span>
+                    <span class="news-author"><img src="https://img.icons8.com/ios-glyphs/16/888888/user--v1.png"/> Bureau Exécutif UESBA</span>
+                </div>
+                <div class="news-content">
+                    <h3>Assemblée Générale 2026 : Bilan et Perspectives</h3>
+                    <p>Retour sur l'assemblée générale annuelle qui s'est tenue le 15 janvier 2026 à Alger.</p>
+                    <a href="#" class="news-btn">Lire l'Article</a>
+                </div>
+            </article>
+            <!-- Académique -->
+            <article class="news-card" data-category="academique">
+                <div class="news-image news-image-badge">
+                    <span class="news-badge badge-green">Académique</span>
+                    <img src="https://images.unsplash.com/photo-1653250198948-1405af521dbb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="Bourses d'Études">
+                </div>
+                <div class="news-meta">
+                    <span class="news-date"><img src="https://img.icons8.com/ios-glyphs/16/888888/calendar--v1.png"/> 20 janvier 2026</span>
+                    <span class="news-author"><img src="https://img.icons8.com/ios-glyphs/16/888888/user--v1.png"/> Commission Académique</span>
+                </div>
+                <div class="news-content">
+                    <h3>Bourses d'Études : Nouvelles Opportunités 2026</h3>
+                    <p>Découvrez les nouvelles bourses disponibles pour les étudiants burkinabè en Algérie.</p>
+                    <a href="#" class="news-btn">Lire l'Article</a>
+                </div>
+            </article>
+            <!-- Culture -->
+            <article class="news-card" data-category="culture">
+                <div class="news-image news-image-badge">
+                    <span class="news-badge badge-green">Culture</span>
+                    <img src="https://mobile-seven-97379254.figma.site/_assets/v11/440ef77020da39039d7fd00e4ab5e34565871da1.png" alt="Journée Culturelle">
+                </div>
+                <div class="news-meta">
+                    <span class="news-date"><img src="https://img.icons8.com/ios-glyphs/16/888888/calendar--v1.png"/> 25 janvier 2026</span>
+                    <span class="news-author"><img src="https://img.icons8.com/ios-glyphs/16/888888/user--v1.png"/> Commission Culture</span>
+                </div>
+                <div class="news-content">
+                    <h3>Journée Culturelle Burkinabè : Un Succès Éclatant</h3>
+                    <p>Plus de 500 participants à la journée culturelle organisée par l'UESBA le 25 janvier.</p>
+                    <a href="#" class="news-btn">Lire l'Article</a>
+                </div>
+            </article>
+        </div>
+      </div>
+   </section>
+
+      <!-- Footer-->
+     <footer class="footer">
+     <div class="container">
+        <div class="footer-content">
+            <div class="footer-column">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <img src="https://img.icons8.com/ios-filled/32/198754/graduation-cap.png" alt="UESBA">
+                    </div>
+                    <h3>UESBA</h3>
+                </div>
+                <p>Union des Étudiants et Stagiaires Burkinabè en Algérie - Solidarité, Excellence, Unité</p>
+            </div>
+
+            <div class="footer-column">
+                <h4>Contact</h4>
+                <div class="contact-item">
+                    <img src="https://img.icons8.com/ios-filled/24/198754/marker.png" alt="Location">
+                    <p>Alger, Algérie</p>
+                </div>
+                <div class="contact-item">
+                    <img src="https://img.icons8.com/ios-filled/24/198754/phone.png" alt="Phone">
+                    <p>+213 XX XXX XXXX</p>
+                </div>
+                <div class="contact-item">
+                    <img src="https://img.icons8.com/ios-filled/24/198754/new-post.png" alt="Email">
+                    <p>contact@uesba-dz.org</p>
+                </div>
+            </div>
+        <div class="footer-column">
+                <h4>Suivez-nous</h4>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook">
+                        <img src="https://img.icons8.com/color/32/000000/facebook-new.png" alt="Facebook">
+                    </a>
+                    <a href="#" aria-label="Twitter">
+                        <img src="https://img.icons8.com/color/32/000000/twitter--v1.png" alt="Twitter">
+                    </a>
+                    <a href="#" aria-label="Instagram">
+                        <img src="https://img.icons8.com/color/32/000000/instagram-new.png" alt="Instagram">
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="developers">
+                <p><strong>Site développé par :</strong></p>
+                <p>SIA RAOUL • ALI SALIA • TALL • BA</p>
+            </div>
+            <div class="footer-legal">
+                <p>© 2026 UESBA. Tous droits réservés.</p>
+                <div class="legal-links">
+                    <a href="#">Mentions Légales</a>
+                    <a href="#">Politique de Confidentialité</a>
+                </div>
+            </div>
+        </div>
+      </div>
+    </footer>
+<script src="js/main.js"></script>
+<script>
+document.querySelectorAll('.nav-link').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const page = btn.getAttribute('data-page');
+        if(page) window.location.href = page;
+    });
+});
+document.querySelectorAll('.mobile-nav-link').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const page = btn.getAttribute('data-page');
+        if(page) window.location.href = page;
+    });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UESBA - Union des Étudiants Burkinabè en Algérie</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap');
+
+        body {
+            font-family:'Times New Roman', Times, serif;
+            background-color: #f9fafb;
+            color: #374151;
+        }
+
+        h1, h2, h3, .serif-font {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .navbar {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .btn-nav {
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+        .btn-nav.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #059669;
+        }
+
+        .stats-bg {
+            background-color: #166534;
+        }
+
+        .border-accent-green { border-left: 4px solid #059669; }
+        .border-accent-red { border-left: 4px solid #dc2626; }
+        .border-accent-yellow { border-left: 4px solid #eab308; }
+
+        .profile-img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+        }
+        .ligne {
+            font-family: 'Times New Roman', Times, serif;
+  display: flex;
+  justify-content: space-between;
+}
+    </style>
+</head>
+<body>
+<img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-2.svg" alt="Pattern" class="section-pattern">
+    <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-13.svg" alt="Pattern" class="section-pattern-2">
+
+    <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+    </div>
+    <!-- Header / Navbar -->
+   <header id="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">
+                    <div class="logo-image">
+                        <img src="images/img.jpeg" alt="">
+                    </div>
+                    <div class="logo-text desktop">
+                        <h1>UESBA</h1>
+                        <p>Union des Étudiants  et Stagiaires Burkinabè en Algerie</p>
+                    </div>
+                    
+                </a>
+
+                <nav class="desktop-nav">
+                    <a class="nav-link" href="index.html">Accueil</a>
+                    <a class="nav-link active" href="actualites.html">Actualités</a>
+                    <a class="nav-link" href="evenements.html">Événements</a>
+                    <a class="nav-link" href="apropos.html">À Propos</a>
+                    <a class="nav-link" href="contact.html">Contact</a>
+                </nav>
+
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                   <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-1.svg" alt="Menu" class="menu-icon">
+                    <svg class="close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+           </div>
+        </div>
+   </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-12 space-y-24">
+
+        <!-- Section Notre Histoire -->
+        <section class="text-center max-w-4xl mx-auto">
+            <div class="flex flex-col items-center mb-6">
+                <div class="bg-emerald-800 text-white p-4 rounded-full mb-4">
+                    <i class="fas fa-users text-2xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold">Notre Histoire</h2>
+            </div>
+            <div class="space-y-6 text-gray-600 leading-relaxed text-lg">
+                <p>L'Union des Étudiants et Stagiaires Burkinabè en Algérie (UESBA) a été créée en 2010 par un groupe d'étudiants burkinabè soucieux de renforcer les liens de solidarité et d'entraide au sein de la communauté étudiante burkinabè en Algérie.</p>
+                <p>Depuis sa création, l'UESBA s'est imposée comme une organisation incontournable pour l'accompagnement et le soutien des étudiants burkinabè poursuivant leurs études en Algérie. Notre union compte aujourd'hui plus de 500 membres actifs répartis dans les différentes universités et instituts algériens.</p>
+                <p>Au fil des années, l'UESBA a organisé de nombreux événements culturels, académiques et sportifs, contribuant ainsi au rayonnement de la culture burkinabè en Algérie et au renforcement des liens d'amitié entre les deux peuples.</p>
+            </div>
+        </section>
+
+        <!-- Section Ambassade -->
+        <section class="space-y-10">
+            <div class="text-center">
+                <h2 class="text-4xl font-bold text-gray-800">⭐ Ambassade du Burkina Faso en Algérie ⭐</h2>
+                <p class="text-gray-500 mt-2 italic">Votre représentation diplomatique au service de la communauté burkinabè en Algérie</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 items-stretch">
+                <!-- Carte Ambassadeur -->
+                <div class="card overflow-hidden flex flex-col">
+                    <div class="relative h-80 bg-gray-300">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="M. Yacouba OUEDRAOGO" class="w-full h-full object-cover grayscale contrast-125">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent text-white">
+                            <h3 class="text-xl font-bold">⭐ Son Excellence</h3>
+                            <p class="text-yellow-400 font-bold">M. Yacouba OUEDRAOGO</p>
+                            <p class="text-sm opacity-90">Ambassadeur du Burkina Faso en Algérie</p>
+                        </div>
+                    </div>
+                    <div class="bg-emerald-800 p-6 text-white italic text-center">
+                        "Au service de la communauté burkinabè en Algérie, nous œuvrons pour renforcer les liens d'amitié et de coopération entre nos deux pays frères."
+                        <div class="mt-2 text-yellow-400">★</div>
+                    </div>
+                </div>
+
+                <!-- Coordonnées -->
+                <div class="card p-8 border-accent-red space-y-8 flex flex-col justify-between">
+                    <div class="relative h-48 bg-gray-100 rounded-lg overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1526772662000-3f88f10405ff?w=800" alt="Façade Ambassade" class="w-full h-full object-cover">
+                        <div class="absolute top-4 right-4 bg-yellow-400 text-white p-2 rounded-full shadow-lg">
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <h3 class="text-2xl font-bold flex items-center">
+                            <i class="fas fa-location-dot text-red-600 mr-3"></i> Coordonnées
+                        </h3>
+                        
+                        <div class="grid gap-4">
+                            <div class="flex items-start space-x-4">
+                                <div class="bg-green-100 p-2 rounded-lg text-green-700">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-gray-700">Adresse</p>
+                                    <p class="text-gray-500 text-sm">Lot 59, Cité Ben Aknoun<br>Alger 16000, Algérie</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start space-x-4">
+                                <div class="bg-red-100 p-2 rounded-lg text-red-700">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-gray-700">Téléphone</p>
+                                    <p class="text-gray-500 text-sm">+213 (0) 21 354 78 91</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start space-x-4">
+                                <div class="bg-yellow-100 p-2 rounded-lg text-yellow-700">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-gray-700">Email</p>
+                                    <p class="text-gray-500 text-sm">ambassade.burkinafaso@alger.dz</p>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <h3> <b>Heures d'ouverture</b></h3>
+                        <div class="ligne">
+                          <span>Lundi - Jeudi :</span>
+                          <span>8h30 - 16h30</span>
+                        </div>
+                        <div class="ligne">
+                          <span>Vendredi:</span>
+                          <span>8h30 - 12h30</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Services Section -->
+            <div class="grid md:grid-cols-3 gap-6 pt-8">
+                <div class="card p-6 border-b-4 border-green-600 text-center">
+                    <div class="bg-green-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h4 class="font-bold mb-2">Services Consulaires</h4>
+                    <p class="text-xs text-gray-500">Passeports, visas, légalisations</p>
+                </div>
+                <div class="card p-6 border-b-4 border-red-600 text-center">
+                    <div class="bg-red-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                    <h4 class="font-bold mb-2">Assistance</h4>
+                    <p class="text-xs text-gray-500">Aide aux ressortissants burkinabè</p>
+                </div>
+                <div class="card p-6 border-b-4 border-yellow-600 text-center">
+                    <div class="bg-yellow-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-yellow-600">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h4 class="font-bold mb-2">Démarches</h4>
+                    <p class="text-xs text-gray-500">Documents administratifs</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Mission & Valeurs -->
+        <section class="space-y-12">
+            <h2 class="text-4xl font-bold text-center">Mission & Valeurs</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="card p-8 text-center border-accent-green">
+                    <div class="icon-box bg-green-800 text-white mx-auto">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Notre Mission</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed">Rassembler, soutenir et accompagner les étudiants burkinabè en Algérie dans leur parcours académique et leur intégration sociale et culturelle.</p>
+                </div>
+                <div class="card p-8 text-center border-accent-red">
+                    <div class="icon-box bg-red-600 text-white mx-auto">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Solidarité</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed">Créer un environnement d'entraide où chaque membre peut compter sur le soutien de la communauté dans les moments difficiles et de réussite.</p>
+                </div>
+                <div class="card p-8 text-center border-accent-yellow">
+                    <div class="icon-box bg-yellow-500 text-white mx-auto">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Excellence</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed">Promouvoir la réussite académique et professionnelle à travers des programmes de mentorat, d'orientation et de développement des compétences.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bureau Exécutif -->
+        <section class="space-y-12">
+            <div class="text-center">
+                <h2 class="text-4xl font-bold">⭐ Bureau Exécutif Actuel ⭐</h2>
+                <p class="text-gray-500 font-medium">Mandat 2025-2026</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Salia ALI -->
+                <div class="card overflow-hidden group">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400" alt="Salia ALI" class="profile-img">
+                        <div class="absolute top-4 right-4 text-yellow-400">
+                            <i class="fas fa-star fa-2x"></i>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 text-white">
+                            <h4 class="text-xl font-bold">Salia ALI</h4>
+                            <p class="text-yellow-400 text-sm font-semibold">Président</p>
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-book text-emerald-700 mr-3 w-5"></i>
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase">Spécialité</p>
+                                <p class="font-medium">Master en Analyse de Données</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-university text-emerald-700 mr-3 w-5"></i>
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase">Université</p>
+                                <p class="font-medium">USTHB Alger</p>
+                            </div>
+                        </div>
+                        <a href="mailto:president@uesba-dz.org" class="text-emerald-700 text-sm flex items-center">
+                            <i class="fas fa-envelope mr-2"></i> president@uesba-dz.org
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Job -->
+                <div class="card overflow-hidden group border-t-4 border-green-800">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400" alt="Job" class="profile-img">
+                        <div class="absolute top-4 right-4 text-yellow-400">
+                            <i class="fas fa-star fa-2x"></i>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 text-white">
+                            <h4 class="text-xl font-bold">Job</h4>
+                            <p class="text-yellow-400 text-sm font-semibold">Chargé Organisation</p>
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-graduation-cap text-emerald-700 mr-3 w-5"></i>
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase">Spécialité</p>
+                                <p class="font-medium">Doctorat en Médecine</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-university text-emerald-700 mr-3 w-5"></i>
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase">Université</p>
+                                <p class="font-medium">Université d'Alger 1</p>
+                            </div>
+                        </div>
+                        <a href="mailto:vicepresident@uesba-dz.org" class="text-emerald-700 text-sm flex items-center">
+                            <i class="fas fa-envelope mr-2"></i> vicepresident@uesba-dz.org
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Yili -->
+                <div class="card overflow-hidden group">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?w=400" alt="Yili" class="profile-img">
+                        <div class="absolute top-4 right-4 text-yellow-400">
+                            <i class="fas fa-star fa-2x"></i>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 text-white">
+                            <h4 class="text-xl font-bold">Yili</h4>
+                            <p class="text-yellow-400 text-sm font-semibold">Chargé Académique</p>
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-laptop-code text-emerald-700 mr-3 w-5"></i>
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase">Spécialité</p>
+                                <p class="font-medium">Master en Informatique</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-university text-emerald-700 mr-3 w-5"></i>
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase">Université</p>
+                                <p class="font-medium">ESI Alger</p>
+                            </div>
+                        </div>
+                        <a href="mailto:secretaire@uesba-dz.org" class="text-emerald-700 text-sm flex items-center">
+                            <i class="fas fa-envelope mr-2"></i> secretaire@uesba-dz.org
+                        </a>
+                    </div>
+                </div>
+                <!-- Salia ALI -->
+                <div class="card overflow-hidden group">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400" alt="Salia ALI" class="profile-img">
+                        <div class="absolute top-4 right-4 text-yellow-400">
+                            <i class="fas fa-star fa-2x"></i>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 text-white">
+                            <h4 class="text-xl font-bold">Salia ALI</h4>
+                            <p class="text-yellow-400 text-sm font-semibold">Président</p>
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-book text-emerald-700 mr-3 w-5"></i>
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase">Spécialité</p>
+                                <p class="font-medium">Master en Analyse de Données</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-university text-emerald-700 mr-3 w-5"></i>
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase">Université</p>
+                                <p class="font-medium">USTHB Alger</p>
+                            </div>
+                        </div>
+                        <a href="mailto:president@uesba-dz.org" class="text-emerald-700 text-sm flex items-center">
+                            <i class="fas fa-envelope mr-2"></i> president@uesba-dz.org
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Job -->
+                <div class="card overflow-hidden group border-t-4 border-green-800">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400" alt="Job" class="profile-img">
+                        <div class="absolute top-4 right-4 text-yellow-400">
+                            <i class="fas fa-star fa-2x"></i>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 text-white">
+                            <h4 class="text-xl font-bold">Job</h4>
+                            <p class="text-yellow-400 text-sm font-semibold">Chargé Organisation</p>
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-graduation-cap text-emerald-700 mr-3 w-5"></i>
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase">Spécialité</p>
+                                <p class="font-medium">Doctorat en Médecine</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-university text-emerald-700 mr-3 w-5"></i>
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase">Université</p>
+                                <p class="font-medium">Université d'Alger 1</p>
+                            </div>
+                        </div>
+                        <a href="mailto:vicepresident@uesba-dz.org" class="text-emerald-700 text-sm flex items-center">
+                            <i class="fas fa-envelope mr-2"></i> vicepresident@uesba-dz.org
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Yili -->
+                <div class="card overflow-hidden group">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?w=400" alt="Yili" class="profile-img">
+                        <div class="absolute top-4 right-4 text-yellow-400">
+                            <i class="fas fa-star fa-2x"></i>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 text-white">
+                            <h4 class="text-xl font-bold">Yili</h4>
+                            <p class="text-yellow-400 text-sm font-semibold">Chargé Académique</p>
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-laptop-code text-emerald-700 mr-3 w-5"></i>
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase">Spécialité</p>
+                                <p class="font-medium">Master en Informatique</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-university text-emerald-700 mr-3 w-5"></i>
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase">Université</p>
+                                <p class="font-medium">ESI Alger</p>
+                            </div>
+                        </div>
+                        <a href="mailto:secretaire@uesba-dz.org" class="text-emerald-700 text-sm flex items-center">
+                            <i class="fas fa-envelope mr-2"></i> secretaire@uesba-dz.org
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+ 
+        <!-- Anciens Bureaux -->
+        <section class="space-y-12">
+            <div class="text-center space-y-2">
+                <h2 class="text-4xl font-bold">Anciens Bureaux</h2>
+                <p class="text-gray-500">Honorons ceux qui ont contribué à bâtir l'UESBA</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Ancien 1 -->
+                <div class="card-custom p-6 border-left-red flex flex-col space-y-4">
+                    <div class="flex items-center space-x-4">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200" class="w-16 h-16 rounded-full object-cover border-2 border-red-100">
+                        <div>
+                            <p class="font-bold">Youssouf OUATTARA</p>
+                            <p class="text-red-600 text-xs font-bold uppercase">Ex-Président</p>
+                            <p class="text-[10px] text-gray-400">Mandat 2024-2025</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <p class="text-gray-600"><span class="font-semibold text-gray-800">Spécialité:</span> Doctorat en Pharmacie</p>
+                        <p class="text-gray-600"><span class="font-semibold text-gray-800">Université:</span> Université d'Alger 1</p>
+                    </div>
+                    <a href="#" class="text-[11px] text-gray-400 mt-auto"><i class="fas fa-envelope mr-1"></i> y.ouattara@alumni-uesba.org</a>
+                </div>
+
+                <!-- Ancien 2 -->
+                <div class="card-custom p-6 border-left-red flex flex-col space-y-4">
+                    <div class="flex items-center space-x-4">
+                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200" class="w-16 h-16 rounded-full object-cover border-2 border-red-100">
+                        <div>
+                            <p class="font-bold">Aminata DIALLO</p>
+                            <p class="text-red-600 text-xs font-bold uppercase">Ex-Secrétaire Générale</p>
+                            <p class="text-[10px] text-gray-400">Mandat 2024-2025</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <p class="text-gray-600"><span class="font-semibold text-gray-800">Spécialité:</span> Master en Droit International</p>
+                        <p class="text-gray-600"><span class="font-semibold text-gray-800">Université:</span> Université d'Alger 1</p>
+                    </div>
+                    <a href="#" class="text-[11px] text-gray-400 mt-auto"><i class="fas fa-envelope mr-1"></i> a.diallo@alumni-uesba.org</a>
+                </div>
+
+                <!-- Ancien 3 -->
+                <div class="card-custom p-6 border-left-red flex flex-col space-y-4">
+                    <div class="flex items-center space-x-4">
+                        <img src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=200" class="w-16 h-16 rounded-full object-cover border-2 border-red-100">
+                        <div>
+                            <p class="font-bold">Moussa BARRY</p>
+                            <p class="text-red-600 text-xs font-bold uppercase">Ex-Trésorier Général</p>
+                            <p class="text-[10px] text-gray-400">Mandat 2024-2025</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <p class="text-gray-600"><span class="font-semibold text-gray-800">Spécialité:</span> Master en Gestion</p>
+                        <p class="text-gray-600"><span class="font-semibold text-gray-800">Université:</span> EHEC Alger</p>
+                    </div>
+                    <a href="#" class="text-[11px] text-gray-400 mt-auto"><i class="fas fa-envelope mr-1"></i> m.barry@alumni-uesba.org</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Nos Activités -->
+        <section class="space-y-8">
+            <h2 class="text-4xl font-bold text-center">Nos Activités</h2>
+            <div class="space-y-4">
+                <div class="card p-6 border-accent-green flex items-center">
+                    <div class="text-3xl mr-6">🤝</div>
+                    <div>
+                        <h4 class="font-bold">Accueil et Orientation</h4>
+                        <p class="text-sm text-gray-500">Accompagnement des nouveaux étudiants dans leurs démarches administratives et leur intégration.</p>
+                    </div>
+                </div>
+                <div class="card p-6 border-accent-red flex items-center">
+                    <div class="text-3xl mr-6">🎭</div>
+                    <div>
+                        <h4 class="font-bold">Événements Culturels</h4>
+                        <p class="text-sm text-gray-500">Organisation de soirées culturelles, célébrations nationales et festivals pour promouvoir la culture burkinabè.</p>
+                    </div>
+                </div>
+                <div class="card p-6 border-accent-yellow flex items-center">
+                    <div class="text-3xl mr-6">📖</div>
+                    <div>
+                        <h4 class="font-bold">Soutien Académique</h4>
+                        <p class="text-sm text-gray-500">Sessions de tutorat, groupes d'étude et programmes de mentorat pour la réussite académique.</p>
+                    </div>
+                </div>
+
+                <div class="card p-6 border-accent-green flex items-center">
+                    <div class="text-3xl mr-6">⚽</div>
+                    <div>
+                        <h4 class="font-bold">Activités Sportives</h4>
+                        <p class="text-sm text-gray-500">Tournois inter-communautés et activités sportives pour renforcer la cohésion sociale.</p>
+                    </div>
+                </div>
+                <div class="card p-6 border-accent-red flex items-center">
+                    <div class="text-3xl mr-6">🙌</div>
+                    <div>
+                        <h4 class="font-bold">Assistance Sociale</h4>
+                        <p class="text-sm text-gray-500">Soutien aux membres en difficulté et mise en place d'un fonds de solidarité communautaire.</p>
+                    </div>
+                </div>
+                <div class="card p-6 border-accent-yellow flex items-center">
+                    <div class="text-3xl mr-6">💼</div>
+                    <div>
+                        <h4 class="font-bold">Networking Professionnel</h4>
+                        <p class="text-sm text-gray-500">Conférences, ateliers et rencontres avec des professionnels pour préparer l'insertion professionnelle.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Stats Section -->
+    <section class="stats-bg py-16 text-white text-center">
+        <div class="max-w-6xl mx-auto px-4">
+            <h2 class="text-4xl font-bold mb-12">⭐ L'UESBA en Chiffres ⭐</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="space-y-2">
+                    <p class="text-5xl font-bold counter" data-target="500">0</p>
+                    <p class="text-emerald-200 uppercase text-xs tracking-widest font-bold">Membres Actifs</p>
+                </div>
+                <div class="space-y-2">
+                    <p class="text-5xl font-bold counter" data-target="15">0</p>
+                    <p class="text-emerald-200 uppercase text-xs tracking-widest font-bold">Années d'Existence</p>
+                </div>
+                <div class="space-y-2">
+                    <p class="text-5xl font-bold counter" data-target="50">0</p>
+                    <p class="text-emerald-200 uppercase text-xs tracking-widest font-bold">Événements/An</p>
+                </div>
+                <div class="space-y-2">
+                    <p class="text-5xl font-bold counter" data-target="10">0</p>
+                    <p class="text-emerald-200 uppercase text-xs tracking-widest font-bold">Villes Couvertes</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+       <!-- Footer-->
+     <footer class="footer">
+     <div class="container">
+        <div class="footer-content">
+            <div class="footer-column">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <p class="badge">⭐</p>
+                    </div>
+                    <h3>UESBA</h3>
+                </div>
+                <p>Union des Étudiants et Stagiaires Burkinabè en Algérie - Solidarité, Excellence, Unité</p>
+            </div>
+
+            <div class="footer-column">
+                <h4>Contact</h4>
+                <div class="contact-item">
+                    <img src="https://img.icons8.com/ios-filled/24/198754/marker.png" alt="Location">
+                    <p>Alger, Algérie</p>
+                </div>
+                <div class="contact-item">
+                    <img src="https://img.icons8.com/ios-filled/24/198754/phone.png" alt="Phone">
+                    <p>+213 XX XXX XXXX</p>
+                </div>
+                <div class="contact-item">
+                    <img src="https://img.icons8.com/ios-filled/24/198754/new-post.png" alt="Email">
+                    <p>contact@uesba-dz.org</p>
+                </div>
+            </div>
+        <div class="footer-column">
+                <h4>Suivez-nous</h4>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook">
+                        <img src="https://img.icons8.com/color/32/000000/facebook-new.png" alt="Facebook">
+                    </a>
+                    <a href="#" aria-label="Twitter">
+                        <img src="https://img.icons8.com/color/32/000000/twitter--v1.png" alt="Twitter">
+                    </a>
+                    <a href="#" aria-label="Instagram">
+                        <img src="https://img.icons8.com/color/32/000000/instagram-new.png" alt="Instagram">
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="developers">
+                <p><strong>Site développé par :</strong></p>
+                <p>SIA RAOUL • ALI SALIA • TALL • BA</p>
+            </div>
+            <div class="footer-legal">
+                <p>© 2026 UESBA. Tous droits réservés.</p>
+                <div class="legal-links">
+                    <a href="#">Mentions Légales</a>
+                    <a href="#">Politique de Confidentialité</a>
+                </div>
+            </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+        // Animation des compteurs
+        const counters = document.querySelectorAll('.counter');
+        const speed = 200;
+
+        const animateCounters = () => {
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const count = +counter.innerText;
+                const increment = target / speed;
+
+                if (count < target) {
+                    counter.innerText = Math.ceil(count + increment);
+                    setTimeout(animateCounters, 10);
+                } else {
+                    counter.innerText = target + "+";
+                }
+            });
+        }
+
+        // Déclencher l'animation au défilement
+        const observerOptions = {
+            threshold: 0.5
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                }
+            });
+        }, observerOptions);
+
+        observer.observe(document.querySelector('.stats-bg'));
+    </script>
+</body>
+</html>
