@@ -1,15 +1,25 @@
 <?php 
-namespace Backend\App\Http\Services;
+namespace App\Http\Services;
 
 use App\Mail\SendMail;
 use Illuminate\Support\Facades\Mail;
 
 class MailService{
 
-    public function __construct(private string $email , private string $message , private string $NomComplet){}
+
+  public $email;
+  public string $message;
+  public string $NomComplet;
+    public function __construct(  $email ,  string $message ,  string $NomComplet){
+        $this->email=$email;
+        $this->message=$message;
+        $this->NomComplet=$NomComplet;
+
+    }
 
     public function Send(){
-        return Mail::to(env('usba'))->send( new SendMail($this->NomComplet,$this->message));
+        return Mail::to(env('usba'))
+        ->send( new SendMail($this->NomComplet,$this->message));
     }
 
 }
