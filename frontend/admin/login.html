@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion Admin - UESBA</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 50px 40px;
+            max-width: 450px;
+            width: 100%;
+            animation: slideUp 0.6s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .form-header h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .form-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .message {
+            margin-bottom: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .error { background: #fadbd8; color: #c0392b; border-left: 4px solid #c0392b; }
+        .success { background: #d5f4e6; color: #27ae60; border-left: 4px solid #27ae60; }
+
+        .message.show { display: block; }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active { transform: translateY(0); }
+
+        .link-text {
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .link-text a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .link-text a:hover { text-decoration: underline; }
+
+        @media (max-width: 500px) {
+            .form-container { padding: 30px 20px; }
+            .form-header h1 { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <h1>🔓 Connexion</h1>
+            <p>Admin UESBA</p>
+        </div>
+
+        <div class="message error" id="errorMsg"></div>
+        <div class="message success" id="successMsg"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Identifiant</label>
+                <input type="text" id="username" placeholder="Votre identifiant" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" placeholder="Votre mot de passe" required>
+            </div>
+
+            <button type="submit">Se connecter</button>
+        </form>
+
+        <div class="link-text">
+            Pas de compte ? <a href="register.html">Créer un compte</a>
+        </div>
+    </div>
+
+    <script>
+        const ADMINS_KEY = 'uesba_admins';
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            const errorMsg = document.getElementById('errorMsg');
+            const successMsg = document.getElementById('successMsg');
+            errorMsg.classList.remove('show');
+            successMsg.classList.remove('show');
+
+            const admins = JSON.parse(localStorage.getItem(ADMINS_KEY)) || [];
+            const admin = admins.find(a => a.username === username && a.password === password);
+
+            if (!admin) {
+                errorMsg.textContent = '❌ Identifiant ou mot de passe incorrect';
+                errorMsg.classList.add('show');
+                return;
+            }
+
+            localStorage.setItem('uesba_user', JSON.stringify({ username }));
+            successMsg.textContent = '✅ Connexion réussie!';
+            successMsg.classList.add('show');
+
+            setTimeout(() => window.location.href = 'admin.html', 1000);
+        });
+
+        // Redirect if already logged in
+        if (localStorage.getItem('uesba_user')) {
+            window.location.href = 'admin.html';
+        }
+    </script>
+</body>
+</html>

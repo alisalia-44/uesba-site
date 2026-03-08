@@ -6,6 +6,9 @@
     <title>Panneau Admin - UESBA</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="admin.css">
+    <script>
+        if (!localStorage.getItem('uesba_user')) window.location.href = 'login.html';
+    </script>
 </head>
 <body>
     <!-- Sidebar Navigation -->

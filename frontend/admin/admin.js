@@ -620,8 +620,8 @@ function updateCurrentDate() {
 
 function logout() {
     if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
-        // In a real app, you would clear the session/token here
-        window.location.href = 'index.html';
+        localStorage.removeItem('uesba_user');
+        window.location.href = 'login.html';
     }
 }
 
