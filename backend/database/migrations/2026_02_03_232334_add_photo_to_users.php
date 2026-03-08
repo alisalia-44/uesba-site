@@ -11,23 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('evenements', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-            $table->string('nom');
-            $table->string('descriptions');
-            $table->dateTime('date_evenement');
-            $table->enum('type',['presentiel','En_ligne']);
-            $table->string('lieu');
+        Schema::table('users', function (Blueprint $table) {
             $table->string('photo')->nullable();
+            $table->string('prenom');
+            $table->string('poste')->nullable();
+            $table->dateTime('annePoste')->nullable();
+            $table->string('descriptions')->nullable();
         });
-    }
+    }    
+          
+        
+          
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('evenements');
+        Schema::table('users', function (Blueprint $table) {
+            //
+        });
     }
 };

@@ -2,16 +2,216 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Services\FileUpload;
+use App\Http\Services\MailService;
+use App\Models\messages;
+use Exception;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Validator;
+use Mail;
 
 class UserController extends Controller
 {
-    public function AjouterMembre(request $request){}
-    public function SupprimerMembre(request $request){}
+    public function AjouterMembre(request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'connexion requise'
+            ]);
+        }
+        $validator = Validator::make($request->all(), [
+            'photo' => 'nullable|mimes:*',
+            'nom' => 'required|string',
+            'prenom' => 'required|string',
+            'poste' => 'nullable|string',
+            'annePoste' => 'nullable|datetime',
+            'descriptions' => 'nullable|string'
+        ]);
 
-    public function ModiferMembre(Request $request){}
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'renseigner tous les champs'
+            ], 400);
 
-    public function SendMail(Request $request){}
 
-    public function MailList(){}
+        }
+        try {
+
+            $user = User::create([
+                'email' => $request->email,
+                'name' => $request->nom,
+                'prenom' => $request->prenom,
+                'annePoste' => $request->annePoste ? $request->annePoste : null,
+                'decriptions' => $request->descriptions ? $request->descriptions : null
+            ]);
+            if (isset($request->photo) && $request->file('photo')) {
+                $fileup = new FileUpload();
+                $name = $fileup->UploadFile($request->file, 'photo');
+                $user->update([
+                    'photo' => $name ? $name : null,
+                ]);
+            }
+
+            $user->AssignRoles($request->poste);
+
+            return response()->json([
+                'message' => 'membre ajouter avec succes'
+            ], 200);
+
+
+
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 500);
+
+        }
+    }
+    public function SupprimerMembre(request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'connexion requise'
+            ]);
+        }
+        $validator = Validator::make($request->all(), [
+            'id' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'entrez un id valide'
+            ], 400);
+        }
+
+        try {
+            $user = User::findOrFail($request->id);
+
+            $user->delete();
+
+            return response()->json([
+                'message' => 'membre supprimer'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 500);
+
+        }
+    }
+
+    public function ModiferMembre(Request $request)
+    {
+        $current = $request->user();
+
+        if (!$current) {
+            return response()->json([
+                'message' => 'connexion requise'
+            ]);
+
+        }
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+            'photo' => 'nullable|mimes:*',
+            'nom' => 'nullable|string',
+            'prenom' => 'nullable|string',
+            'poste' => 'nullable|string',
+            'annePoste' => 'nullable|datetime',
+            'descriptions' => 'nullable|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'renseigner tous les champs'
+            ], 400);
+
+
+        }
+        try {
+            $user = User::find($request->id);
+
+            if (!$user) {
+                return response()->json([
+                    'message' => 'oups membre non trouve!'
+                ], 404);
+            }
+            $fileup = new FileUpload();
+            $user = User::update([
+                'email' => $request->email ?? $user->email,
+                'name' => $request->nom ?? $user->name,
+                'prenom' => $request->prenom ?? $user->prenom,
+                'annePoste' => $request->annePoste ?? $user->annePoste,
+                'decriptions' => $request->descriptions ?? $user->descriptions,
+                'photo' => $fileup->UploadFile($request->file, 'photo') ?? $user->photo
+            ]);
+
+            return response()->json([
+                'message' => 'utilisateur modifier avec succes'
+            ], 200);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 500);
+        }
+
+    }
+
+    public function SendMail(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'message' => 'required|string',
+            'nom_complet' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => ' les champs ne sont pas correctements remplis'
+            ], 400);
+        }
+
+        try {
+            $mail = new MailService($request->email, $request->message, $request->nom_complet);
+
+            messages::create([
+                'email' => $request->email,
+                'message' => $request->message,
+                'nom_complet' => $request->nom_complet
+            ]);
+            return response()->json([
+                'message' => 'mail envoyer avec succes'
+            ], 200);
+
+
+
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 500);
+
+        }
+    }
+
+    public function MailList(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'connexion requise'
+            ]);
+        }
+        $mail = Cache::remember('mail', now()->addMinutes(30), function () {
+            return messages::all();
+        });
+
+        return response()->json([
+            'mail' => $mail
+        ], 200);
+    }
 }
