@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\EventRessource;
 use ErrorException;
 use App\Models\evenements;
 use Exception;
@@ -148,7 +149,7 @@ public function DeleteEvent(int $id)
     {
         $ev =  evenements::paginate(10);
         return response()->json([
-            'evenement'=>$ev
+            'evenement'=>EventRessource::collection($ev)
         ]);
     }
     public function DetailEvent( int $id)
@@ -161,7 +162,7 @@ public function DeleteEvent(int $id)
         }
 
         return response()->json([
-            'event'=>$even
+            'event'=>EventRessource::collection($even)
         ]);
     }
 }

@@ -29,7 +29,8 @@ class User extends Authenticatable
         'poste',
         'annePoste',
         'descriptions',
-        'remember_token'
+        'remember_token',
+        'is_ancien'
     ];
 
     /**

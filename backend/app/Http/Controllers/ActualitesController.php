@@ -17,7 +17,8 @@ class ActualitesController extends Controller
         $validator = Validator::make($request->all(), [
             'nom' => 'required|string',
             'descriptions' => 'required|string',
-            'photo' => 'nullable|file'
+            'photo' => 'nullable|file',
+            'categorie'=>'required|in:annonce,academique,social'
         ]);
 
         if ($validator->fails()) {
@@ -39,7 +40,8 @@ class ActualitesController extends Controller
             actualites::create([
                 'nom' => $request->nom,
                 'descriptions' => $request->descriptions,
-                'photo' => $fileUpload
+                'photo' => $fileUpload,
+                'categorie'=>$request->categorie
             ]);
 
             DB::commit();
@@ -65,7 +67,8 @@ class ActualitesController extends Controller
             'id' => 'required',
             'nom' => 'nullable|string',
             'descriptions' => 'nullable|string',
-            'photo' => 'nullable|file'
+            'photo' => 'nullable|file',
+              'categorie'=>'required|in:annonce,academique,social'
         ]);
 
         if ($validator->fails()) {
@@ -149,6 +152,14 @@ class ActualitesController extends Controller
     public function DetailActualite(int $id)
     {
         $actualite = actualites::findOrFail($id);
+
+        return response()->json([
+            'actualite' => $actualite
+        ]);
+    }
+
+    public function TreeLatest(){
+           $actualite = actualites::latest()->take(3)->get;
 
         return response()->json([
             'actualite' => $actualite

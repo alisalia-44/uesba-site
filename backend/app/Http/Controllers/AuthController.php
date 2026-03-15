@@ -58,7 +58,7 @@ class AuthController extends Controller
             // $admin->remember_token = $token;
 
             $admin->update([
-                'remember_token'=>$token
+                'remember_token' => $token
             ]);
 
             return response()->json([
@@ -70,5 +70,12 @@ class AuthController extends Controller
                 'message' => 'une erreur est survenue ' . $e->getMessage()
             ]);
         }
+    }
+
+    public function LogOut(Request $request)
+    {
+        $user = $request->user();
+        $user->remember_token = '';
+        session_destroy();
     }
 }
