@@ -147,13 +147,13 @@
 
         <form id="loginForm">
             <div class="form-group">
-                <label for="username">Identifiant</label>
-                <input type="text" id="username" placeholder="Votre identifiant" required>
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="votre@email.com" required>
             </div>
 
             <div class="form-group">
                 <label for="password">Mot de passe</label>
-                <input type="password" id="password" placeholder="Votre mot de passe" required>
+                <input type="password" id="password" placeholder="Min. 8 caractères" required minlength="8">
             </div>
 
             <button type="submit">Se connecter</button>
@@ -165,11 +165,9 @@
     </div>
 
     <script>
-        const ADMINS_KEY = 'uesba_admins';
-
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
 
             const errorMsg = document.getElementById('errorMsg');
@@ -177,24 +175,52 @@
             errorMsg.classList.remove('show');
             successMsg.classList.remove('show');
 
-            const admins = JSON.parse(localStorage.getItem(ADMINS_KEY)) || [];
-            const admin = admins.find(a => a.username === username && a.password === password);
-
-            if (!admin) {
-                errorMsg.textContent = '❌ Identifiant ou mot de passe incorrect';
+            // Validation côté client
+            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                errorMsg.textContent = '❌ Email invalide';
                 errorMsg.classList.add('show');
                 return;
             }
 
-            localStorage.setItem('uesba_user', JSON.stringify({ username }));
-            successMsg.textContent = '✅ Connexion réussie!';
-            successMsg.classList.add('show');
+            if (password.length < 8) {
+                errorMsg.textContent = '❌ Le mot de passe doit contenir au moins 8 caractères';
+                errorMsg.classList.add('show');
+                return;
+            }
 
-            setTimeout(() => window.location.href = 'admin.html', 1000);
+            try {
+                // Appel API vers votre backend Laravel
+                const response = await fetch('http://votre-api.com/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errorMsg.textContent = '❌ ' + (data.message || 'Erreur de connexion');
+                    errorMsg.classList.add('show');
+                    return;
+                }
+
+                localStorage.setItem('uesba_token', data.token);
+                localStorage.setItem('uesba_user', JSON.stringify(data.user));
+                successMsg.textContent = '✅ Connexion réussie!';
+                successMsg.classList.add('show');
+
+                setTimeout(() => window.location.href = 'admin.html', 1000);
+            } catch (error) {
+                errorMsg.textContent = '❌ Erreur de connexion au serveur';
+                errorMsg.classList.add('show');
+                console.error('Erreur:', error);
+            }
         });
 
         // Redirect if already logged in
-        if (localStorage.getItem('uesba_user')) {
+        if (localStorage.getItem('uesba_token')) {
             window.location.href = 'admin.html';
         }
     </script>
