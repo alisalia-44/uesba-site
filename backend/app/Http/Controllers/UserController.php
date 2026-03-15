@@ -9,6 +9,7 @@ use Exception;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Mail;
 
@@ -35,8 +36,6 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'renseigner tous les champs'
             ], 400);
-
-
         }
         try {
 
@@ -60,14 +59,10 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'membre ajouter avec succes'
             ], 200);
-
-
-
         } catch (Exception $e) {
             return response()->json([
                 'message' => $e->getMessage()
             ], 500);
-
         }
     }
     public function SupprimerMembre(request $request)
@@ -100,7 +95,6 @@ class UserController extends Controller
             return response()->json([
                 'message' => $e->getMessage()
             ], 500);
-
         }
     }
 
@@ -112,7 +106,6 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'connexion requise'
             ]);
-
         }
         $validator = Validator::make($request->all(), [
             'id' => 'required',
@@ -128,8 +121,6 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'renseigner tous les champs'
             ], 400);
-
-
         }
         try {
             $user = User::find($request->id);
@@ -152,13 +143,11 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'utilisateur modifier avec succes'
             ], 200);
-
         } catch (Exception $e) {
             return response()->json([
                 'message' => $e->getMessage()
             ], 500);
         }
-
     }
 
     public function SendMail(Request $request)
@@ -187,14 +176,10 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'mail envoyer avec succes'
             ], 200);
-
-
-
         } catch (Exception $e) {
             return response()->json([
                 'message' => $e->getMessage()
             ], 500);
-
         }
     }
 
@@ -213,5 +198,42 @@ class UserController extends Controller
         return response()->json([
             'mail' => $mail
         ], 200);
+    }
+
+    public function SetMemberPast(Request $request)
+    {
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'id' => 'required'
+        ]);
+
+        if ($validator->fails()){
+            return response()->json([
+                'message'=>'donnee non valide'
+            ],400);
+        }
+        DB::beginTransaction();
+        try {
+            $member = user::findOrFail($request->id);
+            if (!$member->poste || $memberAnnePost){
+                return response()->json([
+                    'message'=>'cet membre n\'est pas habilite'
+                ],401);
+            }
+
+            $member->update([
+                'is_ancien'=>true
+            ]);
+            DB::commit();
+            return response()->json([
+                'message'=>'mise a jour'
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message'=>'une erreur est survenue'
+            ],500);
+        }
     }
 }

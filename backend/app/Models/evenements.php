@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class evenements extends Model
 {
@@ -15,4 +16,11 @@ class evenements extends Model
         'lieu',
         'photo'
     ];
+
+    public function isPast():bool{
+        return Carbon::parse($this->date_evenement)->isPast();
+    }
+    public function isNow(){
+          return Carbon::parse($this->date_evenement)->isToday();
+    }
 }

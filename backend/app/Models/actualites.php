@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class actualites extends Model
@@ -15,6 +16,10 @@ protected $fillable = [
 'photo'
 ];
        
+
+public function scopeLatest_activity(Builder $query){
+    $query->where('');
+}
 }
 
 
