@@ -63,7 +63,7 @@
                     <label for="email">Email *</label>
                     <input type="email" id="email" name="email" placeholder="votre.email@exemple.com" required>
                 </div>
-                
+                 
                 <div class="form-group">
                     <label for="message">Message *</label>
                     <textarea id="message" name="message" placeholder="Écrivez votre message ici..." required></textarea>
@@ -159,9 +159,9 @@
 
 </n> </n>
 <script src="js/script.js" ></script>
-<script>
-// Gestion du formulaire de contact
-document.getElementById('contactForm').addEventListener('submit', function(e) {
+    <script>
+// Gestion du formulaire de contact (envoi vers backend)
+document.getElementById('contactForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
     // Récupérer les données du formulaire
@@ -181,12 +181,26 @@ document.getElementById('contactForm').addEventListener('submit', function(e) {
         alert('Veuillez entrer une adresse email valide !');
         return;
     }
-    
-    // Afficher un message de confirmation
-    alert(`Merci ${name}!\n\nVotre message a été reçu avec succès.\nNous vous répondrons très bientôt à l'adresse: ${email}`);
-    
-    // Réinitialiser le formulaire
-    document.getElementById('contactForm').reset();
+
+    try {
+        const res = await fetch('http://127.0.0.1:8000/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nom_complet: name, email: email, message: message })
+        });
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            alert('Erreur lors de l\'envoi du message: ' + (err.message || res.statusText));
+            return;
+        }
+
+        alert(`Merci ${name}!\n\nVotre message a été envoyé avec succès.`);
+        document.getElementById('contactForm').reset();
+    } catch (error) {
+        console.error('Contact submit error:', error);
+        alert('Erreur réseau lors de l\'envoi du message.');
+    }
 });
 
 // Navigation via header

@@ -208,7 +208,7 @@
 
             try {
                 // Appel API vers votre backend Laravel
-                const response = await fetch('http://votre-api.com/api/register', {
+                const response = await fetch('http://127.0.0.1:8000/api/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -224,8 +224,10 @@
                     return;
                 }
 
-                localStorage.setItem('uesba_token', data.token);
-                localStorage.setItem('uesba_user', JSON.stringify(data.user));
+                // store token under `auth_token` to match frontend/js/api.js interceptor
+                const token = data.token || data.access_token || data.plainTextToken || (data.data && (data.data.token || data.data.access_token));
+                if (token) localStorage.setItem('auth_token', token);
+                if (data.user || data.data?.user) localStorage.setItem('auth_user', JSON.stringify(data.user || data.data.user));
                 successMsg.textContent = '✅ Compte créé! Redirection...';
                 successMsg.classList.add('show');
 
@@ -238,7 +240,7 @@
         });
 
         // Redirect if already logged in
-        if (localStorage.getItem('uesba_token')) {
+        if (localStorage.getItem('auth_token')) {
             window.location.href = 'admin.html';
         }
     </script>

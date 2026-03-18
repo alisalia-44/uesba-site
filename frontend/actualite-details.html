@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualité - Détail</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .article-container { max-width: 900px; margin: 40px auto; background: #fff; padding: 24px; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+        .article-hero { width: 100%; height: 360px; object-fit: cover; border-radius: 8px; }
+        .article-meta { color: #666; margin: 12px 0; }
+        .article-title { font-size: 28px; margin: 12px 0 18px; }
+        .article-body { line-height: 1.8; color: #222; white-space: pre-wrap; }
+        .btn-back { display:inline-block; margin-top:18px; padding:10px 16px; background:#f0f0f0; border-radius:8px; text-decoration:none; color:#222; }
+    </style>
+</head>
+<body>
+        <header id="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">
+                    <div class="logo-image">
+                        <img src="images/img.jpeg" alt="">
+                    </div>
+                    <div class="logo-text desktop">
+                        <h1>UESBA</h1>
+                        <p>Union des Étudiants  et Stagiaires Burkinabè en Algerie</p>
+                    </div>
+                    
+                </a>
+
+                <nav class="desktop-nav">
+                    <a class="nav-link" href="index.html" data-page="index.html">Accueil</a>
+                    <a class="nav-link active" href="actualites.html" data-page="actualites.html">Actualités</a>
+                    <a class="nav-link" href="evenements.html" data-page="evenements.html">Événements</a>
+                    <a class="nav-link" href="apropos.html" data-page="apropos.html">À Propos</a>
+                    <a class="nav-link" href="contact.html" data-page="contact.html">Contact</a>
+                </nav>
+
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                   <img src="https://img.icons8.com/ios-filled/32/198754/menu--v1.png" alt="Menu" class="menu-icon">
+                    <svg class="close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+           </div>
+        </div>
+   </header>
+
+   <div class="mobile-menu" id="mobileMenu">
+      <nav>
+          <button class="mobile-nav-link" data-page="index.html">Accueil</button>
+          <button class="mobile-nav-link active" data-page="actualites.html">Actualités</button>
+          <button class="mobile-nav-link" data-page="evenements.html">Événements</button>
+          <button class="mobile-nav-link" data-page="apropos.html">À Propos</button>
+          <button class="mobile-nav-link" data-page="contact.html">Contact</button>
+      </nav>
+   </div>  
+    <div class="container">
+        <div class="article-container">
+            <a href="actualites.html" class="btn-back">← Retour aux actualités</a>
+            <h1 id="articleTitle" class="article-title">Actualité</h1>
+            <div id="articleMeta" class="article-meta"></div>
+            <img id="articleImage" class="article-hero" src="" alt="">
+            <div id="articleBody" class="article-body"></div>
+        </div>
+    </div>
+
+<script>
+(function(){
+    function escapeHtml(text){ if (text===undefined||text===null) return ''; return String(text).replace(/[&<>"]/g, function(s){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]) || s; }); }
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const data = JSON.parse(localStorage.getItem('adminData') || '{}');
+    const news = Array.isArray(data.news) ? data.news : [];
+    const item = news.find(n => String(n.id) === String(id));
+
+    const titleEl = document.getElementById('articleTitle');
+    const metaEl = document.getElementById('articleMeta');
+    const bodyEl = document.getElementById('articleBody');
+    const imgEl = document.getElementById('articleImage');
+
+    if (!item) {
+        titleEl.textContent = 'Actualité non trouvée';
+        metaEl.textContent = '';
+        bodyEl.textContent = 'Désolé, l\'article demandé est introuvable.';
+        imgEl.style.display = 'none';
+        return;
+    }
+
+    titleEl.textContent = item.title || 'Sans titre';
+    const source = item.source || item.author || 'UESBA';
+    metaEl.textContent = (item.date ? item.date + ' • ' : '') + source;
+    // Prefer admin-provided detailed fields when available
+    const content = item.detail_description || item.fullArticle || item.fullArticleText || item.full_text || item.content || item.body || '';
+    bodyEl.innerHTML = escapeHtml(content).replace(/\n/g, '<br>');
+
+    if (item.image) {
+        try {
+            imgEl.src = encodeURI(item.image);
+        } catch (e) {
+            imgEl.src = item.image;
+        }
+        imgEl.alt = item.title || '';
+        imgEl.onerror = function(){ this.onerror=null; this.src='images/img.jpeg'; };
+        imgEl.style.display = 'block';
+    } else {
+        imgEl.style.display = 'none';
+    }
+        // PDF view removed per request
+})();
+</script>
+ <!-- Footer-->
+     <footer class="footer">
+     <div class="container">
+        <div class="footer-content">
+            <div class="footer-column">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                      ⭐  
+                    </div>
+                    <h3>UESBA</h3>
+                </div>
+                <p>Union des Étudiants et Stagiaires Burkinabè en Algérie - Solidarité, Excellence, Unité</p>
+            </div>
+
+            <div class="footer-column">
+                <h4>Contact</h4>
+                <div class="contact-item">
+                    <img src="https://img.icons8.com/ios-filled/24/198754/marker.png" alt="Location">
+                    <p>Alger, Algérie</p>
+                </div>
+                <div class="contact-item">
+                    <img src="https://img.icons8.com/ios-filled/24/198754/phone.png" alt="Phone">
+                    <p>+213 0670462357</p>
+                </div>
+                <div class="contact-item">
+                    <img src="https://img.icons8.com/ios-filled/24/198754/new-post.png" alt="Email">
+                    <p>info.uesba@gmail.com</p>
+                </div>
+            </div>
+        <div class="footer-column">
+                <h4>Suivez-nous sur nos differents réseaux</h4>
+                <div class="social-links">
+                    <a href="https://www.facebook.com/share/1DLUmWxuC2/?mibextid=wwXIfr" aria-label="Facebook">
+                        <img src="https://img.icons8.com/color/32/000000/facebook-new.png" alt="Facebook">
+                    </a>
+                   <a href="https://www.tiktok.com/@uesba_?_r=1&_t=ZS-94RGRiQQBmq" aria-label="TikTok">
+                        <img src="https://img.icons8.com/color/32/000000/tiktok.png" alt="TikTok">
+                    </a>
+                    <a href="https://www.linkedin.com/company/uesba-officiel/" aria-label="LinkedIn">
+                        <img src="https://img.icons8.com/color/32/000000/linkedin.png" alt="LinkedIn">
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="developers">
+                <p><strong>Site développé par :</strong></p>
+                <p>SIA RAOUL • ALI SALIA • TALL SOULEYMANE • BA YOBI</p>
+            </div>
+            <div class="footer-legal">
+                <p>© 2026 UESBA. Tous droits réservés.</p>
+                <div class="legal-links">
+                    <a href="#">Mentions Légales</a>
+                    <a href="#">Politique de Confidentialité</a>
+                </div>
+            </div>
+        </div>
+      </div>
+    </footer>
+</body>
+</html>

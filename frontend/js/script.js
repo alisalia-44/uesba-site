@@ -305,6 +305,80 @@ if (slides.length > 0) {
         showSlide(0);
 }
 
+        // ===== PUBLIC EVENTS LISTING =====
+        async function loadPublicEvents() {
+            const container = document.getElementById('events-grid');
+            if (!container) return;
+
+            try {
+                const res = await fetch('http://127.0.0.1:8000/api/evenements');
+                if (!res.ok) throw new Error('Failed to fetch events');
+                const json = await res.json();
+                let events = [];
+                if (json && json.evenement) {
+                    // backend may return a paginator/resource with .data
+                    if (Array.isArray(json.evenement)) events = json.evenement;
+                    else if (json.evenement.data && Array.isArray(json.evenement.data)) events = json.evenement.data;
+                    else events = [json.evenement];
+                }
+
+                if (!events || (Array.isArray(events) && events.length === 0)) {
+                    container.innerHTML = '<p>Aucun événement pour le moment.</p>';
+                    return;
+                }
+
+                container.innerHTML = events.map(ev => {
+                    const date = ev.date_evenement || '';
+                    const photo = ev.photo || 'images/img.jpeg';
+                    const typeLabel = ev.type || '';
+                    const statusBadge = ev.estPasse ? 'Terminé' : (ev.enCours ? 'En cours' : 'À venir');
+                    return `
+                        <div style="background: #fff; border-radius: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); width: 350px; overflow: hidden; display: flex; flex-direction: column;">
+                            <div style="position: relative;">
+                                <img src="${photo}" alt="${escapeHtml(ev.nom)}" style="width: 100%; height: 220px; object-fit: cover;">
+                                <span style="position: absolute; top: 1rem; right: 1rem; background: #e74c3c; color: #fff; border-radius: 1.5rem; padding: 0.5rem 1.2rem; font-weight: bold; font-size: 1rem;">${escapeHtml(typeLabel)}</span>
+                            </div>
+                            <div style="padding: 1.5rem 1.2rem 1rem 1.2rem; flex: 1; display: flex; flex-direction: column;">
+                                <div style="display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 220px;">
+                                    <div>
+                                        <div style="display: flex; align-items: center; gap: 0.5rem; color: #27ae60; font-size: 1rem; margin-bottom: 0.5rem;">
+                                            <span style="font-size: 1.2rem;">&#128197;</span>
+                                            <span>${escapeHtml(date)}</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 0.5rem; color: #555; font-size: 1rem; margin-bottom: 1rem;">
+                                            <span style="font-size: 1.2rem;">&#128205;</span>
+                                            <span>${escapeHtml(ev.lieu || '')}</span>
+                                        </div>
+                                        <h3 style="font-size: 1.3rem; font-weight: bold; margin: 0 0 0.5rem 0;">${escapeHtml(ev.nom)}</h3>
+                                        <p style="color: #333; font-size: 1rem; margin-bottom: 1.5rem;">${escapeHtml(ev.descriptions || '')}</p>
+                                    </div>
+                                    <a href="evenement-details.html?id=${encodeURIComponent(ev.id || ev.ID || ev.ID_event || '')}" style="background: #219653; color: #fff; border-radius: 0.5rem; padding: 0.7rem 2rem; text-align: center; text-decoration: none; font-weight: 600; margin-top: auto;">Voir Détails</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error('Error loading events:', err);
+                container.innerHTML = '<p>Impossible de charger les événements pour le moment.</p>';
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        // Auto-load events when on events page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPublicEvents();
+        });
+
 //propos
 
 // Animation des compteurs

@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panneau Admin - UESBA</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="admin.css">
     <script>
-        if (!localStorage.getItem('uesba_user')) window.location.href = 'login.html';
+        if (!localStorage.getItem('auth_token')) window.location.href = 'login.html';
     </script>
 </head>
 <body>
@@ -21,10 +21,7 @@
                 <span class="icon">📊</span>
                 <span>Tableau de bord</span>
             </button>
-            <button class="nav-btn" data-section="activities">
-                <span class="icon">🎯</span>
-                <span>Activités</span>
-            </button>
+            
             <button class="nav-btn" data-section="members">
                 <span class="icon">👥</span>
                 <span>Membres Bureau</span>
@@ -66,13 +63,7 @@
             <!-- Dashboard Section -->
             <section id="dashboard-section" class="admin-section active">
                 <div class="dashboard-grid">
-                    <div class="stats-card">
-                        <div class="stat-icon">🎯</div>
-                        <div class="stat-content">
-                            <h3>Activités</h3>
-                            <p class="stat-number" id="stat-activities">0</p>
-                        </div>
-                    </div>
+                    
                     <div class="stats-card">
                         <div class="stat-icon">👥</div>
                         <div class="stat-content">
@@ -104,32 +95,7 @@
                 </div>
             </section>
 
-            <!-- Activities Section -->
-            <section id="activities-section" class="admin-section">
-                <div class="section-header">
-                    <h2>Gestion des Activités</h2>
-                    <button class="btn-primary" onclick="openAddModal('activity')">+ Nouvelle Activité</button>
-                </div>
-                <div class="table-container">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Titre</th>
-                                <th>Description</th>
-                                <th>Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="activities-list">
-                            <tr class="empty-row">
-                                <td colspan="4">Aucune activité</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                   
-                </div>
-            </section>
-
+           
             <!-- Members Section -->
             <section id="members-section" class="admin-section">
                 <div class="section-header">
@@ -142,8 +108,8 @@
                             <tr>
                                 <th>Nom</th>
                                 <th>Poste</th>
-                                <th>Email</th>
-                                <th>Téléphone</th>
+                                <th>Spécialité</th>
+                                <th>Université</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -181,9 +147,7 @@
                     </table>
                    
                 </div>
-                 <div class="action-buttons">
-                        <a href="event-details.html" class="btn-primary">📝 Détails des événements</a>
-                    </div>
+                
             </section>
 
             <!-- News Section -->
@@ -210,9 +174,7 @@
                     </table>
                    
                 </div>
-                 <div class="action-buttons">
-                        <a href="actualite-details.html" class="btn-primary">📄 Ajouter un article</a>
-                    </div>
+                 
             </section>
 
             <!-- Messages Section -->
@@ -271,16 +233,23 @@
                     <input type="text" id="memberPosition" required>
                 </div>
                 <div class="form-group">
+                    <label for="memberSpeciality">Spécialité</label>
+                    <input type="text" id="memberSpeciality" placeholder="Ex: Master en Analyse de Données">
+                </div>
+                <div class="form-group">
+                    <label for="memberUniversity">Université</label>
+                    <input type="text" id="memberUniversity" placeholder="Ex: USTHB">
+                </div>
+                <div class="form-group">
                     <label for="memberEmail">Email</label>
-                    <input type="email" id="memberEmail">
+                    <input type="email" id="memberEmail" placeholder="prenom.nom@exemple.com">
                 </div>
                 <div class="form-group">
-                    <label for="memberPhone">Téléphone</label>
-                    <input type="tel" id="memberPhone">
-                </div>
-                <div class="form-group">
-                    <label for="memberImage">URL Image</label>
-                    <input type="text" id="memberImage" placeholder="https://...">
+                    <label for="memberImageFile">Image (fichier)</label>
+                    <input type="file" id="memberImageFile" accept="image/*">
+                    <div style="margin-top:8px;">
+                        <img id="memberImagePreview" src="" alt="Aperçu" style="max-width:120px; display:none; border-radius:6px; border:1px solid #ddd;" />
+                    </div>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Enregistrer</button>
@@ -309,12 +278,22 @@
                     <input type="text" id="eventLocation" required>
                 </div>
                 <div class="form-group">
+                    <label for="eventType">Type *</label>
+                    <select id="eventType" required>
+                        <option value="presentiel">Présentiel</option>
+                        <option value="En_ligne">En ligne</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="eventDescription">Description *</label>
                     <textarea id="eventDescription" rows="4" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="eventImage">URL Image</label>
-                    <input type="text" id="eventImage" placeholder="https://...">
+                    <label for="eventImage">Image (fichier)</label>
+                    <input type="file" id="eventImage" accept="image/*">
+                    <div style="margin-top:8px;">
+                        <img id="eventImagePreview" src="" alt="Aperçu" style="max-width:200px; display:none; border-radius:6px; border:1px solid #ddd;" />
+                    </div>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Enregistrer</button>
@@ -339,6 +318,17 @@
                     <textarea id="newsContent" rows="6" required></textarea>
                 </div>
                 <div class="form-group">
+                    <label for="newsCategory">Catégorie *</label>
+                    <select id="newsCategory" required>
+                        <option value="general">Toutes</option>
+                        <option value="annonces">Annonces</option>
+                        <option value="evenements">Événements</option>
+                        <option value="academique">Académique</option>
+                        <option value="social">Social</option>
+                        
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="newsDate">Date *</label>
                     <input type="date" id="newsDate" required>
                 </div>
@@ -346,6 +336,7 @@
                     <label for="newsImage">URL Image</label>
                     <input type="text" id="newsImage" placeholder="https://...">
                 </div>
+                <!-- PDF upload removed -->
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Enregistrer</button>
                     <button type="button" class="btn-secondary" onclick="closeModal('newsModal')">Annuler</button>
@@ -363,6 +354,45 @@
             <div class="form-actions">
                 <button type="button" class="btn-secondary" onclick="closeModal('messageModal')">Fermer</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Event Details Modal (PDF + description) -->
+    <div id="eventDetailModal" class="modal">
+        <div class="modal-content modal-medium">
+            <span class="close" onclick="closeModal('eventDetailModal')">&times;</span>
+            <h2>Détails de l'événement</h2>
+            <form id="eventDetailForm" onsubmit="saveEventDetails(event)">
+                <input type="hidden" id="detailEventId">
+                <div class="form-row" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;">
+                    <div class="form-group" style="flex:1;min-width:180px;">
+                        <label for="detailDate">Date</label>
+                        <input type="date" id="detailDate">
+                    </div>
+                    <div class="form-group" style="flex:2;min-width:200px;">
+                        <label for="detailLocation">Lieu</label>
+                        <input type="text" id="detailLocation" placeholder="Ex: Salle A, Université...">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="detailImage">Image (détails)</label>
+                    <input type="file" id="detailImage" accept="image/*">
+                    <div style="margin-top:8px;">
+                        <img id="detailImagePreview" src="" alt="Aperçu" style="max-width:220px; display:none; border-radius:6px; border:1px solid #ddd;" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="detailDescription">Description détaillée</label>
+                    <textarea id="detailDescription" rows="6"></textarea>
+                </div>
+                <!-- PDF upload/selection removed per request -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Enregistrer</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal('eventDetailModal')">Annuler</button>
+                </div>
+            </form>
         </div>
     </div>
 

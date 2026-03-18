@@ -190,7 +190,7 @@
 
             try {
                 // Appel API vers votre backend Laravel
-                const response = await fetch('http://votre-api.com/api/login', {
+                const response = await fetch('http://127.0.0.1:8000/api/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -203,15 +203,30 @@
                 if (!response.ok) {
                     errorMsg.textContent = '❌ ' + (data.message || 'Erreur de connexion');
                     errorMsg.classList.add('show');
+                    console.error('Login error response:', data);
                     return;
                 }
 
-                localStorage.setItem('uesba_token', data.token);
-                localStorage.setItem('uesba_user', JSON.stringify(data.user));
-                successMsg.textContent = '✅ Connexion réussie!';
+                // Accept several possible token keys returned by different backends
+                const token = data.token || data.access_token || data.plainTextToken || (data.data && (data.data.token || data.data.access_token));
+                if (!token) {
+                    errorMsg.textContent = '❌ Impossible de récupérer le token depuis la réponse du serveur.';
+                    errorMsg.classList.add('show');
+                    console.error('Login success but no token in response:', data);
+                    return;
+                }
+
+                // store token under `auth_token` to match frontend/js/api.js interceptor
+                localStorage.setItem('auth_token', token);
+                // store user if present
+                const user = data.user || data.data?.user || null;
+                if (user) localStorage.setItem('auth_user', JSON.stringify(user));
+
+                successMsg.textContent = '✅ Connexion réussie! Redirection...';
                 successMsg.classList.add('show');
 
-                setTimeout(() => window.location.href = 'admin.html', 1000);
+                // redirect reliably
+                window.location.assign('admin.html');
             } catch (error) {
                 errorMsg.textContent = '❌ Erreur de connexion au serveur';
                 errorMsg.classList.add('show');
