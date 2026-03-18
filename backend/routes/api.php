@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EvenementsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\MessagesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,6 +14,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('isAdmin')->group(function () {
         route::get('/dash', [HomeController::class, 'Dash']);
         Route::post('/logout', [AuthController::class, 'LogOut']);
+
+        Route::get('/messages', [MessagesController::class, 'index']);
 
         Route::post('/create-actualite', [ActualitesController::class, 'CreateActualite']);
         Route::delete('/delete-actualite', [ActualitesController::class, 'DeleteActualite']);
@@ -42,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::post('/login', [AuthController::class, 'Login']);
 Route::get('/send-mail', [UserController::class, 'SendMail']);
+Route::post('/messages', [MessagesController::class, 'store']);
 Route::get('evenements', [EvenementsController::class, 'GetEvents']);
 Route::post("evenement/{id}", [EvenementsController::class, 'DetailEvent']);
 Route::get('/actualites', [ActualitesController::class, 'GetActualites']);

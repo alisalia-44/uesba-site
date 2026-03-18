@@ -25,7 +25,8 @@ class FileUpload
 
         $file->storeAs($folderName, $name, 'public');
 
-        return $name;
+        // return path relative to storage/app/public so we can build a storage URL later
+        return $folderName . '/' . $name;
     }
 
     // public function DeleteFile($file, $folderName)
