@@ -216,7 +216,7 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
             $member = user::findOrFail($request->id);
-            if (!$member->poste || $memberAnnePost){
+            if (!$member->poste || !$member->AnnePost){
                 return response()->json([
                     'message'=>'cet membre n\'est pas habilite'
                 ],401);
