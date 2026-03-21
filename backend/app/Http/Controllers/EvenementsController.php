@@ -26,9 +26,11 @@ public function CreateEvent(Request $request)
     ]);
 
     if ($validator->fails()) {
-        return response()->json([
-            'message' => 'les champs ne sont pas correctement renseigne'
-        ], 400);
+            return response()->json([
+                'message' => 'les champs ne sont pas correctement renseigne',
+                'errors' => $validator->errors(),
+                'input' => $request->all()
+            ], 400);
     }
 
     DB::beginTransaction();
@@ -45,7 +47,7 @@ public function CreateEvent(Request $request)
             'nom' => $request->nom_event,
             'descriptions' => $request->description_event,
             'date_evenement' => $request->date_event,
-            'type' => ucfirst($request->type),
+            'type' => $request->type,
             'lieu' => $request->lieu,
             'photo' => $fileUpLoad
         ]);
@@ -78,9 +80,11 @@ public function UpdateEvent(Request $request)
     ]);
 
     if ($validator->fails()) {
-        return response()->json([
-            'message' => 'les champs ne sont pas correctement'
-        ], 400);
+            return response()->json([
+                'message' => 'les champs ne sont pas correctement',
+                'errors' => $validator->errors(),
+                'input' => $request->all()
+            ], 400);
     }
 
     DB::beginTransaction();
@@ -99,7 +103,7 @@ public function UpdateEvent(Request $request)
             'nom' => $request->nom_event ?? $event->nom,
             'descriptions' => $request->description_event ?? $event->descriptions,
             'date_evenement' => $request->date_event ?? $event->date_evenement,
-            'type' => $request->type ? ucfirst($request->type) : $event->type,
+            'type' => $request->type ?? $event->type,
             'lieu' => $request->lieu ?? $event->lieu,
             'photo' => $fileUpLoad
         ]);
@@ -119,11 +123,17 @@ public function UpdateEvent(Request $request)
         ], 500);
     }
 }
-public function DeleteEvent(int $id)
+public function DeleteEvent(Request $request, $id = null)
 {
     DB::beginTransaction();
 
     try {
+
+        // support both route parameter and JSON body { id }
+        $id = $id ?? $request->input('id');
+        if (!$id) {
+            return response()->json([ 'message' => 'id manquant' ], 400);
+        }
 
         $event = evenements::findOrFail($id);
 
@@ -147,9 +157,10 @@ public function DeleteEvent(int $id)
 
     public function GetEvents()
     {
-        $ev =  evenements::paginate(10);
+        // Return all events ordered by newest first so public site immediately sees newly created events
+        $ev = evenements::orderBy('created_at', 'desc')->get();
         return response()->json([
-            'evenement'=>EventRessource::collection($ev)
+            'evenement' => EventRessource::collection($ev)
         ]);
     }
     public function DetailEvent( int $id)
