@@ -44,7 +44,8 @@ class UserController extends Controller
                 'name' => $request->nom,
                 'prenom' => $request->prenom,
                 'annePoste' => $request->annePoste ? $request->annePoste : null,
-                'decriptions' => $request->descriptions ? $request->descriptions : null
+                'decriptions' => $request->descriptions ? $request->descriptions : null,
+                'postes'=>$request->poste
             ]);
             if (isset($request->photo) && $request->file('photo')) {
                 $fileup = new FileUpload();
@@ -54,7 +55,7 @@ class UserController extends Controller
                 ]);
             }
 
-            $user->AssignRoles($request->poste);
+            $user->AssignRoles('membres_bureaux');
 
             return response()->json([
                 'message' => 'membre ajouter avec succes'
@@ -85,6 +86,7 @@ class UserController extends Controller
 
         try {
             $user = User::findOrFail($request->id);
+        
 
             $user->delete();
 
@@ -112,7 +114,7 @@ class UserController extends Controller
             'photo' => 'nullable|mimes:*',
             'nom' => 'nullable|string',
             'prenom' => 'nullable|string',
-            'poste' => 'nullable|string',
+            'poste' => 'nullabmembres_bureauxle|string',
             'annePoste' => 'nullable|datetime',
             'descriptions' => 'nullable|string'
         ]);
@@ -236,4 +238,10 @@ class UserController extends Controller
             ],500);
         }
     }
+public function GetMembers()
+{
+    $membres = User::whereHas('roles', fn($q) => $q->where('name', 'membres_bureaux'))->get();
+    
+    return response()->json([$membres],200);
+}
 }
