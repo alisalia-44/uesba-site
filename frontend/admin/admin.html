@@ -21,7 +21,7 @@
                 <span class="icon">📊</span>
                 <span>Tableau de bord</span>
             </button>
-            
+           
             <button class="nav-btn" data-section="members">
                 <span class="icon">👥</span>
                 <span>Membres Bureau</span>
@@ -95,7 +95,7 @@
                 </div>
             </section>
 
-           
+            
             <!-- Members Section -->
             <section id="members-section" class="admin-section">
                 <div class="section-header">
@@ -108,8 +108,8 @@
                             <tr>
                                 <th>Nom</th>
                                 <th>Poste</th>
-                                <th>Spécialité</th>
-                                <th>Université</th>
+                                <th>Email</th>
+                                <th>Téléphone</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -147,7 +147,7 @@
                     </table>
                    
                 </div>
-                
+                 
             </section>
 
             <!-- News Section -->
@@ -174,7 +174,7 @@
                     </table>
                    
                 </div>
-                 
+                
             </section>
 
             <!-- Messages Section -->
@@ -192,31 +192,7 @@
     </main>
 
     <!-- Modals -->
-    <!-- Activity Modal -->
-    <div id="activityModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('activityModal')">&times;</span>
-            <h2 id="activityModalTitle">Ajouter une Activité</h2>
-            <form id="activityForm" onsubmit="saveActivity(event)">
-                <div class="form-group">
-                    <label for="activityTitle">Titre *</label>
-                    <input type="text" id="activityTitle" required>
-                </div>
-                <div class="form-group">
-                    <label for="activityDescription">Description *</label>
-                    <textarea id="activityDescription" rows="4" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="activityDate">Date *</label>
-                    <input type="date" id="activityDate" required>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn-primary">Enregistrer</button>
-                    <button type="button" class="btn-secondary" onclick="closeModal('activityModal')">Annuler</button>
-                </div>
-            </form>
-        </div>
-    </div>
+   
 
     <!-- Member Modal -->
     <div id="memberModal" class="modal">
@@ -229,27 +205,24 @@
                     <input type="text" id="memberName" required>
                 </div>
                 <div class="form-group">
+                    <label for="memberPrenom">Prénom *</label>
+                    <input type="text" id="memberPrenom" required>
+                </div>
+                <div class="form-group">
                     <label for="memberPosition">Poste *</label>
                     <input type="text" id="memberPosition" required>
                 </div>
                 <div class="form-group">
-                    <label for="memberSpeciality">Spécialité</label>
-                    <input type="text" id="memberSpeciality" placeholder="Ex: Master en Analyse de Données">
-                </div>
-                <div class="form-group">
-                    <label for="memberUniversity">Université</label>
-                    <input type="text" id="memberUniversity" placeholder="Ex: USTHB">
-                </div>
-                <div class="form-group">
                     <label for="memberEmail">Email</label>
-                    <input type="email" id="memberEmail" placeholder="prenom.nom@exemple.com">
+                    <input type="email" id="memberEmail">
                 </div>
                 <div class="form-group">
-                    <label for="memberImageFile">Image (fichier)</label>
-                    <input type="file" id="memberImageFile" accept="image/*">
-                    <div style="margin-top:8px;">
-                        <img id="memberImagePreview" src="" alt="Aperçu" style="max-width:120px; display:none; border-radius:6px; border:1px solid #ddd;" />
-                    </div>
+                    <label for="memberPhone">Téléphone</label>
+                    <input type="tel" id="memberPhone">
+                </div>
+                <div class="form-group">
+                    <label for="memberImage">URL Image</label>
+                    <input type="text" id="memberImage" placeholder="https://...">
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Enregistrer</button>
@@ -318,25 +291,24 @@
                     <textarea id="newsContent" rows="6" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="newsCategory">Catégorie *</label>
-                    <select id="newsCategory" required>
-                        <option value="general">Toutes</option>
-                        <option value="annonces">Annonces</option>
-                        <option value="evenements">Événements</option>
-                        <option value="academique">Académique</option>
-                        <option value="social">Social</option>
-                        
-                    </select>
-                </div>
-                <div class="form-group">
                     <label for="newsDate">Date *</label>
                     <input type="date" id="newsDate" required>
                 </div>
                 <div class="form-group">
-                    <label for="newsImage">URL Image</label>
-                    <input type="text" id="newsImage" placeholder="https://...">
+                    <label for="newsCategory">Catégorie *</label>
+                   <select id="newsCategory" required>
+                        <option value="annonce">Annonces</option>
+                        <option value="academique">Académique</option>
+                        <option value="social">Social</option>
+                    </select>
                 </div>
-                <!-- PDF upload removed -->
+                <div class="form-group">
+                    <label for="newsImage">Image (fichier)</label>
+                    <input type="file" id="newsImage" accept="image/*">
+                    <div style="margin-top:8px;">
+                        <img id="newsImagePreview" src="" alt="Aperçu" style="max-width:200px; display:none; border-radius:6px; border:1px solid #ddd;" />
+                    </div>
+                </div>
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Enregistrer</button>
                     <button type="button" class="btn-secondary" onclick="closeModal('newsModal')">Annuler</button>
@@ -357,45 +329,7 @@
         </div>
     </div>
 
-    <!-- Event Details Modal (PDF + description) -->
-    <div id="eventDetailModal" class="modal">
-        <div class="modal-content modal-medium">
-            <span class="close" onclick="closeModal('eventDetailModal')">&times;</span>
-            <h2>Détails de l'événement</h2>
-            <form id="eventDetailForm" onsubmit="saveEventDetails(event)">
-                <input type="hidden" id="detailEventId">
-                <div class="form-row" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;">
-                    <div class="form-group" style="flex:1;min-width:180px;">
-                        <label for="detailDate">Date</label>
-                        <input type="date" id="detailDate">
-                    </div>
-                    <div class="form-group" style="flex:2;min-width:200px;">
-                        <label for="detailLocation">Lieu</label>
-                        <input type="text" id="detailLocation" placeholder="Ex: Salle A, Université...">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="detailImage">Image (détails)</label>
-                    <input type="file" id="detailImage" accept="image/*">
-                    <div style="margin-top:8px;">
-                        <img id="detailImagePreview" src="" alt="Aperçu" style="max-width:220px; display:none; border-radius:6px; border:1px solid #ddd;" />
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="detailDescription">Description détaillée</label>
-                    <textarea id="detailDescription" rows="6"></textarea>
-                </div>
-                <!-- PDF upload/selection removed per request -->
-                <div class="form-actions">
-                    <button type="submit" class="btn-primary">Enregistrer</button>
-                    <button type="button" class="btn-secondary" onclick="closeModal('eventDetailModal')">Annuler</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
+    <script type="module" src="../js/api.js"></script>
     <script src="admin.js"></script>
 </body>
 </html>

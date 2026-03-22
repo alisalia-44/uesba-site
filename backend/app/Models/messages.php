@@ -12,8 +12,9 @@ class messages extends Model
         'nom_complet'
     ];
 
-    public function GetNomCompletAttribute($value)
+    public function getNomCompletAttribute($value)
     {
         return ucfirst($value);
     }
 }
+

@@ -1,43 +1,28 @@
-import axios from 'axios';
+// Lightweight fetch-based API wrapper so frontend works without bundler
+const BASE_URL = (window && window.__API_BASE__) ? window.__API_BASE__ : 'http://127.0.0.1:8000/api';
 
-const BASE_URL = 'http://127.0.0.1:8000/api';
-
-const api = axios.create({
-	baseURL: BASE_URL,
-	headers: {
-		'Accept': 'application/json',
-	},
-});
-
-// Attach bearer token from localStorage if present
-api.interceptors.request.use((config) => {
+function _getAuthHeader() {
 	try {
 		const token = localStorage.getItem('auth_token');
-		if (token) {
-			config.headers = config.headers || {};
-			config.headers.Authorization = `Bearer ${token}`;
-		}
+		return token ? { 'Authorization': 'Bearer ' + token } : {};
 	} catch (e) {
-		// localStorage might not be available in some environments
+		return {};
 	}
-	return config;
-}, (error) => Promise.reject(error));
+}
 
-function _formatError(err) {
-	if (!err) return { message: 'Unknown error' };
-	if (err.response) {
-		const data = err.response.data;
-		const message = data && (data.message || data.error) ? (data.message || data.error) : JSON.stringify(data);
-		return { message, status: err.response.status, raw: data };
-	}
-	return { message: err.message || String(err) };
+async function _safeJson(resp) {
+	const text = await resp.text().catch(() => '');
+	try { return text ? JSON.parse(text) : null; } catch (e) { return { __raw: text }; }
+}
+
+function _buildError(status, data) {
+	return { message: (data && (data.message || data.error)) ? (data.message || data.error) : 'API error', status, raw: data };
 }
 
 function _appendFormData(fd, obj) {
 	Object.keys(obj || {}).forEach((key) => {
 		const val = obj[key];
 		if (val === undefined || val === null) return;
-		// If array, append each
 		if (Array.isArray(val)) {
 			val.forEach((v) => fd.append(`${key}[]`, v));
 		} else {
@@ -47,202 +32,70 @@ function _appendFormData(fd, obj) {
 }
 
 const apiService = {
+	async _request(path, opts = {}) {
+		const url = BASE_URL + path;
+		const headers = Object.assign({ 'Accept': 'application/json' }, opts.headers || {}, _getAuthHeader());
+		const cfg = Object.assign({}, opts, { headers });
+		try {
+			const resp = await fetch(url, cfg);
+			const data = await _safeJson(resp);
+			if (!resp.ok) return { success: false, error: _buildError(resp.status, data) };
+			return { success: true, data };
+		} catch (err) {
+			return { success: false, error: { message: err.message || String(err) } };
+		}
+	},
+
 	// Auth
 	async login(credentials) {
-		try {
-			const res = await api.post('/login', credentials);
-			return { success: true, data: res.data };
-		} catch (err) {
-			return { success: false, error: _formatError(err) };
-		}
+		return await this._request('/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(credentials) });
 	},
+	async logout() { return await this._request('/logout', { method: 'POST' }); },
 
-	async logout() {
-		try {
-			const res = await api.post('/logout');
-			return { success: true, data: res.data };
-		} catch (err) {
-			return { success: false, error: _formatError(err) };
-		}
-	},
-
-	// Admin / Dashboard
-	async getDash() {
-		try {
-			const res = await api.get('/dash');
-			return { success: true, data: res.data };
-		} catch (err) {
-			return { success: false, error: _formatError(err) };
-		}
-	},
+	// Dashboard
+	async getDash() { return await this._request('/dash'); },
 
 	// Actualites
-	async getActualites() {
-		try {
-			const res = await api.get('/actualites');
-			return { success: true, data: res.data };
-		} catch (err) {
-			return { success: false, error: _formatError(err) };
-		}
-	},
-
-	async getActualiteDetail(id) {
-		try {
-			const res = await api.post(`/actualite/${encodeURIComponent(id)}`);
-			return { success: true, data: res.data };
-		} catch (err) {
-			return { success: false, error: _formatError(err) };
-		}
-	},
-
+	async getActualites() { return await this._request('/actualites'); },
+	async getActualiteDetail(id) { return await this._request(`/actualite/${encodeURIComponent(id)}`); },
 	async createActualite(payload = {}) {
-		try {
-			const fd = new FormData();
-			_appendFormData(fd, payload);
-			const res = await api.post('/create-actualite', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-			return { success: true, data: res.data };
-		} catch (err) {
-			return { success: false, error: _formatError(err) };
-		}
+		const fd = new FormData(); _appendFormData(fd, payload);
+		return await this._request('/create-actualite', { method: 'POST', body: fd });
 	},
-
-	async deleteActualite(payload = {}) {
-		try {
-			const res = await api.delete('/delete-actualite', { data: payload });
-			return { success: true, data: res.data };
-		} catch (err) {
-			return { success: false, error: _formatError(err) };
-		}
-	},
-
 	async updateActualite(payload = {}) {
-		try {
-			const fd = new FormData();
-			_appendFormData(fd, payload);
-			// Use POST + method override for multipart uploads (PUT with multipart may not include files in PHP)
-			fd.append('_method', 'PUT');
-			const res = await api.post('/update-actualite', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-			return { success: true, data: res.data };
-		} catch (err) {
-			return { success: false, error: _formatError(err) };
-		}
+		const fd = new FormData(); _appendFormData(fd, payload); fd.append('_method', 'PUT');
+		return await this._request('/update-actualite', { method: 'POST', body: fd });
+	},
+	async deleteActualite(id) {
+	return await this._request(`/delete-actualite/${encodeURIComponent(id)}`, {
+		method: 'DELETE'
+	});
 	},
 
 	// Evenements
-	async getEvents() {
-		try {
-			const res = await api.get('/evenements');
-			return { success: true, data: res.data };
-		} catch (err) {
-			return { success: false, error: _formatError(err) };
-		}
-	},
-
-	async getEventDetail(id) {
-		try {
-			const res = await api.post(`/evenement/${encodeURIComponent(id)}`);
-			return { success: true, data: res.data };
-		} catch (err) {
-			return { success: false, error: _formatError(err) };
-		}
-	},
-
+	async getEvents() { return await this._request('/evenements'); },
+	async getEventDetail(id) { return await this._request(`/evenement/${encodeURIComponent(id)}`); },
 	async createEvenement(payload = {}) {
-		try {
-			const fd = new FormData();
-			_appendFormData(fd, payload);
-			const res = await api.post('/create-evenement', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-			return { success: true, data: res.data };
-		} catch (err) {
-			return { success: false, error: _formatError(err) };
-		}
+		const fd = new FormData(); _appendFormData(fd, payload); return await this._request('/create-evenement', { method: 'POST', body: fd });
 	},
+	async updateEvenement(payload = {}) { const fd = new FormData(); _appendFormData(fd, payload); fd.append('_method', 'PUT'); return await this._request('/update-evenement', { method: 'POST', body: fd }); },
+	async deleteEvenement(payload = {}) { return await this._request('/delete-evenement', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); },
 
-	async deleteEvenement(payload = {}) {
-		try {
-			const res = await api.delete('/delete-evenement', { data: payload });
-			return { success: true, data: res.data };
-		} catch (err) {
-			return { success: false, error: _formatError(err) };
-		}
-	},
+	// Membres
+	async createMembre(payload = {}) { const fd = new FormData(); _appendFormData(fd, payload); return await this._request('/create-membre', { method: 'POST', body: fd }); },
+	async updateMembre(payload = {}) { const fd = new FormData(); _appendFormData(fd, payload); fd.append('_method', 'PUT'); return await this._request('/update-membre', { method: 'POST', body: fd }); },
+	async deleteMembre(payload = {}) { return await this._request('/delete-membre', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); },
 
-	async updateEvenement(payload = {}) {
-		try {
-			const fd = new FormData();
-			_appendFormData(fd, payload);
-			// Use POST with method override because multipart PUT does not reliably send files in PHP
-			fd.append('_method', 'PUT');
-			const res = await api.post('/update-evenement', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-			return { success: true, data: res.data };
-		} catch (err) {
-			return { success: false, error: _formatError(err) };
-		}
-	},
-
-	// Membres / Users
-	async createMembre(payload = {}) {
-		try {
-			const fd = new FormData();
-			_appendFormData(fd, payload);
-			const res = await api.post('/create-membre', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-			return { success: true, data: res.data };
-		} catch (err) {
-			return { success: false, error: _formatError(err) };
-		}
-	},
-
-	async deleteMembre(payload = {}) {
-		try {
-			const res = await api.delete('/delete-membre', { data: payload });
-			return { success: true, data: res.data };
-		} catch (err) {
-			return { success: false, error: _formatError(err) };
-		}
-	},
-
-	async updateMembre(payload = {}) {
-		try {
-			const fd = new FormData();
-			_appendFormData(fd, payload);
-			// Use POST + _method=PUT for file uploads compatibility
-			fd.append('_method', 'PUT');
-			const res = await api.post('/update-membre', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-			return { success: true, data: res.data };
-		} catch (err) {
-			return { success: false, error: _formatError(err) };
-		}
-	},
-
-	async getMailList() {
-		try {
-			const res = await api.get('/mail-list');
-			return { success: true, data: res.data };
-		} catch (err) {
-			return { success: false, error: _formatError(err) };
-		}
-	},
-
-	async setMemberPast(payload = {}) {
-		try {
-			const res = await api.patch('/set-member-past', payload);
-			return { success: true, data: res.data };
-		} catch (err) {
-			return { success: false, error: _formatError(err) };
-		}
-	},
+	// Messages
+	async getMessages() { return await this._request('/messages'); },
+	async sendMessage(payload = {}) { return await this._request('/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); },
 
 	// Misc
-	async sendMail() {
-		try {
-			const res = await api.get('/send-mail');
-			return { success: true, data: res.data };
-		} catch (err) {
-			return { success: false, error: _formatError(err) };
-		}
-	},
+	async getMailList() { return await this._request('/mail-list'); },
+	async setMemberPast(payload = {}) { return await this._request('/set-member-past', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); },
+	async sendMail() { return await this._request('/send-mail'); }
 };
 
-// Expose for module systems and global window
-export default apiService;
+// expose globally for non-module pages
 if (typeof window !== 'undefined') window.apiService = apiService;
+export default apiService;

@@ -11,14 +11,18 @@ class actualites extends Model
 //
 
 protected $fillable = [
-'nom',
-'descriptions',
-'photo'
+    'nom',
+    'descriptions',
+    'photo',
+    'categorie'
 ];
-       
 
-public function scopeLatest_activity(Builder $query){
-    $query->where('');
+/**
+ * Scope to order by newest first
+ */
+public function scopeLatestActivity(Builder $query)
+{
+    return $query->orderBy('created_at', 'desc');
 }
 }
 

@@ -31,12 +31,11 @@ class EventRessource extends JsonResource
             'id' => $this->id,
             'nom' => $this->nom,
             'descriptions' => $this->descriptions,
-            'date_evenement' => Carbon::parse($this->date_evenement)->locale('ALG'),
+            // return ISO date string
+            'date_evenement' => $this->date_evenement ? Carbon::parse($this->date_evenement)->toDateString() : null,
             'type' => $this->type,
             'lieu' => $this->lieu,
-            'photo' => $this->photo ? 'http://localhost:8000/storage/photo/'.$this->photo : null,
-            'estPasse' => $this->isPast(),
-            'enCours' => $this->isNow()
+'photo' => $this->photo ? 'http://localhost:8000/storage/photo/'.$this->photo : null,
         ];
     }
 }

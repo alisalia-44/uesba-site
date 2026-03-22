@@ -1798,8 +1798,179 @@ body {
     min-height: 120px;
 }
 
-/* Responsive Design */
+/* ================= MOBILE FIRST (par défaut) ================= */
+
+/* Logo */
+.logo-text.mobile {
+    display: block;
+}
+
+.logo-text.desktop {
+    display: none;
+}
+
+/* Navigation */
+.desktop-nav {
+    display: none;
+}
+
+.mobile-menu-btn {
+    display: block;
+}
+
+/* Hero */
+.hero {
+    height: auto;
+}
+
+.hero-title {
+    font-size: 32px;
+    display: block;
+}
+
+.hero-mission h2 {
+    font-size: 24px;
+}
+
+.hero-mission p {
+    font-size: 16px;
+}
+
+.hero-buttons {
+    flex-direction: column;
+}
+
+/* Buttons */
+.btn {
+    font-size: 14px;
+    padding: 16px 20px;
+}
+
+/* Sections */
+.section-header h2,
+.section-title-with-icons h2 {
+    font-size: 28px;
+}
+
+/* Carousel */
+.carousel-btn {
+    width: 48px;
+    height: 48px;
+}
+
+.carousel-btn img {
+    width: 20px;
+    height: 20px;
+}
+
+/* Activity */
+.activity-card {
+    padding: 16px;
+}
+
+.activity-icon {
+    width: 48px;
+    height: 48px;
+}
+
+.activity-icon img {
+    width: 24px;
+    height: 24px;
+}
+
+.activity-content h3 {
+    font-size: 18px;
+}
+
+.activity-content p {
+    font-size: 13px;
+}
+
+/* Executive */
+.executive-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+.executive-image {
+    height: 200px;
+}
+
+.executive-image .badge {
+    width: 32px;
+    height: 32px;
+    top: 10px;
+    right: 10px;
+}
+
+.executive-info {
+    padding: 16px;
+}
+
+.executive-info h3 {
+    font-size: 18px;
+}
+
+.executive-info .position {
+    font-size: 14px;
+}
+
+.detail p {
+    font-size: 13px;
+}
+
+.executive-contact img {
+    width: 14px;
+    height: 14px;
+}
+
+.executive-contact span {
+    font-size: 13px;
+}
+
+/* Footer */
+.footer-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+.footer-legal {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.footer-legal p {
+    text-align: center;
+}
+
+/* News */
+.news-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+/* Stats */
+.about-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+/* Contact */
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+
+/* ================= DESKTOP ================= */
 @media (min-width: 768px) {
+
     .logo-text.desktop {
         display: block;
     }
@@ -1822,7 +1993,6 @@ body {
 
     .hero-title {
         font-size: 56px;
-        display: block;
     }
 
     .hero-mission h2 {
@@ -1842,10 +2012,7 @@ body {
         padding: 24px 32px;
     }
 
-    .section-header h2 {
-        font-size: 40px;
-    }
-
+    .section-header h2,
     .section-title-with-icons h2 {
         font-size: 40px;
     }

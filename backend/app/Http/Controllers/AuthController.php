@@ -74,8 +74,19 @@ class AuthController extends Controller
 
     public function LogOut(Request $request)
     {
-        $user = $request->user();
-        $user->remember_token = '';
-        session_destroy();
+        try {
+            $user = $request->user();
+            if ($user) {
+                // Revoke current access token (sanctum)
+                if (method_exists($user, 'currentAccessToken') && $request->user()->currentAccessToken()) {
+                    $request->user()->currentAccessToken()->delete();
+                }
+                $user->remember_token = '';
+                $user->save();
+            }
+            return response()->json(['success' => true, 'message' => 'Déconnexion réussie']);
+        } catch (Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Erreur lors de la déconnexion', 'error' => $e->getMessage()], 500);
+        }
     }
 }

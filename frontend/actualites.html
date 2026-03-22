@@ -6,11 +6,6 @@
     <title>Actualités - UESBA</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/animations.css">
-    <style>
-        /* Ensure news tabs are on top and show pointer */
-        .news-tabs { position: relative; z-index: 20; }
-        .news-tab { cursor: pointer; }
-    </style>
 </head>
 <body>
     <header id="header">
@@ -66,12 +61,12 @@
        <div class="news-tabs">
             <button class="news-tab active" data-filter="all">Toutes</button>
             <button class="news-tab" data-filter="annonces">Annonces</button>
-            <button class="news-tab" data-filter="evenements">Événements</button>
             <button class="news-tab" data-filter="academique">Académique</button>
             <button class="news-tab" data-filter="social">Social</button>
         </div>
-        <div class="news-grid" id="news-grid">
-            <!-- Les actualités seront rendues dynamiquement depuis localStorage (adminData.news) -->
+        <div class="news-grid">
+            <!-- Les actualités seront chargées dynamiquement depuis l'API -->
+            <p class="loading">Chargement des actualités...</p>
         </div>
       </div>
    </section>
@@ -190,130 +185,6 @@ document.querySelectorAll('.mobile-nav-link').forEach(btn => {
         if(page) window.location.href = page;
     });
 });
-
-// ----- Rendu public des actualités (chargées depuis localStorage.adminData.news)
-function renderPublicNews() {
-    const container = document.getElementById('news-grid');
-    if (!container) return;
-
-    const adminData = JSON.parse(localStorage.getItem('adminData') || '{}');
-    const news = Array.isArray(adminData.news) ? adminData.news.slice().reverse() : [];
-
-    if (!news.length) {
-        container.innerHTML = '<p>Aucune actualité pour le moment.</p>';
-        return;
-    }
-
-    const categoryLabels = {
-        'general': 'Toutes',
-        'annonces': 'Annonces',
-        'evenements': 'Événements',
-        'academique': 'Académique',
-        'social': 'Social',
-        'culture': 'Culture'
-    };
-    const badgeClass = {
-        'general': 'badge-green',
-        'annonces': 'badge-gray',
-        'evenements': 'badge-green',
-        'academique': 'badge-blue',
-        'social': 'badge-orange',
-        'culture': 'badge-purple'
-    };
-
-    container.innerHTML = news.map(item => {
-        const img = item.image || 'images/img.jpeg';
-        const date = item.date || '';
-        const title = item.title || 'Sans titre';
-        const content = item.content || item.fullArticle || '';
-        const excerpt = content.length > 140 ? content.substring(0,140) + '...' : content;
-        const id = item.id || '';
-        const cat = item.category || 'general';
-        const label = categoryLabels[cat] || cat;
-        const cls = badgeClass[cat] || 'badge-green';
-        return `
-            <article class="news-card" data-category="${escapeHtml(cat)}">
-                <div class="news-image news-image-badge">
-                    <span class="news-badge ${cls}">${escapeHtml(label)}</span>
-                    <img src="${encodeURI(img)}" alt="${escapeHtml(title)}" onerror="this.onerror=null; this.src='images/img.jpeg'; this.style.display='block';" />
-                </div>
-                <div class="news-meta">
-                    <span class="news-date"><img src="https://img.icons8.com/ios-glyphs/16/888888/calendar--v1.png"/> ${escapeHtml(date)}</span>
-                </div>
-                <div class="news-content">
-                    <h3>${escapeHtml(title)}</h3>
-                    <p>${escapeHtml(excerpt)}</p>
-                    <a href="./actualite-details.html?id=${encodeURIComponent(id)}" class="news-btn" target="_blank" onclick="openArticle(event, ${encodeURIComponent(id)})">Lire l'Article</a>
-                </div>
-            </article>
-        `;
-    }).join('');
-}
-
-function escapeHtml(text) {
-    if (text === undefined || text === null) return '';
-    return String(text).replace(/[&<>"]+/g, function(s){
-        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]) || s;
-    });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    renderPublicNews();
-    setupNewsTabs();
-});
-
-// Re-render when admin updates localStorage in another window/tab
-window.addEventListener('storage', function(e) {
-    if (e.key === 'adminData') renderPublicNews();
-});
-
-function openArticle(e, id) {
-    // prevent default so we can resolve correct path for file:// and relative locations
-    if (e) e.preventDefault();
-    try {
-        const url = './actualite-details.html?id=' + encodeURIComponent(id);
-        console.log('openArticle -> opening URL:', url);
-        // open in new tab as a robust fallback
-        window.open(url, '_blank');
-    } catch (err) {
-        console.error('openArticle error', err);
-        try { window.open('./actualite-details.html?id=' + encodeURIComponent(id), '_blank'); } catch(e) { /* ignore */ }
-    }
-}
-
-function setupNewsTabs() {
-    // Use event delegation to avoid issues with overlapping elements
-    const tabsContainer = document.querySelector('.news-tabs');
-    if (!tabsContainer) return;
-    tabsContainer.addEventListener('click', function(e) {
-        const tab = e.target.closest('.news-tab');
-        if (!tab) return;
-        const tabs = tabsContainer.querySelectorAll('.news-tab');
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        const filter = tab.dataset.filter || 'all';
-        filterNews(filter);
-    });
-    // apply initial filter from the active tab
-    const active = document.querySelector('.news-tab.active');
-    const initial = active ? (active.dataset.filter || 'all') : 'all';
-    filterNews(initial);
-}
-
-function filterNews(filter) {
-    const container = document.getElementById('news-grid');
-    if (!container) return;
-    const articles = container.querySelectorAll('article.news-card');
-    if (!articles) return;
-    if (filter === 'all' || filter === 'general') {
-        articles.forEach(a => a.style.display = '');
-        return;
-    }
-    articles.forEach(a => {
-        const cat = (a.getAttribute('data-category') || 'general').toLowerCase();
-        a.style.display = (cat === String(filter).toLowerCase()) ? '' : 'none';
-    });
-}
 </script>
 </body>
 </html>

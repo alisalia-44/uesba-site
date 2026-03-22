@@ -31,4 +31,19 @@ class MessagesController extends Controller
         $msgs = messages::orderBy('created_at', 'desc')->get();
         return response()->json(['success' => true, 'data' => $msgs]);
     }
+
+    // Admin: delete a message
+    public function destroy($id)
+    {
+        $msg = messages::find($id);
+        if (!$msg) {
+            return response()->json(['success' => false, 'message' => 'Message not found'], 404);
+        }
+        try {
+            $msg->delete();
+            return response()->json(['success' => true, 'message' => 'Message deleted']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to delete message', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

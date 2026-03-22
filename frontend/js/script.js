@@ -196,32 +196,56 @@ if (statNumbers.length > 0) {
 const contactForm = document.getElementById('contactForm');
 
 if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
+    contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Get form data
+        if (window.__CONTACT_SUBMIT_IN_PROGRESS) return;
+        window.__CONTACT_SUBMIT_IN_PROGRESS = true;
+
         const formData = new FormData(contactForm);
         const data = Object.fromEntries(formData);
 
-        // Simple validation
-        if (!data.name || !data.email || !data.subject || !data.message) {
-            alert('Veuillez remplir tous les champs obligatoires.');
-            return;
-        }
-
-        // Email validation
+        // Basic validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(data.email)) {
-            alert('Veuillez entrer une adresse email valide.');
+        if (!data.name || !data.email || !data.message || !emailRegex.test(data.email)) {
+            alert('Veuillez remplir correctement les champs requis.');
+            window.__CONTACT_SUBMIT_IN_PROGRESS = false;
             return;
         }
 
-        // Simulate form submission
-        alert('Merci pour votre message ! Nous vous répondrons dans les plus brefs délais.');
-        contactForm.reset();
-
-        // In a real application, you would send the data to a server here
-        console.log('Form data:', data);
+        try {
+            // Prefer apiService if provided
+            if (window.apiService && typeof window.apiService.sendMessage === 'function') {
+                const payload = { nom_complet: data.name, email: data.email, message: data.message };
+                const res = await window.apiService.sendMessage(payload);
+                if (!res.success) {
+                    console.error('Message send failed', res.error);
+                    alert('Erreur lors de l\'envoi du message.');
+                } else {
+                    alert('Merci pour votre message ! Nous vous répondrons bientôt.');
+                    contactForm.reset();
+                }
+            } else {
+                // Fallback direct fetch
+                const resp = await fetch('http://127.0.0.1:8000/api/messages', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nom_complet: data.name, email: data.email, message: data.message })
+                });
+                if (!resp.ok) {
+                    const err = await resp.json().catch(() => ({}));
+                    console.error('Fallback message send failed', err);
+                    alert('Erreur lors de l\'envoi du message.');
+                } else {
+                    alert('Merci pour votre message ! Nous vous répondrons bientôt.');
+                    contactForm.reset();
+                }
+            }
+        } catch (err) {
+            console.error('Contact submit error:', err);
+            alert('Erreur réseau lors de l\'envoi du message.');
+        } finally {
+            window.__CONTACT_SUBMIT_IN_PROGRESS = false;
+        }
     });
 }
 
@@ -352,7 +376,7 @@ if (slides.length > 0) {
                                         <h3 style="font-size: 1.3rem; font-weight: bold; margin: 0 0 0.5rem 0;">${escapeHtml(ev.nom)}</h3>
                                         <p style="color: #333; font-size: 1rem; margin-bottom: 1.5rem;">${escapeHtml(ev.descriptions || '')}</p>
                                     </div>
-                                    <a href="evenement-details.html?id=${encodeURIComponent(ev.id || ev.ID || ev.ID_event || '')}" style="background: #219653; color: #fff; border-radius: 0.5rem; padding: 0.7rem 2rem; text-align: center; text-decoration: none; font-weight: 600; margin-top: auto;">Voir Détails</a>
+                                    <a href="event-details.html?id=${encodeURIComponent(ev.id || ev.ID || ev._id || '')}" style="background: #219653; color: #fff; border-radius: 0.5rem; padding: 0.7rem 2rem; text-align: center; text-decoration: none; font-weight: 600; margin-top: auto;">Voir Détails</a>
                                 </div>
                             </div>
                         </div>
@@ -362,6 +386,55 @@ if (slides.length > 0) {
                 console.error('Error loading events:', err);
                 container.innerHTML = '<p>Impossible de charger les événements pour le moment.</p>';
             }
+        }
+
+        // If a home container exists, render the 3 latest events there (homepage)
+        const homeContainer = document.getElementById('home-latest-events');
+        if (homeContainer) {
+            (async () => {
+                try {
+                    const res = await fetch('http://127.0.0.1:8000/api/evenements');
+                    const json = await res.json().catch(() => null);
+                    let eventsAll = [];
+                    if (json && json.evenement) {
+                        if (Array.isArray(json.evenement)) eventsAll = json.evenement;
+                        else if (json.evenement.data && Array.isArray(json.evenement.data)) eventsAll = json.evenement.data;
+                        else eventsAll = [json.evenement];
+                    }
+                    if (!eventsAll || eventsAll.length === 0) {
+                        homeContainer.innerHTML = '<p>Aucun événement pour le moment.</p>';
+                        return;
+                    }
+                    const latest = eventsAll.slice(0, 3);
+                    homeContainer.innerHTML = latest.map(ev => {
+                        const date = ev.date_evenement || ev.date || '';
+                        const photo = ev.photo || 'images/img.jpeg';
+                        return `
+                            <div style="background: #fff; border-radius: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); width: 350px; overflow: hidden; display: flex; flex-direction: column;">
+                                <div style="position: relative;">
+                                    <img src="${photo}" alt="${escapeHtml(ev.nom || ev.title || '')}" style="width: 100%; height: 220px; object-fit: cover;">
+                                </div>
+                                <div style="padding: 1.5rem 1.2rem 1rem 1.2rem; flex: 1; display: flex; flex-direction: column;">
+                                    <div style="display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 220px;">
+                                        <div>
+                                            <div style="display: flex; align-items: center; gap: 0.5rem; color: #27ae60; font-size: 1rem; margin-bottom: 0.5rem;">
+                                                <span style="font-size: 1.2rem;">&#128197;</span>
+                                                <span>${escapeHtml(date)}</span>
+                                            </div>
+                                            <h3 style="font-size: 1.3rem; font-weight: bold; margin: 0 0 0.5rem 0;">${escapeHtml(ev.nom || ev.title || '')}</h3>
+                                            <p style="color: #333; font-size: 1rem; margin-bottom: 1.5rem;">${escapeHtml((ev.descriptions || ev.description || '').slice(0,140))}</p>
+                                        </div>
+                                        <a href="event-details.html?id=${encodeURIComponent(ev.id || ev.ID || ev._id || '')}" style="background: #219653; color: #fff; border-radius: 0.5rem; padding: 0.7rem 2rem; text-align: center; text-decoration: none; font-weight: 600; margin-top: auto;">Voir Détails</a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } catch (err) {
+                    console.error('Error loading home events:', err);
+                    homeContainer.innerHTML = '<p>Impossible de charger les événements.</p>';
+                }
+            })();
         }
 
         function escapeHtml(text) {
@@ -377,6 +450,66 @@ if (slides.length > 0) {
         // Auto-load events when on events page
         document.addEventListener('DOMContentLoaded', () => {
             loadPublicEvents();
+        });
+
+        // Auto-load actualites when on actualites page
+        document.addEventListener('DOMContentLoaded', () => {
+            // load actualites only if container present
+            const newsGrid = document.querySelector('.news-grid');
+            if (!newsGrid) return;
+
+            async function loadPublicActualites() {
+                try {
+                    const res = await fetch('http://127.0.0.1:8000/api/actualites', { cache: 'no-store' });
+                    if (!res.ok) throw new Error('Failed to fetch actualites');
+                    const json = await res.json().catch(() => null);
+                    console.log('loadPublicActualites: fetched actualites', json);
+                    let list = [];
+                    if (json && json.actualites) {
+                            list = Array.isArray(json.actualites) ? json.actualites : (json.actualites.data || []);
+                    }
+
+                        // If backend returned top-level array or paginator under data
+                        if ((!list || list.length === 0) && Array.isArray(json)) list = json;
+                        if ((!list || list.length === 0) && json && json.data && Array.isArray(json.data)) list = json.data;
+
+                    if (!list || list.length === 0) {
+                        newsGrid.innerHTML = '<p>Aucune actualité pour le moment.</p>';
+                        return;
+                    }
+
+                    newsGrid.innerHTML = list.map(item => {
+                        const photo = item.photo || 'images/img.jpeg';
+                        const date = item.created_at || item.date || '';
+                        const categorie = item.categorie || '';
+                        const title = item.nom || item.title || '';
+                        const desc = (item.descriptions || item.descript || '').slice(0, 220);
+                        const nid = encodeURIComponent(item.id || item.ID || item._id || '');
+                        return `
+                            <article class="news-card" data-category="${escapeHtml(categorie)}">
+                                <div class="news-image news-image-badge">
+                                    <span class="news-badge badge-green">${escapeHtml(categorie || 'Actualité')}</span>
+                                    <img src="${photo}" alt="${escapeHtml(title)}">
+                                </div>
+                                <div class="news-meta">
+                                    <span class="news-date"><img src="https://img.icons8.com/ios-glyphs/16/888888/calendar--v1.png"/> ${escapeHtml(date)}</span>
+                                    <span class="news-author"><img src="https://img.icons8.com/ios-glyphs/16/888888/user--v1.png"/> Bureau Exécutif UESBA</span>
+                                </div>
+                                <div class="news-content">
+                                    <h3>${escapeHtml(title)}</h3>
+                                    <p>${escapeHtml(desc)}</p>
+                                    <a href="actualite-details.html?id=${nid}" class="news-btn">Lire l'Article</a>
+                                </div>
+                            </article>
+                        `;
+                    }).join('');
+                } catch (err) {
+                    console.error('Error loading actualites:', err);
+                    newsGrid.innerHTML = '<p>Impossible de charger les actualités pour le moment.</p>';
+                }
+            }
+
+            loadPublicActualites();
         });
 
 //propos

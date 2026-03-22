@@ -43,7 +43,7 @@ public function CreateEvent(Request $request)
             $fileUpLoad = (new FileUpload())->UploadFile($request->file('photo'), 'photo');
         }
 
-        evenements::create([
+        $ev = evenements::create([
             'nom' => $request->nom_event,
             'descriptions' => $request->description_event,
             'date_evenement' => $request->date_event,
@@ -55,7 +55,8 @@ public function CreateEvent(Request $request)
         DB::commit();
 
         return response()->json([
-            'message' => 'evenement creer avec succes'
+            'message' => 'evenement creer avec succes',
+            'event' => new EventRessource($ev)
         ], 201);
 
     } catch (Exception $e) {
@@ -67,8 +68,10 @@ public function CreateEvent(Request $request)
         ], 500);
     }
 }
-public function UpdateEvent(Request $request)
+public function UpdateEvent(Request $request, $id = null)
 {
+    // If id provided via route, merge into request for validation/processing
+    if ($id) $request->merge(['id' => $id]);
     $validator = Validator::make($request->all(), [
         'id' => 'required',
         'nom_event' => 'nullable|string',
@@ -111,7 +114,8 @@ public function UpdateEvent(Request $request)
         DB::commit();
 
         return response()->json([
-            'message' => 'evenement modifie avec succes'
+            'message' => 'evenement modifie avec succes',
+            'event' => new EventRessource($event)
         ], 200);
 
     } catch (Exception $e) {
@@ -163,6 +167,25 @@ public function DeleteEvent(Request $request, $id = null)
             'evenement' => EventRessource::collection($ev)
         ]);
     }
+    
+    // Return the 3 upcoming events ordered by date
+    public function Latest()
+    {
+        try {
+            $now = now();
+            $ev = evenements::where('date_evenement', '>=', $now)
+                ->orderBy('date_evenement', 'asc')
+                ->limit(3)
+                ->get();
+            // fall back to most recent created if no upcoming
+            if ($ev->count() === 0) {
+                $ev = evenements::orderBy('created_at', 'desc')->limit(3)->get();
+            }
+            return response()->json(['success' => true, 'data' => EventRessource::collection($ev)]);
+        } catch (Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
     public function DetailEvent( int $id)
     {
         $even = evenements::find($id);
@@ -172,8 +195,9 @@ public function DeleteEvent(Request $request, $id = null)
             ],404);
         }
 
+        // Return a single event resource
         return response()->json([
-            'event'=>EventRessource::collection($even)
-        ]);
+            'event' => new EventRessource($even)
+        ], 200);
     }
 }

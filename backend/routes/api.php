@@ -16,6 +16,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'LogOut']);
 
         Route::get('/messages', [MessagesController::class, 'index']);
+        Route::delete('/messages/{id}', [MessagesController::class, 'destroy']);
 
         Route::post('/create-actualite', [ActualitesController::class, 'CreateActualite']);
         Route::delete('/delete-actualite', [ActualitesController::class, 'DeleteActualite']);
@@ -25,6 +26,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/create-evenement', [EvenementsController::class, 'CreateEvent']);
         Route::delete('/delete-evenement', [EvenementsController::class, 'DeleteEvent']);
         Route::put('/update-evenement', [EvenementsController::class, 'UpdateEvent']);
+
+        // RESTful event endpoints (new)
+        Route::get('/evenements', [EvenementsController::class, 'GetEvents']);
+        Route::post('/evenements', [EvenementsController::class, 'CreateEvent']);
+        Route::put('/evenements/{id}', [EvenementsController::class, 'UpdateEvent']);
+        Route::delete('/evenements/{id}', [EvenementsController::class, 'DeleteEvent']);
+        Route::get('/evenements/latest', [EvenementsController::class, 'Latest']);
+        Route::get('/evenements/{id}', [EvenementsController::class, 'DetailEvent']);
 
 
 

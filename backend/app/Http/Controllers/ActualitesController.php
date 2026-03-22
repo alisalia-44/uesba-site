@@ -159,10 +159,11 @@ class ActualitesController extends Controller
     }
 
     public function TreeLatest(){
-           $actualite = actualites::latest()->take(3)->get;
+        $actualite = actualites::orderBy('created_at', 'desc')->limit(3)->get();
 
         return response()->json([
-            'actualite' => $actualite
+            'success' => true,
+            'data' => $actualite
         ]);
     }
 }

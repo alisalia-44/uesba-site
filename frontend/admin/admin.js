@@ -63,42 +63,6 @@ const DataManager = {
 let currentEditingId = null;
 let currentEditingCategory = null;
 
-// Utility: convert File to data URL (Promise)
-function fileToDataUrl(file) {
-    return new Promise((resolve) => {
-        if (!file) return resolve('');
-        try {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result || '');
-            reader.onerror = () => resolve('');
-            reader.readAsDataURL(file);
-        } catch (e) {
-            resolve('');
-        }
-    });
-}
-
-// preview wiring for detail image input
-const detailImageInput = document.getElementById('detailImage');
-if (detailImageInput) {
-    detailImageInput.addEventListener('change', (ev) => {
-        const f = ev.target.files && ev.target.files[0] ? ev.target.files[0] : null;
-        const preview = document.getElementById('detailImagePreview');
-        if (!preview) return;
-        if (!f) {
-            preview.src = '';
-            preview.style.display = 'none';
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            preview.src = e.target.result;
-            preview.style.display = 'block';
-        };
-        reader.readAsDataURL(f);
-    });
-}
-
 // ===== DOM ELEMENTS =====
 const sidebar = document.querySelector('.admin-sidebar');
 const navButtons = document.querySelectorAll('.nav-btn');
@@ -156,18 +120,18 @@ function switchSection(sectionName) {
     // Update title
     const titles = {
         'dashboard': 'Tableau de bord',
-        'activities': 'Gestion des Activités',
+        
         'members': 'Gestion des Membres du Bureau',
         'events': 'Gestion des Événements',
         'news': 'Gestion des Actualités',
         'videos': 'Gestion des Vidéos',
         'messages': 'Messages des Visiteurs'
     };
-    pageTitle.textContent = titles[sectionName] || 'Tableau de bord';
+    if (pageTitle) pageTitle.textContent = titles[sectionName] || 'Tableau de bord';
 
     // Load section data
     if (sectionName === 'dashboard') loadDashboard();
-    else if (sectionName === 'activities') loadActivities();
+    
     else if (sectionName === 'members') loadMembers();
     else if (sectionName === 'events') loadEvents();
     else if (sectionName === 'news') loadNews();
@@ -177,15 +141,11 @@ function switchSection(sectionName) {
 // ===== DASHBOARD =====
 function loadDashboard() {
     const data = DataManager.getData();
-    const setStat = (id, value) => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = value;
-    };
-    setStat('stat-activities', (data.activities || []).length);
-    setStat('stat-members', (data.members || []).length);
-    setStat('stat-events', (data.events || []).length);
-    setStat('stat-news', (data.news || []).length);
-    setStat('stat-messages', (data.messages || []).length);
+    
+    document.getElementById('stat-members').textContent = data.members.length;
+    document.getElementById('stat-events').textContent = data.events.length;
+    document.getElementById('stat-news').textContent = data.news.length;
+    document.getElementById('stat-messages').textContent = data.messages.length;
 }
 
 // ===== ACTIVITIES =====
@@ -238,7 +198,7 @@ async function openAddModal(type, id = null) {
     if (id) {
         const titleElement = modalElement.querySelector('h2');
         const actionTexts = {
-            'activity': 'Modifier l\'activité',
+            
             'member': 'Modifier le membre',
             'event': 'Modifier l\'événement',
             'news': 'Modifier l\'actualité',
@@ -259,6 +219,7 @@ async function openAddModal(type, id = null) {
                 document.getElementById('activityDate').value = item.date;
             } else if (type === 'member') {
                 document.getElementById('memberName').value = item.name;
+                if (document.getElementById('memberPrenom')) document.getElementById('memberPrenom').value = item.prenom || item.lastName || '';
                 document.getElementById('memberPosition').value = item.position;
                 document.getElementById('memberEmail').value = item.email || '';
                 document.getElementById('memberPhone').value = item.phone || '';
@@ -321,10 +282,47 @@ async function openAddModal(type, id = null) {
                     }
                 }
             } else if (type === 'news') {
-                document.getElementById('newsTitle').value = item.title;
-                document.getElementById('newsContent').value = item.content;
-                document.getElementById('newsDate').value = item.date;
-                document.getElementById('newsImage').value = item.image || '';
+                document.getElementById('newsTitle').value = item.title || item.nom || '';
+                document.getElementById('newsContent').value = item.content || item.descriptions || item.descript || '';
+                // try several date fields
+                const rawNewsDate = item.date || item.created_at || item.created || '';
+                try {
+                    const nd = new Date(rawNewsDate);
+                    if (!isNaN(nd)) document.getElementById('newsDate').value = nd.toISOString().split('T')[0];
+                    else document.getElementById('newsDate').value = rawNewsDate || '';
+                } catch (e) {
+                    document.getElementById('newsDate').value = rawNewsDate || '';
+                }
+                const newsFileInput = document.getElementById('newsImage');
+                try { if (newsFileInput) newsFileInput.value = ''; } catch (e) {}
+                const newsPreview = document.getElementById('newsImagePreview');
+                const imageUrl = item.image || item.photo || '';
+                if (newsPreview) {
+                    if (imageUrl) {
+                        newsPreview.src = imageUrl;
+                        newsPreview.style.display = 'block';
+                    } else {
+                        newsPreview.src = '';
+                        newsPreview.style.display = 'none';
+                    }
+                }
+                // Populate category (handle different backend property names)
+                let cat = item.categorie || item.category || item.categorie_nom || item.nom_categorie || '';
+                cat = (cat || '').toString().toLowerCase();
+                if (document.getElementById('newsCategory')) document.getElementById('newsCategory').value = cat;
+                // update preview on file select
+                if (newsFileInput && newsPreview) {
+                    newsFileInput.addEventListener('change', (ev) => {
+                        const f = ev.target.files && ev.target.files[0] ? ev.target.files[0] : null;
+                        if (f) {
+                            newsPreview.src = URL.createObjectURL(f);
+                            newsPreview.style.display = 'block';
+                        } else {
+                            newsPreview.src = '';
+                            newsPreview.style.display = 'none';
+                        }
+                    });
+                }
             } else if (type === 'video') {
                 document.getElementById('videoTitle').value = item.title;
                 document.getElementById('videoUrl').value = item.url;
@@ -334,7 +332,7 @@ async function openAddModal(type, id = null) {
     } else {
         const titleElement = modalElement.querySelector('h2');
         const actionTexts = {
-            'activity': 'Ajouter une Activité',
+           
             'member': 'Ajouter un Membre',
             'event': 'Ajouter un Événement',
             'news': 'Ajouter une Actualité',
@@ -346,50 +344,73 @@ async function openAddModal(type, id = null) {
     openModal(modal);
 }
 
-function saveActivity(e) {
-    e.preventDefault();
-    
-    const activity = {
-        title: document.getElementById('activityTitle').value,
-        description: document.getElementById('activityDescription').value,
-        date: document.getElementById('activityDate').value
-    };
 
-    if (currentEditingId) {
-        DataManager.updateItem('activities', currentEditingId, activity);
-    } else {
-        DataManager.addItem('activities', activity);
-    }
-
-    closeModal('activityModal');
-    loadActivities();
-    loadDashboard();
-}
-
-function deleteActivity(id) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette activité ?')) {
-        DataManager.deleteItem('activities', id);
-        loadActivities();
-        loadDashboard();
-    }
-}
 
 // ===== MEMBERS =====
-function loadMembers() {
-    const members = DataManager.getItems('members');
+async function loadMembers() {
     const tbody = document.getElementById('members-list');
-    
-    if (members.length === 0) {
+    const token = localStorage.getItem('auth_token');
+
+    // If admin logged in, try fetching members from backend
+    if (token && window.apiService) {
+        try {
+            // try common endpoint names until one succeeds
+            const tryPaths = ['/membres', '/membre', '/members'];
+            let res = null;
+            for (const p of tryPaths) {
+                res = await window.apiService._request(p);
+                if (res && res.success && res.data) break;
+            }
+            if (res && res.success && res.data) {
+                // backend may return different shapes
+                let items = [];
+                if (Array.isArray(res.data)) items = res.data;
+                else if (res.data.membres) items = Array.isArray(res.data.membres) ? res.data.membres : (res.data.membres.data || []);
+                else if (res.data.membre) items = Array.isArray(res.data.membre) ? res.data.membre : (res.data.membre.data || []);
+                else if (res.data.data && Array.isArray(res.data.data)) items = res.data.data;
+
+                if (!items || items.length === 0) {
+                    tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Aucun membre</td></tr>';
+                    return;
+                }
+
+                // cache for client-side checks
+                window.__members = items;
+
+                tbody.innerHTML = items.map(member => `
+                    <tr>
+                        <td><strong>${escapeHtml(member.nom || member.name || '')}</strong></td>
+                        <td>${escapeHtml(member.poste || member.position || '')}</td>
+                        <td>${escapeHtml(member.email || '-')}</td>
+                        <td>${escapeHtml(member.telephone || member.phone || '-')}</td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn-edit" onclick="openAddModal('member', '${member.id || member.ID || ''}')">Modifier</button>
+                                <button class="btn-danger" onclick="deleteMember('${member.id || member.ID || ''}')">Supprimer</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+                return;
+            }
+        } catch (err) {
+            console.warn('loadMembers: backend fetch failed, falling back to local', err);
+        }
+    }
+
+    // Fallback: local storage
+    const members = DataManager.getItems('members');
+    if (!members || members.length === 0) {
         tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Aucun membre</td></tr>';
         return;
     }
 
     tbody.innerHTML = members.map(member => `
         <tr>
-            <td><strong>${member.name}</strong></td>
-            <td>${member.position}</td>
-            <td>${member.email || '-'}</td>
-            <td>${member.phone || '-'}</td>
+            <td><strong>${escapeHtml(member.name)}</strong></td>
+            <td>${escapeHtml(member.position)}</td>
+            <td>${escapeHtml(member.email || '-')}</td>
+            <td>${escapeHtml(member.phone || '-')}</td>
             <td>
                 <div class="table-actions">
                     <button class="btn-edit" onclick="openAddModal('member', ${member.id})">Modifier</button>
@@ -405,12 +426,91 @@ function saveMember(e) {
     
     const member = {
         name: document.getElementById('memberName').value,
+        prenom: document.getElementById('memberPrenom') ? document.getElementById('memberPrenom').value : '',
         position: document.getElementById('memberPosition').value,
         email: document.getElementById('memberEmail').value,
         phone: document.getElementById('memberPhone').value,
         image: document.getElementById('memberImage').value
     };
 
+    const token = localStorage.getItem('auth_token');
+    if (token && window.apiService) {
+        // map fields to common backend names
+        const payload = {
+            nom: member.name,
+            prenom: member.prenom,
+            poste: member.position,
+            email: member.email,
+            telephone: member.phone,
+            photo: member.image
+        };
+        if (currentEditingId) payload.id = currentEditingId;
+
+        (async () => {
+            try {
+                let res;
+                // Ensure we have a members cache; if not, try to fetch from server before creating to avoid 500 on duplicate email
+                try {
+                    if ((!window.__members || !Array.isArray(window.__members) || window.__members.length === 0) && window.apiService) {
+                        const tryPaths = ['/membres','/membre','/users','/members'];
+                        for (const p of tryPaths) {
+                            const r = await window.apiService._request(p);
+                            if (r && r.success && r.data) {
+                                let items = [];
+                                if (Array.isArray(r.data)) items = r.data;
+                                else if (Array.isArray(r.data.membres)) items = r.data.membres;
+                                else if (Array.isArray(r.data.users)) items = r.data.users;
+                                else if (Array.isArray(r.data.data)) items = r.data.data;
+                                if (items && items.length) { window.__members = items; break; }
+                            }
+                        }
+                    }
+
+                    const cache = window.__members || [];
+                    if (payload.email) {
+                        const dup = cache.find(m => String(m.email || '').toLowerCase() === String(payload.email).toLowerCase());
+                        if (dup && !currentEditingId) {
+                            alert('Un membre avec cet email existe déjà. Veuillez utiliser un autre email ou modifier le membre existant.');
+                            return;
+                        }
+                        if (dup && currentEditingId && String(dup.id) !== String(currentEditingId)) {
+                            alert('Cet email appartient à un autre membre. Utilisez un email différent.');
+                            return;
+                        }
+                    }
+                } catch (e) { console.warn('member duplicate check failed', e); }
+                // basic validation
+                if (!payload.nom || !payload.prenom) {
+                    alert('Le nom et le prénom sont requis.');
+                    return;
+                }
+
+                if (currentEditingId) res = await window.apiService.updateMembre(payload);
+                else res = await window.apiService.createMembre(payload);
+                if (!res.success) throw res.error || 'Erreur API';
+                closeModal('memberModal');
+                await loadMembers();
+                loadDashboard();
+                alert('Membre enregistré.');
+                return;
+            } catch (err) {
+                console.error('Failed to save member via API', err);
+                // try to detect SQL unique/email constraint
+                try {
+                    const raw = err && err.raw ? err.raw : null;
+                    const msg = (raw && raw.message) ? raw.message : (err && err.message) ? err.message : null;
+                    if (msg && /Integrity constraint violation|UNIQUE|Duplicate entry|23000/i.test(String(msg))) {
+                        alert('Erreur: email déjà utilisé ou contrainte d\'unicité violée. Vérifiez l\'adresse email.');
+                        return;
+                    }
+                } catch (e) { /* ignore */ }
+                alert('Erreur lors de l\'enregistrement du membre. Voir console pour plus de détails.');
+            }
+        })();
+        return;
+    }
+
+    // Fallback: local storage
     if (currentEditingId) {
         DataManager.updateItem('members', currentEditingId, member);
     } else {
@@ -423,11 +523,28 @@ function saveMember(e) {
 }
 
 function deleteMember(id) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) {
-        DataManager.deleteItem('members', id);
-        loadMembers();
-        loadDashboard();
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) return;
+    const token = localStorage.getItem('auth_token');
+    if (token && window.apiService) {
+        (async () => {
+            try {
+                const res = await window.apiService.deleteMembre({ id });
+                if (!res.success) throw res.error || 'Erreur API';
+                await loadMembers();
+                loadDashboard();
+                alert('Membre supprimé.');
+            } catch (err) {
+                console.error('Failed to delete member via API', err);
+                alert('Erreur lors de la suppression du membre. Voir console pour détails.');
+            }
+        })();
+        return;
     }
+
+    // Fallback: local
+    DataManager.deleteItem('members', id);
+    loadMembers();
+    loadDashboard();
 }
 
 // ===== EVENTS =====
@@ -463,7 +580,7 @@ function loadEvents() {
                             <td>${truncateText(escapeHtml(description), 40)}</td>
                             <td>
                                 <div class="table-actions">
-                                    <button class="btn-edit" onclick="openEventDetailModal(${id})" style="background: #28a745; color: white; border-color: #28a745;">Détails</button>
+                                    <button class="btn-edit" onclick="editEventDetails(${id})" style="background: #28a745; color: white; border-color: #28a745;">Détails</button>
                                 </div>
                             </td>
                             <td>
@@ -504,7 +621,7 @@ function loadEvents() {
                             <td>${truncateText(escapeHtml(description), 40)}</td>
                             <td>
                                 <div class="table-actions">
-                                    <button class="btn-edit" onclick="openEventDetailModal(${id})" style="background: #28a745; color: white; border-color: #28a745;">Détails</button>
+                                    <button class="btn-edit" onclick="editEventDetails(${id})" style="background: #28a745; color: white; border-color: #28a745;">Détails</button>
                                 </div>
                             </td>
                             <td>
@@ -524,180 +641,6 @@ function loadEvents() {
     renderEventsFromList(DataManager.getItems('events'));
 }
 
-
-
-// Open modal to edit event details (description + pdf)
-async function openEventDetailModal(id) {
-    const modal = document.getElementById('eventDetailModal');
-    const form = document.getElementById('eventDetailForm');
-    document.getElementById('detailEventId').value = id;
-    // PDF handling removed
-
-    // Try to get event from backend first, otherwise from local storage
-    let evt = null;
-    try {
-        if (window.apiService && window.apiService.getEventDetail) {
-            const res = await window.apiService.getEventDetail(id);
-            if (res && res.success && res.data) evt = res.data.event || res.data || null;
-        }
-    } catch (e) {
-        console.warn('openEventDetailModal: backend lookup failed', e);
-    }
-    if (!evt) {
-        const local = DataManager.getItems('events') || [];
-        evt = local.find(i => String(i.id) === String(id));
-    }
-
-    const dateEl = document.getElementById('detailDate');
-    const locEl = document.getElementById('detailLocation');
-    const descEl = document.getElementById('detailDescription');
-    const detailImageInput = document.getElementById('detailImage');
-    const detailImagePreview = document.getElementById('detailImagePreview');
-    // populate date and location if available
-    if (evt) {
-        try { dateEl.value = evt.date_evenement || evt.date || evt.date_event || evt.date || ''; } catch(e) {}
-        try { locEl.value = evt.lieu || evt.location || evt.lieu_event || ''; } catch(e) {}
-        // populate detail image preview if available
-        try {
-            const imgVal = evt.detail_photo || evt.detailImage || evt.detail_image || evt.photo || '';
-            if (imgVal && detailImagePreview) {
-                detailImagePreview.src = imgVal;
-                detailImagePreview.style.display = 'block';
-            } else if (detailImagePreview) {
-                detailImagePreview.src = '';
-                detailImagePreview.style.display = 'none';
-            }
-        } catch (e) {}
-    } else {
-        try { dateEl.value = ''; locEl.value = ''; } catch(e) {}
-    }
-
-    // wire preview on file selection
-    if (detailImageInput && detailImagePreview) {
-        detailImageInput.addEventListener('change', (ev) => {
-            const f = ev.target.files && ev.target.files[0] ? ev.target.files[0] : null;
-            if (f) {
-                detailImagePreview.src = URL.createObjectURL(f);
-                detailImagePreview.style.display = 'block';
-            } else {
-                detailImagePreview.src = '';
-                detailImagePreview.style.display = 'none';
-            }
-        });
-    }
-
-    descEl.value = (evt && (evt.detail_description || evt.details || evt.full_description)) ? (evt.detail_description || evt.details || evt.full_description) : (evt && (evt.description || evt.descriptions) ? (evt.description || evt.descriptions) : '');
-    // PDF selection/upload removed: nothing to set here
-
-    openModal('eventDetailModal');
-}
-
-// Save event details (description + selected or uploaded PDF)
-async function saveEventDetails(e) {
-    e.preventDefault();
-    const id = document.getElementById('detailEventId').value;
-    const description = document.getElementById('detailDescription').value;
-    const detailDate = document.getElementById('detailDate') ? document.getElementById('detailDate').value : '';
-    const detailLocation = document.getElementById('detailLocation') ? document.getElementById('detailLocation').value : '';
-    // PDF fields removed — no file/select handling
-
-    // If backend available, try to update event with details (best-effort)
-    const token = localStorage.getItem('auth_token');
-    if (token && window.apiService) {
-        const payload = { id };
-        if (description) payload.detail_description = description;
-        // PDF removed from payload
-        // include detail image file if provided
-        const detailImageInput = document.getElementById('detailImage');
-        const uploadedDetailImage = detailImageInput && detailImageInput.files && detailImageInput.files[0] ? detailImageInput.files[0] : null;
-        if (uploadedDetailImage) payload.detail_photo = uploadedDetailImage;
-        if (detailDate) payload.date_event = detailDate;
-        if (detailLocation) payload.lieu = detailLocation;
-        try {
-            const res = await (window.apiService.updateEvenement ? window.apiService.updateEvenement(payload) : Promise.resolve({ success: false }));
-            if (!res.success) throw res.error || 'API error';
-            closeModal('eventDetailModal');
-            await loadEvents();
-            alert('Détails enregistrés (backend).');
-            return;
-        } catch (err) {
-            console.warn('saveEventDetails: backend save failed, falling back to local', err);
-        }
-    }
-
-    // Fallback: save into local storage DataManager.events
-    const items = DataManager.getItems('events') || [];
-    const idx = items.findIndex(i => String(i.id) === String(id));
-    if (idx !== -1) {
-        const item = items[idx];
-        const updated = { ...item };
-        if (description) updated.detail_description = description;
-        // PDF removed from local update
-        if (detailDate) updated.date = detailDate;
-        if (detailLocation) updated.location = detailLocation;
-        // handle detail image locally (convert to data URL if file provided)
-        try {
-            const detailImageInput = document.getElementById('detailImage');
-            const uploadedDetailImage = detailImageInput && detailImageInput.files && detailImageInput.files[0] ? detailImageInput.files[0] : null;
-            if (uploadedDetailImage) {
-                const d = await fileToDataUrl(uploadedDetailImage);
-                if (d) updated.detail_photo = d;
-            }
-        } catch (e) {}
-        DataManager.updateItem('events', item.id, updated);
-        closeModal('eventDetailModal');
-        loadEvents();
-        loadDashboard();
-        alert('Détails enregistrés (local).');
-        return;
-    }
-
-    // If event not found locally, create a lightweight local record so details are preserved.
-    try {
-        const data = DataManager.getData();
-        data.events = data.events || [];
-        // coerce id to number when possible
-        const coercedId = (typeof id === 'string' && /^\d+$/.test(id)) ? Number(id) : id;
-        const newItem = {
-            id: coercedId,
-            title: '',
-            date: detailDate || '',
-            location: detailLocation || '',
-            description: '',
-            detail_description: description || ''
-        };
-        // if detail image file provided, convert to data URL and save
-        try {
-            const detailImageInput = document.getElementById('detailImage');
-            const uploadedDetailImage = detailImageInput && detailImageInput.files && detailImageInput.files[0] ? detailImageInput.files[0] : null;
-            if (uploadedDetailImage) {
-                const d = await fileToDataUrl(uploadedDetailImage);
-                if (d) newItem.detail_photo = d;
-            }
-        } catch (e) {}
-        // avoid duplicate id if exists unexpectedly
-        if (!data.events.find(e => String(e.id) === String(coercedId))) {
-            data.events.push(newItem);
-            DataManager.saveData(data);
-        } else {
-            // if exists by coincidence, update it
-            const existing = data.events.find(e => String(e.id) === String(coercedId));
-            existing.detail_description = description || existing.detail_description || '';
-            DataManager.saveData(data);
-        }
-
-        closeModal('eventDetailModal');
-        loadEvents();
-        loadDashboard();
-        alert('Détails enregistrés localement.');
-        return;
-    } catch (err) {
-        console.error('saveEventDetails fallback create failed', err);
-        alert('Événement introuvable pour enregistrer les détails.');
-    }
-}
-
-
 function renderEventsFromList(events) {
     const tbody = document.getElementById('events-list');
     if (!events || events.length === 0) {
@@ -712,7 +655,7 @@ function renderEventsFromList(events) {
             <td>${truncateText(escapeHtml(event.description || event.descriptions || ''), 40)}</td>
             <td>
                 <div class="table-actions">
-                    <button class="btn-edit" onclick="openEventDetailModal(${event.id})" style="background: #28a745; color: white; border-color: #28a745;">Détails</button>
+                    <button class="btn-edit" onclick="editEventDetails(${event.id})" style="background: #28a745; color: white; border-color: #28a745;">Détails</button>
                 </div>
             </td>
             <td>
@@ -849,22 +792,7 @@ async function saveEvent(e) {
     }
 
     // Fallback: local storage
-    // Fallback: local storage. If an image file was selected, convert to data URL so it persists.
-    const makeDataUrl = (f) => new Promise((resolve) => {
-        if (!f) return resolve('');
-        try {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result || '');
-            reader.onerror = () => resolve(f.name || '');
-            reader.readAsDataURL(f);
-        } catch (e) {
-            resolve(f.name || '');
-        }
-    });
-
-    const photoData = file ? await makeDataUrl(file) : undefined;
-    const event = { title, date, location, description };
-    if (photoData !== undefined && photoData !== '') event.photo = photoData;
+    const event = { title, date, location, description, image: file ? file.name : '' };
     if (currentEditingId) {
         DataManager.updateItem('events', currentEditingId, event);
     } else {
@@ -943,20 +871,62 @@ async function deleteEvent(id) {
 }
 
 // ===== NEWS =====
-function loadNews() {
-    const news = DataManager.getItems('news');
+async function loadNews() {
     const tbody = document.getElementById('news-list');
-    
-    if (news.length === 0) {
+    const token = localStorage.getItem('auth_token');
+
+    if (token && window.apiService) {
+        try {
+            const res = await window.apiService.getActualites();
+            if (res && res.success && res.data) {
+                let items = [];
+                if (Array.isArray(res.data)) items = res.data;
+                else if (res.data.actualites) items = Array.isArray(res.data.actualites) ? res.data.actualites : (res.data.actualites.data || []);
+                else if (res.data.actualite) items = Array.isArray(res.data.actualite) ? res.data.actualite : (res.data.actualite.data || []);
+                else if (res.data.data && Array.isArray(res.data.data)) items = res.data.data;
+
+                if (!items || items.length === 0) {
+                    tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Aucune actualité</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = items.map(item => `
+                    <tr>
+                        <td><strong>${escapeHtml(item.nom || item.title || '')}</strong></td>
+                        <td>${truncateText(escapeHtml(item.descriptions || item.content || ''), 50)}</td>
+                        <td>${item.created_at ? formatDate(item.created_at) : '-'}</td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn-edit" onclick="editNewsArticle('${item.id || item.ID || ''}')" style="background: #28a745; color: white; border-color: #28a745;">Article</button>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn-edit" onclick="openAddModal('news', '${item.id || item.ID || ''}')">Modifier</button>
+                                <button class="btn-danger" onclick="deleteNews('${item.id || item.ID || ''}')">Supprimer</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+                return;
+            }
+        } catch (err) {
+            console.warn('loadNews: backend fetch failed, falling back to local', err);
+        }
+    }
+
+    // Fallback: local storage
+    const news = DataManager.getItems('news');
+    if (!news || news.length === 0) {
         tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Aucune actualité</td></tr>';
         return;
     }
 
     tbody.innerHTML = news.map(item => `
         <tr>
-            <td><strong>${item.title}</strong></td>
-            <td>${truncateText(item.content, 50)}</td>
-            <td>${formatDate(item.date)}</td>
+            <td><strong>${escapeHtml(item.title)}</strong></td>
+            <td>${truncateText(escapeHtml(item.content), 50)}</td>
+            <td>${item.created_at ? formatDate(item.created_at) : '-'}</td>
             <td>
                 <div class="table-actions">
                     <button class="btn-edit" onclick="editNewsArticle(${item.id})" style="background: #28a745; color: white; border-color: #28a745;">Article</button>
@@ -974,31 +944,173 @@ function loadNews() {
 
 function saveNews(e) {
     e.preventDefault();
-    
-    const news = {
-        title: document.getElementById('newsTitle').value,
-        content: document.getElementById('newsContent').value,
-        date: document.getElementById('newsDate').value,
-        image: document.getElementById('newsImage').value
-    };
 
+    const token = localStorage.getItem('auth_token');
+
+    const newsImageEl = document.getElementById('newsImage');
+    const newsImageFile = newsImageEl && newsImageEl.files && newsImageEl.files[0] ? newsImageEl.files[0] : null;
+
+    const payload = {
+        nom: document.getElementById('newsTitle').value.trim(),
+        descriptions: document.getElementById('newsContent').value.trim(),
+        categorie: document.getElementById('newsCategory') ? document.getElementById('newsCategory').value : ''
+    };
+    if (newsImageFile) payload.photo = newsImageFile;
+    if (currentEditingId) payload.id = currentEditingId;
+
+    if (token && window.apiService) {
+        (async () => {
+            try {
+                // Client-side validation: ensure categorie is present and valid
+                const validCats = ['annonce', 'academique', 'social'];
+                if (!payload.categorie || !validCats.includes(payload.categorie)) {
+                    alert('Catégorie manquante ou invalide. Choisissez une catégorie valide.');
+                    return;
+                }
+
+                // If frontend provided a photo URL as string, remove it; only File objects should be sent
+                if (payload.photo && typeof payload.photo === 'string') delete payload.photo;
+
+                console.log('saveNews payload before API call:', payload, 'photoIsFile:', newsImageFile ? true : false);
+
+                let res;
+                if (currentEditingId) {
+                    res = await window.apiService.updateActualite(payload);
+                } else {
+                    res = await window.apiService.createActualite(payload);
+                }
+
+                if (!res.success) throw res.error;
+
+                closeModal('newsModal');
+                loadNews();
+                loadDashboard();
+                alert('Actualité enregistrée avec succès ✅');
+
+            } catch (err) {
+                console.error('Erreur API:', err);
+                alert('Erreur lors de l\'enregistrement ❌');
+            }
+        })();
+
+        return;
+    }
+
+    // If we have a token but no apiService, try direct fetch to backend endpoints
+    if (token && !window.apiService) {
+        (async () => {
+            try {
+                const categoryValue = document.getElementById('newsCategory') ? document.getElementById('newsCategory').value : '';
+
+                // If a file is selected, send multipart FormData
+                if (newsImageFile) {
+                    const fd = new FormData();
+                    fd.append('nom', payload.nom);
+                    fd.append('descriptions', payload.descriptions);
+                    fd.append('categorie', categoryValue);
+                    fd.append('photo', newsImageFile);
+                    if (currentEditingId) fd.append('id', currentEditingId);
+                    let url = currentEditingId ? 'http://127.0.0.1:8000/api/update-actualite' : 'http://127.0.0.1:8000/api/create-actualite';
+                    const resp = await fetch(url, { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: fd });
+                    let json = null; try { json = await resp.json(); } catch (e) { json = null; }
+                    if (!resp.ok) {
+                        console.error('create/update actualite (multipart) failed', { status: resp.status, body: json });
+                        const message = (json && (json.message || json.error)) ? (json.message || json.error) : ('status ' + resp.status);
+                        alert('Erreur API: ' + message);
+                        return;
+                    }
+                    closeModal('newsModal');
+                    await loadNews();
+                    loadDashboard();
+                    alert('Actualité enregistrée.');
+                    return;
+                }
+
+                // No file: send JSON as before
+                const body = {
+                    nom: payload.nom,
+                    descriptions: payload.descriptions,
+                    categorie: categoryValue
+                };
+                let url = 'http://127.0.0.1:8000/api/create-actualite';
+                let method = 'POST';
+                if (currentEditingId) {
+                    url = 'http://127.0.0.1:8000/api/update-actualite';
+                    method = 'POST';
+                    body.id = currentEditingId;
+                    body._method = 'PUT';
+                }
+                const resp = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify(body)
+                });
+                let json = null; try { json = await resp.json(); } catch (e) { json = null; }
+                if (!resp.ok) {
+                    console.error('create/update actualite failed', { status: resp.status, body: json });
+                    const message = (json && (json.message || json.error)) ? (json.message || json.error) : ('status ' + resp.status);
+                    alert('Erreur API: ' + message);
+                    return;
+                }
+                closeModal('newsModal');
+                await loadNews();
+                loadDashboard();
+                alert('Actualité enregistrée.');
+                return;
+            } catch (err) {
+                console.error('Failed to save actualite via fetch', err);
+                alert('Erreur lors de l\'enregistrement de l\'actualité. Voir console.');
+            }
+        })();
+
+        return;
+    }
+
+    // Fallback: local storage
+    // Ensure local copy includes category for local fallback
+    payload.category = document.getElementById('newsCategory') ? document.getElementById('newsCategory').value : '';
     if (currentEditingId) {
-        DataManager.updateItem('news', currentEditingId, news);
+        DataManager.updateItem('news', currentEditingId, payload);
     } else {
-        DataManager.addItem('news', news);
+        DataManager.addItem('news', payload);
     }
 
     closeModal('newsModal');
     loadNews();
     loadDashboard();
+
 }
 
 function deleteNews(id) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette actualité ?')) {
-        DataManager.deleteItem('news', id);
-        loadNews();
-        loadDashboard();
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette actualité ?')) return;
+
+    const token = localStorage.getItem('auth_token');
+
+    if (token && window.apiService) {
+        (async () => {
+            try {
+                const res = await window.apiService.deleteActualite({ id }); // ✅ correction ici
+
+                if (!res.success) throw res.error || 'Erreur API';
+
+                await loadNews();
+                loadDashboard();
+
+                alert('Actualité supprimée.');
+            } catch (err) {
+                console.error('Failed to delete actualite via API', err);
+                alert('Erreur lors de la suppression de l\'actualité.');
+            }
+        })();
+
+        // ⚠️ OPTIONNEL → tu peux le garder SI tu es dans une fonction
+        return;
     }
+
+    // fallback local
+    DataManager.deleteItem('news', id);
+    loadNews();
+    loadDashboard();
 }
 
 // ===== VIDEOS =====
@@ -1070,24 +1182,23 @@ function loadMessages() {
                 document.getElementById('stat-messages').textContent = 0;
                 return;
             }
-            // Render remote messages with action buttons (Voir, Supprimer)
-            container.innerHTML = msgs.map((m, idx) => `
+
+            // Render cards with view + delete actions
+            container.innerHTML = msgs.map((m) => `
                 <div class="message-card" data-remote-id="${m.id}">
                     <div class="message-header">
                         <div>
                             <div class="message-sender">${m.nom_complet || ''}</div>
                             <div class="message-email">${m.email || ''}</div>
                         </div>
-                        <div style="display:flex; gap:8px; align-items:center;">
-                            <div class="message-date">${formatDate(m.created_at || m.created)}</div>
-                            <div>
-                                <button class="btn-primary" onclick="viewMessageRemote(${idx}); event.stopPropagation();">Voir</button>
-                                <button class="btn-danger" onclick="deleteRemoteMessage('${m.id}'); event.stopPropagation();">Supprimer</button>
-                            </div>
-                        </div>
+                        <div class="message-date">${formatDate(m.created_at || m.created)}</div>
                     </div>
                     <div class="message-subject">${m.subject || 'Pas de sujet'}</div>
                     <div class="message-body">${m.message || ''}</div>
+                    <div style="margin-top:8px; display:flex; gap:8px;">
+                        <button class="btn-edit" data-action="view" data-id="${m.id}">Afficher</button>
+                        <button class="btn-danger" data-action="delete" data-id="${m.id}">Supprimer</button>
+                    </div>
                 </div>
             `).join('');
 
@@ -1095,6 +1206,24 @@ function loadMessages() {
             window.__remoteMessages = msgs;
             // update dashboard message count
             try { document.getElementById('stat-messages').textContent = msgs.length; } catch (e) {}
+
+            // Attach delegated handlers for view/delete
+            container.querySelectorAll('button[data-action="view"]').forEach(btn => {
+                btn.addEventListener('click', (ev) => {
+                    ev.stopPropagation();
+                    const id = btn.getAttribute('data-id');
+                    const msgsList = window.__remoteMessages || [];
+                    const idx = msgsList.findIndex(m => String(m.id) === String(id));
+                    if (idx !== -1) viewMessageRemote(idx);
+                });
+            });
+            container.querySelectorAll('button[data-action="delete"]').forEach(btn => {
+                btn.addEventListener('click', (ev) => {
+                    ev.stopPropagation();
+                    const id = btn.getAttribute('data-id');
+                    deleteMessageRemote(id);
+                });
+            });
         }).catch(err => {
             console.error('Failed to load messages from API', err);
             // fallback to local storage
@@ -1116,24 +1245,41 @@ function renderLocalMessages(messages, container) {
         return;
     }
     container.innerHTML = messages.map(message => `
-        <div class="message-card">
+        <div class="message-card" data-local-id="${message.id}">
             <div class="message-header">
                 <div>
                     <div class="message-sender">${message.name}</div>
                     <div class="message-email">${message.email}</div>
                 </div>
-                <div style="display:flex; gap:8px; align-items:center;">
-                    <div class="message-date">${formatDate(message.date)}</div>
-                    <div>
-                        <button class="btn-primary" onclick="viewMessage(${message.id}); event.stopPropagation();">Voir</button>
-                        <button class="btn-danger" onclick="deleteMessage(${message.id}); event.stopPropagation();">Supprimer</button>
-                    </div>
-                </div>
+                <div class="message-date">${formatDate(message.date)}</div>
             </div>
             <div class="message-subject">${message.subject || 'Pas de sujet'}</div>
             <div class="message-body">${message.message}</div>
+            <div style="margin-top:8px; display:flex; gap:8px;">
+                <button class="btn-edit" data-action="view-local" data-id="${message.id}">Afficher</button>
+                <button class="btn-danger" data-action="delete-local" data-id="${message.id}">Supprimer</button>
+            </div>
         </div>
     `).join('');
+
+    // Attach handlers
+    container.querySelectorAll('button[data-action="view-local"]').forEach(btn => {
+        btn.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            const id = btn.getAttribute('data-id');
+            viewMessage(Number(id));
+        });
+    });
+    container.querySelectorAll('button[data-action="delete-local"]').forEach(btn => {
+        btn.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            const id = Number(btn.getAttribute('data-id'));
+            if (!confirm('Confirmez-vous la suppression de ce message local ?')) return;
+            DataManager.deleteItem('messages', id);
+            renderLocalMessages(DataManager.getItems('messages'), container);
+            try { document.getElementById('stat-messages').textContent = DataManager.getItems('messages').length; } catch (e) {}
+        });
+    });
 }
 
 // Open remote message by index in __remoteMessages
@@ -1150,6 +1296,46 @@ function viewMessageRemote(index) {
         <p style="white-space: pre-wrap; background: white; padding: 15px; border-radius: 6px; border: 1px solid var(--border-color);">${m.message || ''}</p>
     `;
     openModal('messageModal');
+}
+
+/**
+ * Delete a remote message by id (API)
+ */
+async function deleteMessageRemote(id) {
+    if (!confirm('Confirmez-vous la suppression de ce message ?')) return;
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+        alert('Action non autorisée. Veuillez vous connecter.');
+        return;
+    }
+
+    try {
+        const resp = await fetch(`http://127.0.0.1:8000/api/messages/${encodeURIComponent(id)}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+        });
+        const json = await resp.json().catch(() => null);
+        if (!resp.ok) {
+            console.error('Delete message failed', { status: resp.status, body: json });
+            alert('Erreur lors de la suppression du message. Voir la console pour plus de détails.');
+            return;
+        }
+
+        // Remove from DOM
+        const el = document.querySelector(`[data-remote-id="${id}"]`);
+        if (el && el.parentNode) el.parentNode.removeChild(el);
+
+        // Update local cache and count
+        if (window.__remoteMessages) {
+            window.__remoteMessages = window.__remoteMessages.filter(m => String(m.id) !== String(id));
+            try { document.getElementById('stat-messages').textContent = window.__remoteMessages.length; } catch (e) {}
+        }
+
+        alert('Message supprimé.');
+    } catch (err) {
+        console.error('Error deleting message:', err);
+        alert('Erreur réseau lors de la suppression du message.');
+    }
 }
 
 function viewMessage(id) {
@@ -1189,90 +1375,6 @@ function saveMessage() {
     alert('Message envoyé avec succès!');
     loadMessages();
     loadDashboard();
-}
-
-// Delete a local message by id
-function deleteMessage(id) {
-    if (!confirm('Supprimer ce message local ? Cette action est irréversible.')) return;
-    DataManager.deleteItem('messages', id);
-    loadMessages();
-    loadDashboard();
-}
-
-// Attempt to delete a remote message via API (if available)
-async function deleteRemoteMessage(remoteId) {
-    if (!confirm('Supprimer ce message distant ? Cette action enverra une requête au serveur.')) return;
-    const token = localStorage.getItem('auth_token');
-    try {
-        if (token && window.apiService && window.apiService.deleteMessage) {
-            const res = await window.apiService.deleteMessage({ id: remoteId });
-            if (!res.success) throw res.error || 'Erreur API';
-            alert('Message supprimé côté serveur.');
-            loadMessages();
-            loadDashboard();
-            return;
-        }
-
-        if (token) {
-            const resp = await fetch('http://127.0.0.1:8000/api/delete-message', {
-                method: 'DELETE',
-                headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: remoteId })
-            });
-
-            if (resp.ok) {
-                alert('Message supprimé côté serveur.');
-                loadMessages();
-                loadDashboard();
-                return;
-            }
-
-            // Friendly error handling: avoid showing raw HTML pages (404) to the user
-            const status = resp.status;
-            let bodyText = await resp.text().catch(() => null);
-            // If 404, offer to remove the message from the UI as a fallback
-            if (status === 404) {
-                console.warn('deleteRemoteMessage: 404 response body:', bodyText);
-                const removeLocal = confirm('Endpoint introuvable (404). Voulez-vous supprimer le message de l\'interface localement ? (ne supprime pas côté serveur)');
-                if (removeLocal) {
-                    // remove DOM nodes with data-remote-id
-                    try {
-                        document.querySelectorAll(`[data-remote-id="${remoteId}"]`).forEach(n => n.remove());
-                    } catch (e) {}
-                    // remove from cached remote messages
-                    try {
-                        if (window.__remoteMessages) window.__remoteMessages = window.__remoteMessages.filter(m => String(m.id) !== String(remoteId));
-                        const count = (window.__remoteMessages || []).length;
-                        document.getElementById('stat-messages').textContent = count;
-                    } catch (e) {}
-                    return;
-                }
-                throw new Error('Endpoint introuvable (404). Vérifiez l\'URL de l\'API.');
-            }
-
-            if (bodyText) {
-                const looksLikeHtml = /<!DOCTYPE\s+html|<html/i.test(bodyText);
-                if (looksLikeHtml) {
-                    throw new Error('Erreur serveur: HTTP ' + status);
-                }
-                try {
-                    const parsed = JSON.parse(bodyText);
-                    const msg = parsed.message || parsed.error || JSON.stringify(parsed);
-                    throw new Error('Erreur API: ' + (msg || ('HTTP ' + status)));
-                } catch (e) {
-                    const short = bodyText.replace(/<[^>]+>/g, '').trim().slice(0, 200);
-                    throw new Error('Erreur serveur: ' + (short || ('HTTP ' + status)));
-                }
-            }
-
-            throw new Error('Erreur réseau: HTTP ' + status);
-        }
-
-        alert('Impossible de supprimer le message distant : pas d\'authentification ou d\'API disponible.');
-    } catch (err) {
-        console.error('deleteRemoteMessage failed', err);
-        alert('Erreur lors de la suppression distante : ' + (err && err.message ? err.message : err));
-    }
 }
 
 // ===== MODAL FUNCTIONS =====
@@ -1322,7 +1424,7 @@ function updateCurrentDate() {
         minute: '2-digit'
     };
     const now = new Date().toLocaleDateString('fr-FR', options);
-    dateElement.textContent = now;
+    if (dateElement) dateElement.textContent = now;
 }
 
 function logout() {
@@ -1334,7 +1436,7 @@ function logout() {
 }
 
 // ===== EVENT & NEWS DETAILS =====
-function openEventDetailsPage(id) {
+function editEventDetails(id) {
     const events = DataManager.getItems('events');
     const event = events.find(e => e.id === id);
     if (event) {
@@ -1372,7 +1474,5 @@ window.deleteNews = deleteNews;
 window.viewMessage = viewMessage;
 window.logout = logout;
 window.switchSection = switchSection;
-window.openEventDetailModal = openEventDetailModal;
-window.openEventDetailsPage = openEventDetailsPage;
+window.editEventDetails = editEventDetails;
 window.editNewsArticle = editNewsArticle;
-window.saveEventDetails = saveEventDetails;
