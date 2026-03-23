@@ -28,8 +28,9 @@ class UserController extends Controller
             'nom' => 'required|string',
             'prenom' => 'required|string',
             'poste' => 'nullable|string',
-            'annePoste' => 'nullable|datetime',
-            'descriptions' => 'nullable|string'
+            'annePoste' => 'nullable|string',
+            'descriptions' => 'nullable|string',
+            'email'=>'required|email'
         ]);
 
         if ($validator->fails()) {
@@ -38,6 +39,7 @@ class UserController extends Controller
             ], 400);
         }
         try {
+            $x = User::latest();
 
             $user = User::create([
                 'email' => $request->email,
@@ -45,7 +47,8 @@ class UserController extends Controller
                 'prenom' => $request->prenom,
                 'annePoste' => $request->annePoste ? $request->annePoste : null,
                 'decriptions' => $request->descriptions ? $request->descriptions : null,
-                'postes'=>$request->poste
+                'postes'=>$request->poste,
+                'password'=>'null'
             ]);
             if (isset($request->photo) && $request->file('photo')) {
                 $fileup = new FileUpload();
@@ -55,7 +58,7 @@ class UserController extends Controller
                 ]);
             }
 
-            $user->AssignRoles('membres_bureaux');
+            $user->assignRole('membres_bureaux');
 
             return response()->json([
                 'message' => 'membre ajouter avec succes'
