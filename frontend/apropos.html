@@ -764,7 +764,7 @@
         </div>
       </div>
     </footer>
-
+   <script src="js/script.js"></script>
     <script>
         // Animation des compteurs
        // const counters = document.querySelectorAll('.counter');
@@ -803,7 +803,16 @@
     <script>
         // Load members (Bureau) from backend if available and replace static cards
         (function(){
+            const STORAGE_URL = 'http://127.0.0.1:8000/storage/';
             function escapeHtml(text){ if (!text) return ''; return String(text).replace(/[&<>"']/g, function (s) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[s]; }); }
+            function resolvePhoto(photo){
+                if (!photo) return 'images/img.jpeg';
+                if (typeof photo !== 'string') return 'images/img.jpeg';
+                if (/^https?:\/\//i.test(photo)) return photo;
+                if (photo.startsWith('/')) return photo;
+                return STORAGE_URL + photo.replace(/^\/+/, '');
+            }
+
             async function tryFetchMembers() {
                 const section = document.getElementById('bureau');
                 if (!section) return;
@@ -816,7 +825,14 @@
                     if (!window.apiService) {
                         try { await import('js/api.js'); } catch(e) { /* ignore import failure */ }
                     }
-                    if (window.apiService) {
+                    if (window.apiService && typeof window.apiService.getMembres === 'function') {
+                        const r = await window.apiService.getMembres();
+                        if (r && r.success && r.data) {
+                            if (Array.isArray(r.data)) items = r.data;
+                            else if (Array.isArray(r.data.membres)) items = r.data.membres;
+                            else if (Array.isArray(r.data.data)) items = r.data.data;
+                        }
+                    } else if (window.apiService) {
                         try {
                             // try common member listing endpoints
                             const tryPaths = ['/membres','/membre','/users','/members'];
@@ -831,7 +847,7 @@
                                 }
                             }
                         } catch (e) {
-                            console.warn('tryFetchMembers apiService failed', e);
+                            console.warn('tryFetchMembers apiService fallback failed', e);
                         }
                     }
                 } catch (e) {
@@ -841,7 +857,7 @@
                 // fallback to direct public endpoint
                 if (!items) {
                     try {
-                        const resp = await fetch('http://127.0.0.1:8000/api/membres');
+                        const resp = await fetch('http://127.0.0.1:8000/api/members');
                         if (resp.ok) {
                             const json = await resp.json().catch(()=>null);
                             if (json) {
@@ -858,7 +874,7 @@
                 grid.innerHTML = items.map(m => `
                     <div class="card overflow-hidden group">
                         <div class="relative">
-                            <img src="${m.photo || m.image || m.src || 'images/img.jpeg'}" alt="${escapeHtml(m.nom || m.name || '')}" class="profile-img">
+                            <img src="${resolvePhoto(m.photo || m.image || m.src || m.avatar)}" alt="${escapeHtml(m.nom || m.name || '')}" class="profile-img">
                             <div class="absolute top-4 right-4 text-yellow-400">
                                 <i class="fas fa-star fa-2x"></i>
                             </div>

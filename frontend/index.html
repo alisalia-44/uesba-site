@@ -77,11 +77,11 @@
                 </a>
 
                 <nav class="desktop-nav">
-                    <a class="nav-link" href="index.html" data-page="index.html">Accueil</a>
-                    <a class="nav-link active" href="actualites.html" data-page="actualites.html">Actualités</a>
-                    <a class="nav-link" href="evenements.html" data-page="evenements.html">Événements</a>
-                    <a class="nav-link" href="apropos.html" data-page="apropos.html">À Propos</a>
-                    <a class="nav-link" href="contact.html" data-page="contact.html">Contact</a>
+                    <a class="nav-link" href="index.html">Accueil</a>
+                    <a class="nav-link active" href="actualites.html">Actualités</a>
+                    <a class="nav-link" href="evenements.html">Événements</a>
+                    <a class="nav-link" href="apropos.html">À Propos</a>
+                    <a class="nav-link" href="contact.html">Contact</a>
                 </nav>
 
                 <button class="mobile-menu-btn" id="mobileMenuBtn">
@@ -161,20 +161,20 @@
                     <div class="executive-details">
                         <div class="detail">
                             <div class="detail-icon red-bg">
-                                <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-16.svg" alt="Icon">
+                                <img src="images/icon-16.svg" alt="Icon">
                             </div>
                             <p>Licence en Informatique</p>
                         </div>
                         <div class="detail">
                             <div class="detail-icon green-bg">
-                                <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-17.svg" alt="Icon">
+                                <img src="images/icon-17.svg" alt="Icon">
                             </div>
                             <p> INSFP de Relizane </p>
                         </div>
                     </div>
                     <div class="executive-contact">
-                        <a href="mailto:alimansoursalia@gmail.com">
-                            <img src="https://c.animaapp.com/mljfa87f1431r7/assets/icon-18.svg" alt="Email">
+                            <a href="mailto:alimansoursalia@gmail.com">
+                            <img src="images/icon-18.svg" alt="Email">
                             <span>alimansoursalia@gmail.com</span>
                         </a>
                     </div>
@@ -358,28 +358,8 @@
                 
                 <div style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: flex-start;">
                                     
-                                        
-                    
-                    <!-- Dynamic: latest 3 events (injected by js/script.js into #home-latest-events) -->
-                    <div id="home-latest-events" style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: flex-start; width: 100%;">
-                        <!-- Si JavaScript est désactivé, afficher une carte statique en fallback -->
-                        <noscript>
-                            <div style="background: #fff; border-radius: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); width: 350px; overflow: hidden; display: flex; flex-direction: column;">
-                                <div style="position: relative;">
-                                    <img src="images/img.jpeg" alt="Conférence" style="width: 100%; height: 220px; object-fit: cover;">
-                                </div>
-                                <div style="padding: 1.5rem 1.2rem 1rem 1.2rem; flex: 1; display: flex; flex-direction: column;">
-                                    <div style="display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 220px;">
-                                        <div>
-                                            <h3 style="font-size: 1.3rem; font-weight: bold; margin: 0 0 0.5rem 0;">Conférence sur l'Entrepreneuriat Étudiant</h3>
-                                            <p style="color: #333; font-size: 1rem; margin-bottom: 1.5rem;">(Contenu statique affiché parce que JavaScript est désactivé)</p>
-                                        </div>
-                                        <a href="conference-details.html" style="background: #219653; color: #fff; border-radius: 0.5rem; padding: 0.7rem 2rem; text-align: center; text-decoration: none; font-weight: 600; margin-top: auto;">Voir Détails</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </noscript>
-                    </div>
+                   <!-- Dynamic: latest 3 events  -->
+                    <div id="home-latest-events" style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; width: 100%;"></div>
                                      
                                         
                 </div>
@@ -548,7 +528,7 @@
       </div>
     </footer>
 
-<script src="js/script.js"></script>
+
 <script>
 document.querySelectorAll('.nav-link').forEach(btn => {
     btn.addEventListener('click', function() {
@@ -562,13 +542,8 @@ document.querySelectorAll('.mobile-nav-link').forEach(btn => {
         if(page) window.location.href = page;
     });
 });
-</script>
-    <script>
-        
 
-       
-
-        // Configuration Actualités (3 items)
+// Configuration Actualités (3 items)
         const newsTrack = document.getElementById('news-track');
         const newsCount = 3;
         let currentNewsIndex = 0;
@@ -590,13 +565,26 @@ document.querySelectorAll('.mobile-nav-link').forEach(btn => {
         // Auto-play pour les actualités (5 secondes)
         let newsInterval = setInterval(nextNews, 5000);
 
-        // Pause auto-play sur hover
-        activityTrack.parentElement.parentElement.addEventListener('mouseenter', () => clearInterval(activityInterval));
-        activityTrack.parentElement.parentElement.addEventListener('mouseleave', () => activityInterval = setInterval(nextActivity, 5000));
+        // Safe pause auto-play pour une éventuelle piste d'activités (si présente)
+        try {
+            if (typeof activityTrack !== 'undefined' && activityTrack && activityTrack.parentElement && typeof nextActivity === 'function') {
+                if (typeof activityInterval !== 'undefined') {
+                    activityTrack.parentElement.parentElement.addEventListener('mouseenter', () => clearInterval(activityInterval));
+                    activityTrack.parentElement.parentElement.addEventListener('mouseleave', () => { activityInterval = setInterval(nextActivity, 5000); });
+                }
+            }
+        } catch (e) { console.warn('Activity carousel handlers skipped:', e); }
 
-        // Pause auto-play des actualités sur hover
-        newsTrack.parentElement.parentElement.addEventListener('mouseenter', () => clearInterval(newsInterval));
-        newsTrack.parentElement.parentElement.addEventListener('mouseleave', () => newsInterval = setInterval(nextNews, 5000));
-    </script>
+        // Pause auto-play des actualités sur hover (gardes pour éviter erreurs)
+        try {
+            if (newsTrack && newsTrack.parentElement && newsTrack.parentElement.parentElement) {
+                newsTrack.parentElement.parentElement.addEventListener('mouseenter', () => clearInterval(newsInterval));
+                newsTrack.parentElement.parentElement.addEventListener('mouseleave', () => { newsInterval = setInterval(nextNews, 5000); });
+            }
+        } catch (e) { console.warn('News carousel handlers skipped:', e); }
+</script>
+    
+   
+    <script src="js/script.js"></script>
 </body>
 </html>

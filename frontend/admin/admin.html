@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="admin.css">
     <script>
-        if (!localStorage.getItem('auth_token')) window.location.href = 'login.html';
+        if (!localStorage.getItem('token')) window.location.href = 'login.html';
     </script>
 </head>
 <body>
@@ -106,19 +106,43 @@
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th>Nom</th>
+                                <th>ID</th>
+                                <th>Photo</th>
+                                <th>Nom complet</th>
                                 <th>Poste</th>
                                 <th>Email</th>
-                                <th>Téléphone</th>
+                                <th>Année</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="members-list">
                             <tr class="empty-row">
-                                <td colspan="5">Aucun membre</td>
+                                <td colspan="7">Aucun membre</td>
                             </tr>
                         </tbody>
                     </table>
+                            <!-- Event Detail Modal -->
+                    <div id="eventDetailModal" class="modal">
+                        <div class="modal-content modal-large">
+                            <span class="close" onclick="closeModal('eventDetailModal')">&times;</span>
+                            <h2 id="eventDetailTitle">Détail de l'événement</h2>
+                            <div id="eventDetailContent">
+                                <div style="display:flex; gap:16px; align-items:flex-start;">
+                                    <img id="eventDetailPhoto" src="" alt="photo" style="max-width:220px; display:none; border-radius:6px; border:1px solid #ddd;" />
+                                    <div>
+                                        <p><strong>Date:</strong> <span id="eventDetailDate"></span></p>
+                                        <p><strong>Lieu:</strong> <span id="eventDetailLieu"></span></p>
+                                        <p id="eventDetailDescription" style="white-space:pre-wrap; margin-top:8px;"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-actions" style="margin-top:12px;">
+                                <button class="btn-primary" id="eventDetailEditBtn">Modifier</button>
+                                <button class="btn-secondary" onclick="closeModal('eventDetailModal')">Fermer</button>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </section>
 
@@ -128,20 +152,24 @@
                     <h2>Gestion des Événements</h2>
                     <button class="btn-primary" onclick="openAddModal('event')">+ Nouvel Événement</button>
                 </div>
+                
                 <div class="table-container">
                     <table class="admin-table">
                         <thead>
                             <tr>
+                                <th>ID</th>
+                                <th>Photo</th>
                                 <th>Titre</th>
                                 <th>Date</th>
                                 <th>Lieu</th>
                                 <th>Description</th>
-                                <th colspan="2">Actions</th>
+                                <th>Détails</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="events-list">
                             <tr class="empty-row">
-                                <td colspan="6">Aucun événement</td>
+                                <td colspan="8">Aucun événement</td>
                             </tr>
                         </tbody>
                     </table>
@@ -160,15 +188,18 @@
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th>Titre</th>
-                                <th>Contenu</th>
-                                <th>Date</th>
-                                <th colspan="2">Actions</th>
+                                <th>ID</th>
+                                <th>Photo</th>
+                                <th>Nom</th>
+                                <th>Descriptions</th>
+                                <th>Catégorie</th>
+                                <th>Détails</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="news-list">
                             <tr class="empty-row">
-                                <td colspan="5">Aucune actualité</td>
+                                <td colspan="7">Aucune actualité</td>
                             </tr>
                         </tbody>
                     </table>
@@ -199,7 +230,8 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal('memberModal')">&times;</span>
             <h2 id="memberModalTitle">Ajouter un Membre</h2>
-            <form id="memberForm" onsubmit="saveMember(event)">
+            <form id="memberForm">
+                <input type="hidden" id="memberId">
                 <div class="form-group">
                     <label for="memberName">Nom *</label>
                     <input type="text" id="memberName" required>
@@ -213,16 +245,23 @@
                     <input type="text" id="memberPosition" required>
                 </div>
                 <div class="form-group">
+                    <label for="memberAnnePoste">Année du poste</label>
+                    <input type="text" id="memberAnnePoste" placeholder="ex: 2023">
+                </div>
+                <div class="form-group">
+                    <label for="memberDescriptions">Descriptions</label>
+                    <textarea id="memberDescriptions" rows="3"></textarea>
+                </div>
+                <div class="form-group">
                     <label for="memberEmail">Email</label>
                     <input type="email" id="memberEmail">
                 </div>
-                <div class="form-group">
-                    <label for="memberPhone">Téléphone</label>
-                    <input type="tel" id="memberPhone">
-                </div>
-                <div class="form-group">
-                    <label for="memberImage">URL Image</label>
-                    <input type="text" id="memberImage" placeholder="https://...">
+                 <div class="form-group">
+                    <label for="memberPhoto">Photo (fichier)</label>
+                    <input type="file" id="memberPhoto" accept="image/*">
+                    <div style="margin-top:8px;">
+                        <img id="photoPreview" src="" alt="Aperçu" style="max-width:120px; display:none; border-radius:6px; border:1px solid #ddd;" />
+                    </div>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Enregistrer</button>
@@ -238,6 +277,7 @@
             <span class="close" onclick="closeModal('eventModal')">&times;</span>
             <h2 id="eventModalTitle">Ajouter un Événement</h2>
             <form id="eventForm" onsubmit="saveEvent(event)">
+                <input type="hidden" id="eventId">
                 <div class="form-group">
                     <label for="eventTitle">Titre *</label>
                     <input type="text" id="eventTitle" required>
@@ -282,6 +322,7 @@
             <span class="close" onclick="closeModal('newsModal')">&times;</span>
             <h2 id="newsModalTitle">Ajouter une Actualité</h2>
             <form id="newsForm" onsubmit="saveNews(event)">
+                <input type="hidden" id="newsId">
                 <div class="form-group">
                     <label for="newsTitle">Titre *</label>
                     <input type="text" id="newsTitle" required>

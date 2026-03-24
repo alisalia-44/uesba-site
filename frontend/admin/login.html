@@ -217,7 +217,7 @@
                 }
 
                 // store token under `auth_token` to match frontend/js/api.js interceptor
-                localStorage.setItem('auth_token', token);
+                localStorage.setItem('token', token);
                 // store user if present
                 const user = data.user || data.data?.user || null;
                 if (user) localStorage.setItem('auth_user', JSON.stringify(user));
@@ -235,7 +235,7 @@
         });
 
         // Redirect if already logged in
-        if (localStorage.getItem('auth_token')) {
+        if (localStorage.getItem('token')) {
             window.location.href = 'admin.html';
         }
     </script>

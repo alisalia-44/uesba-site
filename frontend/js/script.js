@@ -2,6 +2,20 @@
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
 const mobileMenu = document.getElementById('mobileMenu');
 
+// Base storage URL for backend-hosted images
+const STORAGE_URL = 'http://127.0.0.1:8000/storage/';
+
+function resolvePhoto(photo) {
+    if (!photo) return 'images/img.jpeg';
+    if (typeof photo !== 'string') return 'images/img.jpeg';
+    // absolute URL
+    if (/^https?:\/\//i.test(photo)) return photo;
+    // absolute path on server
+    if (photo.startsWith('/')) return photo;
+    // otherwise assume backend storage path and prefix
+    return STORAGE_URL + photo.replace(/^\/+/, '');
+}
+
 if (mobileMenuBtn && mobileMenu) {
     mobileMenuBtn.addEventListener('click', () => {
         mobileMenu.classList.toggle('active');
@@ -348,40 +362,84 @@ if (slides.length > 0) {
 
                 if (!events || (Array.isArray(events) && events.length === 0)) {
                     container.innerHTML = '<p>Aucun événement pour le moment.</p>';
+                    window._eventsCache = [];
                     return;
                 }
 
-                container.innerHTML = events.map(ev => {
-                    const date = ev.date_evenement || '';
-                    const photo = ev.photo || 'images/img.jpeg';
-                    const typeLabel = ev.type || '';
-                    const statusBadge = ev.estPasse ? 'Terminé' : (ev.enCours ? 'En cours' : 'À venir');
-                    return `
-                        <div style="background: #fff; border-radius: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); width: 350px; overflow: hidden; display: flex; flex-direction: column;">
-                            <div style="position: relative;">
-                                <img src="${photo}" alt="${escapeHtml(ev.nom)}" style="width: 100%; height: 220px; object-fit: cover;">
-                                <span style="position: absolute; top: 1rem; right: 1rem; background: #e74c3c; color: #fff; border-radius: 1.5rem; padding: 0.5rem 1.2rem; font-weight: bold; font-size: 1rem;">${escapeHtml(typeLabel)}</span>
-                            </div>
-                            <div style="padding: 1.5rem 1.2rem 1rem 1.2rem; flex: 1; display: flex; flex-direction: column;">
-                                <div style="display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 220px;">
-                                    <div>
-                                        <div style="display: flex; align-items: center; gap: 0.5rem; color: #27ae60; font-size: 1rem; margin-bottom: 0.5rem;">
-                                            <span style="font-size: 1.2rem;">&#128197;</span>
-                                            <span>${escapeHtml(date)}</span>
+                // classify events by date (avenir / en cours / passes) and cache them
+                function parseDateStr(s) {
+                    if (!s) return null;
+                    // accept YYYY-MM-DD, ISO, or DD-MM-YYYY
+                    if (/^\d{2}-\d{2}-\d{4}$/.test(s)) {
+                        const [d, m, y] = s.split('-');
+                        return new Date(`${y}-${m}-${d}`);
+                    }
+                    const d = new Date(s);
+                    return isNaN(d.getTime()) ? null : d;
+                }
+
+                function classifyEventByDate(ev) {
+                    const start = parseDateStr(ev.date_evenement || ev.date || ev.debut || ev.start_date);
+                    const end = parseDateStr(ev.date_fin || ev.date_fin_evenement || ev.fin || ev.end_date) || start;
+                    const now = new Date();
+                    // compare dates at day precision
+                    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    let enCours = false, estPasse = false;
+                    if (start && end) {
+                        const s = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+                        const e = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+                        if (e < today) estPasse = true;
+                        else if (s > today) { enCours = false; estPasse = false; }
+                        else if (s <= today && today <= e) enCours = true;
+                    }
+                    return { enCours: !!enCours, estPasse: !!estPasse };
+                }
+
+                events = events.map(ev => Object.assign({}, ev, classifyEventByDate(ev)));
+
+                // cache events so status buttons can filter without re-fetching
+                window._eventsCache = events;
+
+                // render helper (exposed globally for simple filtering)
+                window.renderEvents = function(list) {
+                    if (!list || list.length === 0) {
+                        container.innerHTML = '<p>Aucun événement pour le moment.</p>';
+                        return;
+                    }
+                    container.innerHTML = list.map(ev => {
+                        const date = ev.date_evenement || '';
+                        const photo = resolvePhoto(ev.photo);
+                        const typeLabel = ev.type || '';
+                        return `
+                            <div style="background: #fff; border-radius: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); width: 350px; overflow: hidden; display: flex; flex-direction: column;">
+                                <div style="position: relative;">
+                                    <img src="${photo}" alt="${escapeHtml(ev.nom)}" style="width: 100%; height: 220px; object-fit: cover;">
+                                    <span style="position: absolute; top: 1rem; right: 1rem; background: #e74c3c; color: #fff; border-radius: 1.5rem; padding: 0.5rem 1.2rem; font-weight: bold; font-size: 1rem;">${escapeHtml(typeLabel)}</span>
+                                </div>
+                                <div style="padding: 1.5rem 1.2rem 1rem 1.2rem; flex: 1; display: flex; flex-direction: column;">
+                                    <div style="display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 220px;">
+                                        <div>
+                                            <div style="display: flex; align-items: center; gap: 0.5rem; color: #27ae60; font-size: 1rem; margin-bottom: 0.5rem;">
+                                                <span style="font-size: 1.2rem;">&#128197;</span>
+                                                <span>${escapeHtml(date)}</span>
+                                            </div>
+                                            <div style="display: flex; align-items: center; gap: 0.5rem; color: #555; font-size: 1rem; margin-bottom: 1rem;">
+                                                <span style="font-size: 1.2rem;">&#128205;</span>
+                                                <span>${escapeHtml(ev.lieu || '')}</span>
+                                            </div>
+                                            <h3 style="font-size: 1.3rem; font-weight: bold; margin: 0 0 0.5rem 0;">${escapeHtml(ev.nom)}</h3>
+                                            <p style="color: #333; font-size: 1rem; margin-bottom: 1.5rem;">${escapeHtml(ev.descriptions || '')}</p>
                                         </div>
-                                        <div style="display: flex; align-items: center; gap: 0.5rem; color: #555; font-size: 1rem; margin-bottom: 1rem;">
-                                            <span style="font-size: 1.2rem;">&#128205;</span>
-                                            <span>${escapeHtml(ev.lieu || '')}</span>
-                                        </div>
-                                        <h3 style="font-size: 1.3rem; font-weight: bold; margin: 0 0 0.5rem 0;">${escapeHtml(ev.nom)}</h3>
-                                        <p style="color: #333; font-size: 1rem; margin-bottom: 1.5rem;">${escapeHtml(ev.descriptions || '')}</p>
+                                        <a href="event-details.html?id=${encodeURIComponent(ev.id || ev.ID || ev._id || '')}" style="background: #219653; color: #fff; border-radius: 0.5rem; padding: 0.7rem 2rem; text-align: center; text-decoration: none; font-weight: 600; margin-top: auto;">Voir Détails</a>
                                     </div>
-                                    <a href="event-details.html?id=${encodeURIComponent(ev.id || ev.ID || ev._id || '')}" style="background: #219653; color: #fff; border-radius: 0.5rem; padding: 0.7rem 2rem; text-align: center; text-decoration: none; font-weight: 600; margin-top: auto;">Voir Détails</a>
                                 </div>
                             </div>
-                        </div>
-                    `;
-                }).join('');
+                        `;
+                    }).join('');
+                };
+
+                // initial render
+                window.renderEvents(window._eventsCache || []);
             } catch (err) {
                 console.error('Error loading events:', err);
                 container.innerHTML = '<p>Impossible de charger les événements pour le moment.</p>';
@@ -408,7 +466,7 @@ if (slides.length > 0) {
                     const latest = eventsAll.slice(0, 3);
                     homeContainer.innerHTML = latest.map(ev => {
                         const date = ev.date_evenement || ev.date || '';
-                        const photo = ev.photo || 'images/img.jpeg';
+                        const photo = resolvePhoto(ev.photo);
                         return `
                             <div style="background: #fff; border-radius: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); width: 350px; overflow: hidden; display: flex; flex-direction: column;">
                                 <div style="position: relative;">
@@ -447,31 +505,73 @@ if (slides.length > 0) {
                 .replace(/'/g, '&#39;');
         }
 
+// Wire status buttons for events filtering (buttons exist in evenements.html)
+(function wireEventStatusButtons(){
+    const buttons = document.querySelectorAll('.status-btn');
+    if (!buttons || buttons.length === 0) return;
+
+    function applyActive(btn) {
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            applyActive(btn);
+            const status = btn.dataset.status;
+            const all = window._eventsCache || [];
+            let filtered = all;
+            if (status === 'avenir') {
+                filtered = all.filter(ev => !ev.enCours && !ev.estPasse);
+            } else if (status === 'encours') {
+                filtered = all.filter(ev => ev.enCours);
+            } else if (status === 'passes') {
+                filtered = all.filter(ev => ev.estPasse);
+            }
+            if (window.renderEvents) window.renderEvents(filtered);
+        });
+    });
+})();
+
+
+
         // Auto-load events when on events page
         document.addEventListener('DOMContentLoaded', () => {
             loadPublicEvents();
         });
 
         // Auto-load actualites when on actualites page
-        document.addEventListener('DOMContentLoaded', () => {
+        (function initActualites() {
             // load actualites only if container present
             const newsGrid = document.querySelector('.news-grid');
             if (!newsGrid) return;
 
-            async function loadPublicActualites() {
+            const tabs = document.querySelectorAll('.news-tab');
+            const normalizeCat = (s) => String(s || '').toLowerCase().trim().replace(/s$/,'');
+
+            async function loadPublicActualites(filter = 'all') {
                 try {
-                    const res = await fetch('http://127.0.0.1:8000/api/actualites', { cache: 'no-store' });
-                    if (!res.ok) throw new Error('Failed to fetch actualites');
-                    const json = await res.json().catch(() => null);
-                    console.log('loadPublicActualites: fetched actualites', json);
-                    let list = [];
-                    if (json && json.actualites) {
-                            list = Array.isArray(json.actualites) ? json.actualites : (json.actualites.data || []);
+                    // try to ask backend for filtered category first
+                    let url = 'http://127.0.0.1:8000/api/actualites';
+                    const norm = normalizeCat(filter);
+                    if (filter && filter !== 'all') {
+                        // backend may expect singular category (e.g., 'annonce')
+                        url += '?categorie=' + encodeURIComponent(norm);
                     }
 
-                        // If backend returned top-level array or paginator under data
-                        if ((!list || list.length === 0) && Array.isArray(json)) list = json;
-                        if ((!list || list.length === 0) && json && json.data && Array.isArray(json.data)) list = json.data;
+                    const res = await fetch(url, { cache: 'no-store' });
+                    if (!res.ok) throw new Error('Failed to fetch actualites');
+                    const json = await res.json().catch(() => null);
+                    let list = [];
+
+                    if (json && json.actualites) list = Array.isArray(json.actualites) ? json.actualites : (json.actualites.data || []);
+                    if ((!list || list.length === 0) && Array.isArray(json)) list = json;
+                    if ((!list || list.length === 0) && json && json.data && Array.isArray(json.data)) list = json.data;
+
+                    // fallback: if backend returned full list and we requested a category, filter client-side
+                    if (norm && norm !== 'all') {
+                        list = (list || []).filter(item => normalizeCat(item.categorie) === norm);
+                    }
 
                     if (!list || list.length === 0) {
                         newsGrid.innerHTML = '<p>Aucune actualité pour le moment.</p>';
@@ -479,8 +579,7 @@ if (slides.length > 0) {
                     }
 
                     newsGrid.innerHTML = list.map(item => {
-                        const photo = item.photo || 'images/img.jpeg';
-                        const date = item.created_at || item.date || '';
+                        const photo = resolvePhoto(item.photo);
                         const categorie = item.categorie || '';
                         const title = item.nom || item.title || '';
                         const desc = (item.descriptions || item.descript || '').slice(0, 220);
@@ -491,13 +590,15 @@ if (slides.length > 0) {
                                     <span class="news-badge badge-green">${escapeHtml(categorie || 'Actualité')}</span>
                                     <img src="${photo}" alt="${escapeHtml(title)}">
                                 </div>
-                                <div class="news-meta">
-                                    <span class="news-date"><img src="https://img.icons8.com/ios-glyphs/16/888888/calendar--v1.png"/> ${escapeHtml(date)}</span>
-                                    <span class="news-author"><img src="https://img.icons8.com/ios-glyphs/16/888888/user--v1.png"/> Bureau Exécutif UESBA</span>
-                                </div>
                                 <div class="news-content">
-                                    <h3>${escapeHtml(title)}</h3>
-                                    <p>${escapeHtml(desc)}</p>
+                                    <h3 style="display:flex; align-items:center; gap:8px; margin:0;">
+                                        <img src="https://img.icons8.com/ios-glyphs/20/000000/news.png" alt="icon" style="width:18px; height:18px;"> 
+                                        ${escapeHtml(title)}
+                                    </h3>
+                                    <p style="display:flex; align-items:flex-start; gap:8px; margin:0.6rem 0 1rem 0;">
+                                        <img src="https://img.icons8.com/ios-glyphs/16/888888/document--v1.png" alt="icon-desc" style="width:14px; height:14px; margin-top:3px;">
+                                        ${escapeHtml(desc)}
+                                    </p>
                                     <a href="actualite-details.html?id=${nid}" class="news-btn">Lire l'Article</a>
                                 </div>
                             </article>
@@ -509,8 +610,22 @@ if (slides.length > 0) {
                 }
             }
 
-            loadPublicActualites();
-        });
+            // wire tabs
+            if (tabs && tabs.length) {
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        tabs.forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        const filter = tab.dataset.filter || 'all';
+                        loadPublicActualites(filter);
+                    });
+                });
+            }
+
+            // initial load (respect an active tab if present)
+            const active = Array.from(tabs || []).find(t => t.classList.contains('active'));
+            loadPublicActualites(active ? (active.dataset.filter || 'all') : 'all');
+        })();
 
 //propos
 
@@ -551,3 +666,4 @@ if (slides.length > 0) {
 
             statsBgObserver.observe(statsBg);
         }
+

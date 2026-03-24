@@ -3,7 +3,7 @@ const BASE_URL = (window && window.__API_BASE__) ? window.__API_BASE__ : 'http:/
 
 function _getAuthHeader() {
 	try {
-		const token = localStorage.getItem('auth_token');
+		const token = localStorage.getItem('token');
 		return token ? { 'Authorization': 'Bearer ' + token } : {};
 	} catch (e) {
 		return {};
@@ -81,10 +81,7 @@ const apiService = {
 	async updateEvenement(payload = {}) { const fd = new FormData(); _appendFormData(fd, payload); fd.append('_method', 'PUT'); return await this._request('/update-evenement', { method: 'POST', body: fd }); },
 	async deleteEvenement(payload = {}) { return await this._request('/delete-evenement', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); },
 
-	// Membres
-	async createMembre(payload = {}) { const fd = new FormData(); _appendFormData(fd, payload); return await this._request('/create-membre', { method: 'POST', body: fd }); },
-	async updateMembre(payload = {}) { const fd = new FormData(); _appendFormData(fd, payload); fd.append('_method', 'PUT'); return await this._request('/update-membre', { method: 'POST', body: fd }); },
-	async deleteMembre(payload = {}) { return await this._request('/delete-membre', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); },
+	
 
 	// Messages
 	async getMessages() { return await this._request('/messages'); },
@@ -92,7 +89,7 @@ const apiService = {
 
 	// Misc
 	async getMailList() { return await this._request('/mail-list'); },
-	async setMemberPast(payload = {}) { return await this._request('/set-member-past', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); },
+	
 	async sendMail() { return await this._request('/send-mail'); }
 };
 

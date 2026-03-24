@@ -706,6 +706,25 @@ body {
     transform: scale(1.03);
 }
 
+/* Status buttons used on evenements.html */
+.status-btn {
+    background: #f3f4f6;
+    color: #222;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    position: relative;
+    z-index: 100;
+    pointer-events: auto;
+}
+.status-btn.active, .status-btn:hover {
+    background: #198754;
+    color: #fff;
+}
+
 
 .activities-section {
     background: white;
@@ -779,6 +798,26 @@ body {
 
 .carousel-btn:active {
     transform: translateY(-50%) scale(0.95);
+}
+
+/* Add simple icons before section headers (h2, h3) inside content containers.
+   These are decorative and skip top-level page titles (h1). Replace emoji with
+   SVG or icon font if desired. */
+.container h2::before,
+.container h3::before {
+    content: "📌";
+    display: inline-block;
+    margin-right: 10px;
+    transform: translateY(1px);
+    font-size: 1.05em;
+    opacity: 0.95;
+}
+
+.container h2,
+.container h3 {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 .carousel-btn img {
     width: 20px;
@@ -909,6 +948,7 @@ body {
     width: 100%;
     height: 100%;
     opacity: 0.05;
+    pointer-events: none;
 }
 
 .section-pattern-2 {
@@ -917,6 +957,7 @@ body {
     width: 100%;
     height: 100%;
     opacity: 0.05;
+    pointer-events: none;
 }
 
 /* Static variants (no animation) used on pages where background shouldn't animate */

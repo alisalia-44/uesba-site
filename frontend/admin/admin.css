@@ -339,20 +339,40 @@ body {
 }
 
 .btn-edit {
-    padding: 8px 16px;
-    background: transparent;
-    color: var(--primary-color);
-    border: 1px solid var(--primary-color);
-    border-radius: 6px;
+    padding: 8px 14px;
+    background: linear-gradient(135deg, var(--primary-color), #0052a3);
+    color: white;
+    border: none;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
     transition: var(--transition);
+    box-shadow: 0 4px 10px rgba(0, 102, 204, 0.18);
 }
 
 .btn-edit:hover {
-    background: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 102, 204, 0.25);
+}
+
+/* Delete button (red) */
+.btn-delete {
+    padding: 8px 12px;
+    background: linear-gradient(135deg, var(--danger-color), #b02a37);
     color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    transition: var(--transition);
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.15);
+}
+
+.btn-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(220, 53, 69, 0.22);
 }
 
 /* Action Buttons */
@@ -436,6 +456,17 @@ body {
     gap: 8px;
 }
 
+/* Center action buttons when placed inside table cells */
+.admin-table td .table-actions {
+    justify-content: center;
+    align-items: center;
+}
+
+/* Ensure spacing between stacked buttons: horizontal by default, vertical on small screens */
+.table-actions button + button {
+    margin-left: 8px;
+}
+
 /* ===== MODAL ===== */
 .modal {
     display: none;
@@ -464,6 +495,8 @@ body {
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     animation: slideUp 0.3s ease;
     position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .modal-content.modal-large {
@@ -555,6 +588,16 @@ body {
     gap: 12px;
     justify-content: flex-end;
     margin-top: 30px;
+}
+
+/* Keep modal action buttons visible when modal content scrolls */
+.modal-content .form-actions {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding-top: 12px;
+    margin-top: 12px;
+    z-index: 5;
 }
 
 .form-actions button {
@@ -740,6 +783,12 @@ body {
     
     .table-actions {
         flex-direction: column;
+    }
+
+    /* When buttons stack vertically, give vertical spacing */
+    .table-actions button + button {
+        margin-left: 0;
+        margin-top: 8px;
     }
 }
 

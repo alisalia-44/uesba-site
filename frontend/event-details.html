@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Détails Actualité - UESBA</title>
+    <title>Détails Événement - UESBA</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-   <header id="header">
+      <header id="header">
         <div class="container">
             <div class="header-content">
                 <a href="index.html" class="logo">
@@ -22,11 +22,11 @@
                 </a>
 
                 <nav class="desktop-nav">
-                    <a class="nav-link" href="index.html">Accueil</a>
-                    <a class="nav-link active" href="actualites.html">Actualités</a>
-                    <a class="nav-link" href="evenements.html">Événements</a>
-                    <a class="nav-link" href="apropos.html">À Propos</a>
-                    <a class="nav-link" href="contact.html">Contact</a>
+                    <a class="nav-link" href="index.html" data-page="index.html">Accueil</a>
+                    <a class="nav-link active" href="actualites.html" data-page="actualites.html">Actualités</a>
+                    <a class="nav-link" href="evenements.html" data-page="evenements.html">Événements</a>
+                    <a class="nav-link" href="apropos.html" data-page="apropos.html">À Propos</a>
+                    <a class="nav-link" href="contact.html" data-page="contact.html">Contact</a>
                 </nav>
 
                 <button class="mobile-menu-btn" id="mobileMenuBtn">
@@ -38,9 +38,20 @@
            </div>
         </div>
    </header>
+
+   <div class="mobile-menu" id="mobileMenu">
+      <nav>
+          <button class="mobile-nav-link" data-page="index.html">Accueil</button>
+          <button class="mobile-nav-link" data-page="actualites.html">Actualités</button>
+          <button class="mobile-nav-link" data-page="evenements.html">Événements</button>
+          <button class="mobile-nav-link" data-page="apropos.html">À Propos</button>
+          <button class="mobile-nav-link" data-page="contact.html">Contact</button>
+      </nav>
+   </div>   
+
     <main class="container" style="padding: 2rem 1rem; max-width: 900px;">
         <button onclick="window.history.back()" class="back-btn">← Retour</button>
-        <div id="news-detail" style="margin-top:1rem;"></div>
+        <div id="event-detail" style="margin-top:1rem;"></div>
     </main>
 
     <script>
@@ -48,52 +59,64 @@
             function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>'"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":"&#39;",'"':'&quot;'})[c]); }
             const params = new URLSearchParams(window.location.search);
             const id = params.get('id');
-            const container = document.getElementById('news-detail');
-            if(!id){ container.innerHTML = '<p>Identifiant d\'actualité manquant.</p>'; return; }
+            const container = document.getElementById('event-detail');
+            if(!id){ container.innerHTML = '<p>Identifiant d\'événement manquant.</p>'; return; }
 
+            // Try apiService if available
             try{
-                let article = null;
-                if(window.apiService && window.apiService.getActualiteDetail){
-                    const res = await window.apiService.getActualiteDetail(id);
+                let event = null;
+                if(window.apiService && window.apiService.getEventDetail){
+                    const res = await window.apiService.getEventDetail(id);
                     if(res && res.success && res.data){
-                        article = res.data.actualite || res.data.actualite || res.data || null;
-                        if(article && article.data && Array.isArray(article.data)) article = article.data[0];
+                        event = res.data.evenement || res.data.event || res.data || null;
+                        if(event && event.data && Array.isArray(event.data)) event = event.data[0];
                     }
                 }
 
-                if(!article){
+                if(!event){
+                    // Try fetch GET/POST to backend
                     try{
-                        let resp = await fetch('http://127.0.0.1:8000/api/actualite/' + encodeURIComponent(id));
-                        if(!resp.ok){ resp = await fetch('http://127.0.0.1:8000/api/actualite/' + encodeURIComponent(id), { method: 'POST' }); }
-                        if(resp && resp.ok){ const json = await resp.json().catch(()=>null); if(json) article = json.actualite || json.data || json; }
+                        let resp = await fetch('http://127.0.0.1:8000/api/evenement/' + encodeURIComponent(id));
+                        if(!resp.ok){
+                            resp = await fetch('http://127.0.0.1:8000/api/evenement/' + encodeURIComponent(id), { method: 'POST' });
+                        }
+                        if(resp && resp.ok){
+                            const json = await resp.json().catch(()=>null);
+                            if(json){ event = json.evenement || json.event || json.data || json; if(event && event.data) event = event.data[0] || event; }
+                        }
                     }catch(e){ console.error('detail fetch fallback failed', e); }
                 }
 
-                if(!article){
-                    const data = JSON.parse(localStorage.getItem('adminData')||'{}');
-                    const news = data.news || [];
-                    article = news.find(x=> String(x.id)===String(id)) || news.find(x=> String(x.ID)===String(id));
+                if(!event){
+                    // Fallback to localStorage adminData
+                    try{
+                        const data = JSON.parse(localStorage.getItem('adminData')||'{}');
+                        const evs = data.events || [];
+                        event = evs.find(x => String(x.id) === String(id)) || evs.find(x=> String(x.ID)===String(id));
+                    }catch(e){}
                 }
 
-                if(!article){ container.innerHTML = '<p>Actualité introuvable.</p>'; return; }
+                if(!event){ container.innerHTML = '<p>Événement introuvable.</p>'; return; }
 
-                const title = escapeHtml(article.titre || article.title || article.nom || '');
-                const date = escapeHtml(article.date || article.created_at || '');
-                const content = escapeHtml(article.contenu || article.content || article.description || '');
-                const photo = escapeHtml(article.photo || article.image || 'images/img.jpeg');
+                const title = escapeHtml(event.nom || event.title || event.name || '');
+                const date = escapeHtml(event.date_evenement || event.date || '');
+                const location = escapeHtml(event.lieu || event.location || '');
+                const description = escapeHtml(event.descriptions || event.description || event.content || '');
+                const photo = escapeHtml(event.photo || event.image || 'images/img.jpeg');
 
                 container.innerHTML = `
                     <article style="background:#fff;padding:1.5rem;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.08)">
                         <img src="${photo}" alt="${title}" style="width:100%;height:380px;object-fit:cover;border-radius:8px;">
                         <h1 style="margin-top:1rem">${title}</h1>
-                        <p style="color:#666;margin-bottom:0.5rem">${date}</p>
-                        <div style="white-space:pre-wrap;margin-top:1rem;color:#333">${content}</div>
+                        <p style="color:#666;margin-bottom:0.5rem">${date} • ${location}</p>
+                        <div style="white-space:pre-wrap;margin-top:1rem;color:#333">${description}</div>
                     </article>
                 `;
-            }catch(err){ console.error(err); container.innerHTML = '<p>Erreur lors du chargement de l\'actualité.</p>'; }
+            }catch(err){ console.error(err); container.innerHTML = '<p>Erreur lors du chargement de l\'événement.</p>'; }
         })();
     </script>
-    <footer class="footer">
+      <!-- Footer-->
+     <footer class="footer">
      <div class="container">
         <div class="footer-content">
             <div class="footer-column">

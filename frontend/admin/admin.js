@@ -1,1478 +1,801 @@
-// ===== ADMIN DASHBOARD JAVASCRIPT =====
+const BASE_URL = 'http://127.0.0.1:8000/api';
+const STORAGE_URL = 'http://127.0.0.1:8000/storage/';
 
-// Data Storage (Local Storage)
-const DataManager = {
-    // Initialize data from localStorage or create default data
-    init() {
-        if (!localStorage.getItem('adminData')) {
-            localStorage.setItem('adminData', JSON.stringify({
-                activities: [],
-                members: [],
-                events: [],
-                news: [],
-                videos: [],
-                messages: []
-            }));
-        }
-    },
-
-    // Get all data
-    getData() {
-        return JSON.parse(localStorage.getItem('adminData')) || {};
-    },
-
-    // Save data
-    saveData(data) {
-        localStorage.setItem('adminData', JSON.stringify(data));
-    },
-
-    // Add item
-    addItem(category, item) {
-        const data = this.getData();
-        item.id = Date.now();
-        data[category].push(item);
-        this.saveData(data);
-        return item;
-    },
-
-    // Update item
-    updateItem(category, id, updatedItem) {
-        const data = this.getData();
-        const index = data[category].findIndex(item => item.id === id);
-        if (index !== -1) {
-            data[category][index] = { ...data[category][index], ...updatedItem, id };
-            this.saveData(data);
-        }
-    },
-
-    // Delete item
-    deleteItem(category, id) {
-        const data = this.getData();
-        data[category] = data[category].filter(item => item.id !== id);
-        this.saveData(data);
-    },
-
-    // Get items by category
-    getItems(category) {
-        const data = this.getData();
-        return data[category] || [];
-    }
-};
-
-// Current Editing State
+// État global
 let currentEditingId = null;
-let currentEditingCategory = null;
+window.__members = [];
+window.__messages = [];
 
-// ===== DOM ELEMENTS =====
-const sidebar = document.querySelector('.admin-sidebar');
-const navButtons = document.querySelectorAll('.nav-btn');
-const adminSections = document.querySelectorAll('.admin-section');
-const pageTitle = document.getElementById('page-title');
-
-// ===== INITIALIZATION =====
-document.addEventListener('DOMContentLoaded', function() {
-    DataManager.init();
+// Initialisation
+document.addEventListener('DOMContentLoaded', function () {
     setupEventListeners();
     updateCurrentDate();
-    loadAllData();
+    loadDashboard();
     setInterval(updateCurrentDate, 1000);
 });
 
-// ===== EVENT LISTENERS SETUP =====
+// --- NAVIGATION & UI ---
+function updateCurrentDate() {
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    const dateElement = document.getElementById('current-date');
+    if (dateElement) dateElement.textContent = now.toLocaleDateString('fr-FR', options);
+}
+
 function setupEventListeners() {
-    // Navigation
-    navButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
+    // Navigation latérale
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
             switchSection(this.dataset.section);
         });
     });
 
-    // Modal close on outside click
+    // Fermeture des modals au clic extérieur
     document.querySelectorAll('.modal').forEach(modal => {
-        modal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal(this.id);
-            }
+        modal.addEventListener('click', function (e) {
+            if (e.target === this) closeModal(this.id);
         });
     });
 
-    // Contact form for demo
-    const contactForm = document.getElementById('contactForm');
-    if (contactForm) {
-        contactForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            saveMessage();
+    // Prévisualisation de la photo (ID synchronisé avec le HTML)
+    setupImagePreview('memberPhoto', 'photoPreview');
+    setupImagePreview('eventImage', 'eventImagePreview');
+    setupImagePreview('newsImage', 'newsImagePreview');
+
+    // Video admin controls (Events page video)
+    setupVideoAdminControls();
+
+    // Gestionnaire de soumission du formulaire membre
+    const memberForm = document.getElementById('memberForm');
+    if (memberForm) {
+        memberForm.addEventListener('submit', saveMember);
+    }
+}
+
+function setupImagePreview(inputId, previewId) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    if (input && preview) {
+        input.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            } else {
+                preview.src = '';
+                preview.style.display = 'none';
+            }
         });
     }
 }
 
-// ===== NAVIGATION & SECTIONS =====
 function switchSection(sectionName) {
-    // Update nav buttons
-    navButtons.forEach(btn => btn.classList.remove('active'));
-    document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.querySelector(`[data-section="${sectionName}"]`);
+    if (activeBtn) activeBtn.classList.add('active');
 
-    // Update sections (show selected, hide others)
-    adminSections.forEach(section => section.classList.remove('active'));
-    const target = document.getElementById(`${sectionName}-section`);
-    if (target) target.classList.add('active');
+    document.querySelectorAll('.admin-section').forEach(section => section.classList.remove('active'));
+    const targetSection = document.getElementById(`${sectionName}-section`);
+    if (targetSection) targetSection.classList.add('active');
 
-    // Update title
     const titles = {
-        'dashboard': 'Tableau de bord',
-        
-        'members': 'Gestion des Membres du Bureau',
-        'events': 'Gestion des Événements',
-        'news': 'Gestion des Actualités',
-        'videos': 'Gestion des Vidéos',
-        'messages': 'Messages des Visiteurs'
+        dashboard: 'Tableau de bord',
+        members: 'Gestion des Membres Bureau',
+        events: 'Gestion des Événements',
+        news: 'Gestion des Actualités',
+        messages: 'Messages'
     };
-    if (pageTitle) pageTitle.textContent = titles[sectionName] || 'Tableau de bord';
 
-    // Load section data
+    const pageTitle = document.getElementById('page-title');
+    if (pageTitle) pageTitle.textContent = titles[sectionName] || 'Administration';
+
     if (sectionName === 'dashboard') loadDashboard();
-    
-    else if (sectionName === 'members') loadMembers();
-    else if (sectionName === 'events') loadEvents();
-    else if (sectionName === 'news') loadNews();
-    else if (sectionName === 'videos') loadVideos();
+    if (sectionName === 'members') loadMembers();
+    if (sectionName === 'events') loadEvents && loadEvents();
+    if (sectionName === 'news') loadNews && loadNews();
+    if (sectionName === 'messages') loadMessages();
 }
 
-// ===== DASHBOARD =====
-function loadDashboard() {
-    const data = DataManager.getData();
-    
-    document.getElementById('stat-members').textContent = data.members.length;
-    document.getElementById('stat-events').textContent = data.events.length;
-    document.getElementById('stat-news').textContent = data.news.length;
-    document.getElementById('stat-messages').textContent = data.messages.length;
-}
+// --- API HELPER ---
+async function apiFetch(endpoint, options = {}) {
+    const token = localStorage.getItem('token');
+    const headers = new Headers(options.headers || {});
+    headers.set('Accept', 'application/json');
 
-// ===== ACTIVITIES =====
-function loadActivities() {
-    const activities = DataManager.getItems('activities');
-    const tbody = document.getElementById('activities-list');
+    if (token) headers.set('Authorization', `Bearer ${token}`);
     
-    if (activities.length === 0) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="4">Aucune activité</td></tr>';
-        return;
+    // On ne met pas de Content-Type si c'est du FormData (le navigateur le fait automatiquement)
+    if (!(options.body instanceof FormData) && !headers.has('Content-Type')) {
+        headers.set('Content-Type', 'application/json');
     }
 
-    tbody.innerHTML = activities.map(activity => `
-        <tr>
-            <td><strong>${activity.title}</strong></td>
-            <td>${truncateText(activity.description, 50)}</td>
-            <td>${formatDate(activity.date)}</td>
-            <td>
-                <div class="table-actions">
-                    <button class="btn-edit" onclick="openAddModal('activity', ${activity.id})">Modifier</button>
-                    <button class="btn-danger" onclick="deleteActivity(${activity.id})">Supprimer</button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-}
+    const response = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
 
-async function openAddModal(type, id = null) {
-    console.log('openAddModal called', { type, id });
-    currentEditingId = id;
-    currentEditingCategory = type;
-
-    const modals = {
-        'activity': 'activityModal',
-        'member': 'memberModal',
-        'event': 'eventModal',
-        'news': 'newsModal',
-        'video': 'videoModal'
-    };
-
-    const modal = modals[type];
-    const modalElement = document.getElementById(modal);
-
-    // Clear form
-    modalElement.querySelectorAll('input, textarea, select').forEach(field => {
-        field.value = '';
-    });
-
-    // Update modal title
-    if (id) {
-        const titleElement = modalElement.querySelector('h2');
-        const actionTexts = {
-            
-            'member': 'Modifier le membre',
-            'event': 'Modifier l\'événement',
-            'news': 'Modifier l\'actualité',
-            'video': 'Modifier la vidéo'
-        };
-        titleElement.textContent = actionTexts[type];
-
-        // Load existing data
-        const data = DataManager.getData();
-        const items = data[type + 's'] || data[type];
-        const item = Array.isArray(items) ? items.find(i => i.id === id) : null;
-
-            if (item) {
-            // Populate form with item data
-            if (type === 'activity') {
-                document.getElementById('activityTitle').value = item.title;
-                document.getElementById('activityDescription').value = item.description;
-                document.getElementById('activityDate').value = item.date;
-            } else if (type === 'member') {
-                document.getElementById('memberName').value = item.name;
-                if (document.getElementById('memberPrenom')) document.getElementById('memberPrenom').value = item.prenom || item.lastName || '';
-                document.getElementById('memberPosition').value = item.position;
-                document.getElementById('memberEmail').value = item.email || '';
-                document.getElementById('memberPhone').value = item.phone || '';
-                document.getElementById('memberImage').value = item.image || '';
-            } else if (type === 'event') {
-                // Try backend first (if available), otherwise fallback to local item
-                let evt = null;
-                try {
-                    if (window.apiService && window.apiService.getEventDetail) {
-                        const res = await window.apiService.getEventDetail(id);
-                        console.log('openAddModal: backend event detail response', res);
-                        if (res && res.success && res.data) {
-                            evt = res.data.event || res.data.evenement || res.data || null;
-                            // normalize collection shapes
-                            if (evt && evt.data && Array.isArray(evt.data)) evt = evt.data[0];
-                            if (Array.isArray(evt) && evt.length) evt = evt[0];
-                        }
-                    }
-                } catch (err) {
-                    console.warn('openAddModal: failed fetching backend event detail', err);
-                }
-
-                console.log('openAddModal: evt after backend/local lookup', evt);
-
-                // If backend didn't return an event, try local storage (coerce id types when matching)
-                if (!evt) {
-                    const localItems = DataManager.getItems('events') || [];
-                    const localMatch = localItems.find(i => String(i.id) === String(id));
-                    if (localMatch) evt = localMatch;
-                }
-
-                // If we have event data, populate fields (handle different property names)
-                if (evt) {
-                    document.getElementById('eventTitle').value = evt.nom || evt.title || evt.name || '';
-                    const rawDate = evt.date_evenement || evt.date || evt.date_event || '';
-                    try {
-                        const d = new Date(rawDate);
-                        if (!isNaN(d)) document.getElementById('eventDate').value = d.toISOString().split('T')[0];
-                        else document.getElementById('eventDate').value = rawDate || '';
-                    } catch (e) {
-                        document.getElementById('eventDate').value = rawDate || '';
-                    }
-                    document.getElementById('eventLocation').value = evt.lieu || evt.location || evt.lieu_event || '';
-                    document.getElementById('eventDescription').value = evt.descriptions || evt.description || evt.content || '';
-                    if (document.getElementById('eventType')) {
-                        const t = (evt.type || '').toString();
-                        document.getElementById('eventType').value = t === 'En_ligne' || t.toLowerCase().includes('en_ligne') || t.toLowerCase().includes('en') ? 'En_ligne' : 'presentiel';
-                    }
-                    // For file input we can't set a value; show preview if we have a URL
-                    const preview = document.getElementById('eventImagePreview');
-                    const fileInput = document.getElementById('eventImage');
-                    try { fileInput.value = ''; } catch (e) {}
-                    if (evt.photo || evt.image) {
-                        const url = evt.photo || evt.image;
-                        preview.src = url;
-                        preview.style.display = 'block';
-                    } else {
-                        preview.src = '';
-                        preview.style.display = 'none';
-                    }
-                }
-            } else if (type === 'news') {
-                document.getElementById('newsTitle').value = item.title || item.nom || '';
-                document.getElementById('newsContent').value = item.content || item.descriptions || item.descript || '';
-                // try several date fields
-                const rawNewsDate = item.date || item.created_at || item.created || '';
-                try {
-                    const nd = new Date(rawNewsDate);
-                    if (!isNaN(nd)) document.getElementById('newsDate').value = nd.toISOString().split('T')[0];
-                    else document.getElementById('newsDate').value = rawNewsDate || '';
-                } catch (e) {
-                    document.getElementById('newsDate').value = rawNewsDate || '';
-                }
-                const newsFileInput = document.getElementById('newsImage');
-                try { if (newsFileInput) newsFileInput.value = ''; } catch (e) {}
-                const newsPreview = document.getElementById('newsImagePreview');
-                const imageUrl = item.image || item.photo || '';
-                if (newsPreview) {
-                    if (imageUrl) {
-                        newsPreview.src = imageUrl;
-                        newsPreview.style.display = 'block';
-                    } else {
-                        newsPreview.src = '';
-                        newsPreview.style.display = 'none';
-                    }
-                }
-                // Populate category (handle different backend property names)
-                let cat = item.categorie || item.category || item.categorie_nom || item.nom_categorie || '';
-                cat = (cat || '').toString().toLowerCase();
-                if (document.getElementById('newsCategory')) document.getElementById('newsCategory').value = cat;
-                // update preview on file select
-                if (newsFileInput && newsPreview) {
-                    newsFileInput.addEventListener('change', (ev) => {
-                        const f = ev.target.files && ev.target.files[0] ? ev.target.files[0] : null;
-                        if (f) {
-                            newsPreview.src = URL.createObjectURL(f);
-                            newsPreview.style.display = 'block';
-                        } else {
-                            newsPreview.src = '';
-                            newsPreview.style.display = 'none';
-                        }
-                    });
-                }
-            } else if (type === 'video') {
-                document.getElementById('videoTitle').value = item.title;
-                document.getElementById('videoUrl').value = item.url;
-                document.getElementById('videoPage').value = item.page;
-            }
-        }
-    } else {
-        const titleElement = modalElement.querySelector('h2');
-        const actionTexts = {
-           
-            'member': 'Ajouter un Membre',
-            'event': 'Ajouter un Événement',
-            'news': 'Ajouter une Actualité',
-            'video': 'Ajouter une Vidéo'
-        };
-        titleElement.textContent = actionTexts[type];
+    // try to parse JSON safely, keep raw text if parsing fails
+    const text = await response.text().catch(() => '');
+    let data;
+    try {
+        data = text ? JSON.parse(text) : null;
+    } catch (e) {
+        data = { __raw: text };
     }
 
-    openModal(modal);
+    if (!response.ok) {
+        const msg = data && data.errors ? Object.values(data.errors).flat().join('\n') : (data && (data.message || data.error) ? (data.message || data.error) : `Erreur ${response.status} ${response.statusText}`);
+        const err = new Error(msg);
+        err.status = response.status;
+        err.raw = data;
+        throw err;
+    }
+    return data;
 }
 
-
-
-// ===== MEMBERS =====
+// --- GESTION DES MEMBRES ---
 async function loadMembers() {
-    const tbody = document.getElementById('members-list');
-    const token = localStorage.getItem('auth_token');
-
-    // If admin logged in, try fetching members from backend
-    if (token && window.apiService) {
-        try {
-            // try common endpoint names until one succeeds
-            const tryPaths = ['/membres', '/membre', '/members'];
-            let res = null;
-            for (const p of tryPaths) {
-                res = await window.apiService._request(p);
-                if (res && res.success && res.data) break;
-            }
-            if (res && res.success && res.data) {
-                // backend may return different shapes
-                let items = [];
-                if (Array.isArray(res.data)) items = res.data;
-                else if (res.data.membres) items = Array.isArray(res.data.membres) ? res.data.membres : (res.data.membres.data || []);
-                else if (res.data.membre) items = Array.isArray(res.data.membre) ? res.data.membre : (res.data.membre.data || []);
-                else if (res.data.data && Array.isArray(res.data.data)) items = res.data.data;
-
-                if (!items || items.length === 0) {
-                    tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Aucun membre</td></tr>';
-                    return;
-                }
-
-                // cache for client-side checks
-                window.__members = items;
-
-                tbody.innerHTML = items.map(member => `
-                    <tr>
-                        <td><strong>${escapeHtml(member.nom || member.name || '')}</strong></td>
-                        <td>${escapeHtml(member.poste || member.position || '')}</td>
-                        <td>${escapeHtml(member.email || '-')}</td>
-                        <td>${escapeHtml(member.telephone || member.phone || '-')}</td>
-                        <td>
-                            <div class="table-actions">
-                                <button class="btn-edit" onclick="openAddModal('member', '${member.id || member.ID || ''}')">Modifier</button>
-                                <button class="btn-danger" onclick="deleteMember('${member.id || member.ID || ''}')">Supprimer</button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
-                return;
-            }
-        } catch (err) {
-            console.warn('loadMembers: backend fetch failed, falling back to local', err);
-        }
-    }
-
-    // Fallback: local storage
-    const members = DataManager.getItems('members');
-    if (!members || members.length === 0) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Aucun membre</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = members.map(member => `
-        <tr>
-            <td><strong>${escapeHtml(member.name)}</strong></td>
-            <td>${escapeHtml(member.position)}</td>
-            <td>${escapeHtml(member.email || '-')}</td>
-            <td>${escapeHtml(member.phone || '-')}</td>
-            <td>
-                <div class="table-actions">
-                    <button class="btn-edit" onclick="openAddModal('member', ${member.id})">Modifier</button>
-                    <button class="btn-danger" onclick="deleteMember(${member.id})">Supprimer</button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function saveMember(e) {
-    e.preventDefault();
-    
-    const member = {
-        name: document.getElementById('memberName').value,
-        prenom: document.getElementById('memberPrenom') ? document.getElementById('memberPrenom').value : '',
-        position: document.getElementById('memberPosition').value,
-        email: document.getElementById('memberEmail').value,
-        phone: document.getElementById('memberPhone').value,
-        image: document.getElementById('memberImage').value
-    };
-
-    const token = localStorage.getItem('auth_token');
-    if (token && window.apiService) {
-        // map fields to common backend names
-        const payload = {
-            nom: member.name,
-            prenom: member.prenom,
-            poste: member.position,
-            email: member.email,
-            telephone: member.phone,
-            photo: member.image
-        };
-        if (currentEditingId) payload.id = currentEditingId;
-
-        (async () => {
-            try {
-                let res;
-                // Ensure we have a members cache; if not, try to fetch from server before creating to avoid 500 on duplicate email
-                try {
-                    if ((!window.__members || !Array.isArray(window.__members) || window.__members.length === 0) && window.apiService) {
-                        const tryPaths = ['/membres','/membre','/users','/members'];
-                        for (const p of tryPaths) {
-                            const r = await window.apiService._request(p);
-                            if (r && r.success && r.data) {
-                                let items = [];
-                                if (Array.isArray(r.data)) items = r.data;
-                                else if (Array.isArray(r.data.membres)) items = r.data.membres;
-                                else if (Array.isArray(r.data.users)) items = r.data.users;
-                                else if (Array.isArray(r.data.data)) items = r.data.data;
-                                if (items && items.length) { window.__members = items; break; }
-                            }
-                        }
-                    }
-
-                    const cache = window.__members || [];
-                    if (payload.email) {
-                        const dup = cache.find(m => String(m.email || '').toLowerCase() === String(payload.email).toLowerCase());
-                        if (dup && !currentEditingId) {
-                            alert('Un membre avec cet email existe déjà. Veuillez utiliser un autre email ou modifier le membre existant.');
-                            return;
-                        }
-                        if (dup && currentEditingId && String(dup.id) !== String(currentEditingId)) {
-                            alert('Cet email appartient à un autre membre. Utilisez un email différent.');
-                            return;
-                        }
-                    }
-                } catch (e) { console.warn('member duplicate check failed', e); }
-                // basic validation
-                if (!payload.nom || !payload.prenom) {
-                    alert('Le nom et le prénom sont requis.');
-                    return;
-                }
-
-                if (currentEditingId) res = await window.apiService.updateMembre(payload);
-                else res = await window.apiService.createMembre(payload);
-                if (!res.success) throw res.error || 'Erreur API';
-                closeModal('memberModal');
-                await loadMembers();
-                loadDashboard();
-                alert('Membre enregistré.');
-                return;
-            } catch (err) {
-                console.error('Failed to save member via API', err);
-                // try to detect SQL unique/email constraint
-                try {
-                    const raw = err && err.raw ? err.raw : null;
-                    const msg = (raw && raw.message) ? raw.message : (err && err.message) ? err.message : null;
-                    if (msg && /Integrity constraint violation|UNIQUE|Duplicate entry|23000/i.test(String(msg))) {
-                        alert('Erreur: email déjà utilisé ou contrainte d\'unicité violée. Vérifiez l\'adresse email.');
-                        return;
-                    }
-                } catch (e) { /* ignore */ }
-                alert('Erreur lors de l\'enregistrement du membre. Voir console pour plus de détails.');
-            }
-        })();
-        return;
-    }
-
-    // Fallback: local storage
-    if (currentEditingId) {
-        DataManager.updateItem('members', currentEditingId, member);
-    } else {
-        DataManager.addItem('members', member);
-    }
-
-    closeModal('memberModal');
-    loadMembers();
-    loadDashboard();
-}
-
-function deleteMember(id) {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) return;
-    const token = localStorage.getItem('auth_token');
-    if (token && window.apiService) {
-        (async () => {
-            try {
-                const res = await window.apiService.deleteMembre({ id });
-                if (!res.success) throw res.error || 'Erreur API';
-                await loadMembers();
-                loadDashboard();
-                alert('Membre supprimé.');
-            } catch (err) {
-                console.error('Failed to delete member via API', err);
-                alert('Erreur lors de la suppression du membre. Voir console pour détails.');
-            }
-        })();
-        return;
-    }
-
-    // Fallback: local
-    DataManager.deleteItem('members', id);
-    loadMembers();
-    loadDashboard();
-}
-
-// ===== EVENTS =====
-function loadEvents() {
-    const tbody = document.getElementById('events-list');
-    const token = localStorage.getItem('auth_token');
-
-    // If admin logged in, fetch events from backend
-    if (token) {
-        if (window.apiService) {
-            window.apiService.getEvents().then(res => {
-                if (!res.success) {
-                    // fallback to local data
-                    renderEventsFromList(DataManager.getItems('events'));
-                    return;
-                }
-                const items = (res.data && res.data.evenement && res.data.evenement.data) ? res.data.evenement.data : (res.data && res.data.evenement) ? res.data.evenement : (res.data || []);
-                if (!items.length) {
-                    tbody.innerHTML = '<tr class="empty-row"><td colspan="6">Aucun événement</td></tr>';
-                    return;
-                }
-                tbody.innerHTML = items.map(event => {
-                    const title = event.nom || event.title || '';
-                    const date = event.date_evenement || event.date || '';
-                    const location = event.lieu || event.location || '';
-                    const description = event.descriptions || event.description || event.content || '';
-                    const id = event.id || event.ID || '';
-                    return `
-                        <tr>
-                            <td><strong>${escapeHtml(title)}</strong></td>
-                            <td>${formatDate(date)}</td>
-                            <td>${escapeHtml(location)}</td>
-                            <td>${truncateText(escapeHtml(description), 40)}</td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="btn-edit" onclick="editEventDetails(${id})" style="background: #28a745; color: white; border-color: #28a745;">Détails</button>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="btn-edit" onclick="openAddModal('event', ${id})">Modifier</button>
-                                    <button class="btn-danger" onclick="deleteEvent(${id})">Supprimer</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-            }).catch(() => {
-                renderEventsFromList(DataManager.getItems('events'));
-            });
-            return;
-        }
-
-        // direct fetch fallback if apiService not available
-        fetch('http://127.0.0.1:8000/api/evenements', { headers: { 'Authorization': 'Bearer ' + token } })
-            .then(r => r.json())
-            .then(json => {
-                const items = (json && json.evenement && json.evenement.data) ? json.evenement.data : (json && json.evenement) ? json.evenement : (json || []);
-                if (!items.length) {
-                    tbody.innerHTML = '<tr class="empty-row"><td colspan="6">Aucun événement</td></tr>';
-                    return;
-                }
-                tbody.innerHTML = items.map(event => {
-                    const title = event.nom || event.title || '';
-                    const date = event.date_evenement || event.date || '';
-                    const location = event.lieu || event.location || '';
-                    const description = event.descriptions || event.description || '';
-                    const id = event.id || '';
-                    return `
-                        <tr>
-                            <td><strong>${escapeHtml(title)}</strong></td>
-                            <td>${formatDate(date)}</td>
-                            <td>${escapeHtml(location)}</td>
-                            <td>${truncateText(escapeHtml(description), 40)}</td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="btn-edit" onclick="editEventDetails(${id})" style="background: #28a745; color: white; border-color: #28a745;">Détails</button>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="btn-edit" onclick="openAddModal('event', ${id})">Modifier</button>
-                                    <button class="btn-danger" onclick="deleteEvent(${id})">Supprimer</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-            }).catch(() => renderEventsFromList(DataManager.getItems('events')));
-        return;
-    }
-
-    // Fallback: render from local DataManager
-    renderEventsFromList(DataManager.getItems('events'));
-}
-
-function renderEventsFromList(events) {
-    const tbody = document.getElementById('events-list');
-    if (!events || events.length === 0) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="6">Aucun événement</td></tr>';
-        return;
-    }
-    tbody.innerHTML = events.map(event => `
-        <tr>
-            <td><strong>${escapeHtml(event.title || event.nom || '')}</strong></td>
-            <td>${formatDate(event.date || event.date_evenement || '')}</td>
-            <td>${escapeHtml(event.location || event.lieu || '')}</td>
-            <td>${truncateText(escapeHtml(event.description || event.descriptions || ''), 40)}</td>
-            <td>
-                <div class="table-actions">
-                    <button class="btn-edit" onclick="editEventDetails(${event.id})" style="background: #28a745; color: white; border-color: #28a745;">Détails</button>
-                </div>
-            </td>
-            <td>
-                <div class="table-actions">
-                    <button class="btn-edit" onclick="openAddModal('event', ${event.id})">Modifier</button>
-                    <button class="btn-danger" onclick="deleteEvent(${event.id})">Supprimer</button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-}
-
-async function saveEvent(e) {
-    e.preventDefault();
-    const token = localStorage.getItem('auth_token');
-
-    const title = document.getElementById('eventTitle').value;
-    const date = document.getElementById('eventDate').value;
-    const location = document.getElementById('eventLocation').value;
-    const description = document.getElementById('eventDescription').value;
-    const type = document.getElementById('eventType') ? document.getElementById('eventType').value : 'presentiel';
-    const imageInput = document.getElementById('eventImage');
-    const file = imageInput && imageInput.files && imageInput.files[0] ? imageInput.files[0] : null;
-
-    // Update preview when user selects a file
-    const previewEl = document.getElementById('eventImagePreview');
-    if (imageInput) {
-        imageInput.addEventListener('change', (ev) => {
-            const f = ev.target.files && ev.target.files[0] ? ev.target.files[0] : null;
-            if (f && previewEl) {
-                previewEl.src = URL.createObjectURL(f);
-                previewEl.style.display = 'block';
-            } else if (previewEl) {
-                previewEl.src = '';
-                previewEl.style.display = 'none';
-            }
-        });
-    }
-
-    if (token && window.apiService) {
-        const payload = {
-            nom_event: title,
-            description_event: description,
-            date_event: date,
-            type: type,
-            lieu: location
-        };
-        if (file) payload.photo = file;
-        if (currentEditingId) payload.id = currentEditingId;
-
-        try {
-            console.log('Saving event via apiService, payload keys:', Object.keys(payload), 'payloadSample:', { nom_event: payload.nom_event, date_event: payload.date_event, type: payload.type, lieu: payload.lieu });
-            if (payload.photo) console.log('payload.photo is', payload.photo instanceof File ? 'File(' + payload.photo.name + ')' : typeof payload.photo);
-            let res;
-            if (currentEditingId) {
-                res = await window.apiService.updateEvenement(payload);
-            } else {
-                res = await window.apiService.createEvenement(payload);
-            }
-            if (!res.success) throw res.error || 'Erreur API';
-            closeModal('eventModal');
-            await loadEvents();
-            loadDashboard();
-            alert('Événement enregistré.');
-            return;
-        } catch (err) {
-            // Show detailed error to help debugging (validation errors, status, raw response)
-            console.error('Failed to save event via API', err);
-            const status = err && err.status ? err.status : 'unknown';
-            const raw = err && err.raw ? err.raw : null;
-            if (raw && (raw.errors || raw.input || raw.message)) {
-                console.error('API response:', raw);
-                const details = raw.message ? raw.message : JSON.stringify(raw.errors || raw);
-                alert('Erreur API: ' + details + ' (status: ' + status + ')');
-            } else if (err && err.message) {
-                alert('Erreur API: ' + err.message + ' (status: ' + status + ')');
-            } else {
-                alert('Erreur lors de l\'enregistrement de l\'événement. Voir console pour détails.');
-            }
-            return;
-        }
-    }
-
-    if (token && !window.apiService) {
-        // use direct fetch to call backend endpoints
-        const fd = new FormData();
-        fd.append('nom_event', title);
-        fd.append('description_event', description);
-        fd.append('date_event', date);
-        fd.append('type', type);
-        fd.append('lieu', location);
-        if (file) fd.append('photo', file);
-        if (currentEditingId) fd.append('id', currentEditingId);
-
-        try {
-            // debug: log FormData entries
-            for (const pair of fd.entries()) {
-                console.log('FormData', pair[0], pair[1] instanceof File ? ('File(' + pair[1].name + ')') : pair[1]);
-            }
-            let url = 'http://127.0.0.1:8000/api/create-evenement';
-            let method = 'POST';
-            if (currentEditingId) {
-                // Use POST with method override for multipart PUT compatibility
-                fd.append('_method', 'PUT');
-                url = 'http://127.0.0.1:8000/api/update-evenement';
-                method = 'POST';
-            }
-            const resp = await fetch(url, { method, headers: { 'Authorization': 'Bearer ' + token }, body: fd });
-            // Try to parse JSON, otherwise fall back to raw text for better debugging
-            let json = null;
-            let text = null;
-            try {
-                json = await resp.json();
-            } catch (e) {
-                try { text = await resp.text(); } catch (e2) { text = null; }
-            }
-            if (!resp.ok) {
-                console.error('create-evenement failed', { status: resp.status, body: json, text });
-                const message = (json && (json.message || json.error)) ? (json.message || json.error) : (text ? text : ('status ' + resp.status));
-                alert('Erreur API: ' + message);
-                return;
-            }
-            console.log('create-evenement response', json || text);
-            closeModal('eventModal');
-            await loadEvents();
-            loadDashboard();
-            alert('Événement enregistré.');
-            return;
-        } catch (err) {
-            console.error('Failed to save event via fetch', err);
-            alert('Erreur lors de l\'enregistrement de l\'événement.');
-            return;
-        }
-    }
-
-    // Fallback: local storage
-    const event = { title, date, location, description, image: file ? file.name : '' };
-    if (currentEditingId) {
-        DataManager.updateItem('events', currentEditingId, event);
-    } else {
-        DataManager.addItem('events', event);
-    }
-
-    closeModal('eventModal');
-    loadEvents();
-    loadDashboard();
-}
-
-async function deleteEvent(id) {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) return;
-    const token = localStorage.getItem('auth_token');
-    if (token && window.apiService) {
-        try {
-            const res = await window.apiService.deleteEvenement({ id });
-            if (!res.success) throw res.error || 'Erreur API';
-            await loadEvents();
-            loadDashboard();
-            alert('Événement supprimé.');
-            return;
-        } catch (err) {
-            console.error('Failed to delete event via API', err);
-            const raw = err && err.raw ? err.raw : null;
-            if (raw && (raw.message || raw.errors)) {
-                console.error('API response:', raw);
-                alert('Erreur API: ' + (raw.message || JSON.stringify(raw.errors)));
-            } else if (err && err.message) {
-                alert('Erreur API: ' + err.message);
-            } else {
-                alert('Erreur lors de la suppression de l\'événement. Voir console pour détails.');
-            }
-            return;
-        }
-    }
-
-    if (token && !window.apiService) {
-        try {
-            const resp = await fetch('http://127.0.0.1:8000/api/delete-evenement', {
-                method: 'DELETE',
-                headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id })
-            });
-            let json = null;
-            try {
-                json = await resp.json();
-            } catch (parseErr) {
-                // Response was not JSON (likely an HTML error page). Capture text for debugging.
-                const text = await resp.text().catch(() => null);
-                console.error('Non-JSON response from delete-evenement:', text);
-                json = { message: text || 'Non-JSON response', __raw: text };
-            }
-            if (!resp.ok) throw json;
-            await loadEvents();
-            loadDashboard();
-            alert('Événement supprimé.');
-            return;
-        } catch (err) {
-            console.error('Failed to delete event via fetch', err);
-            if (err && err.message) {
-                alert('Erreur API: ' + err.message);
-            } else if (err && err.__raw) {
-                alert('Erreur API (html): voir console pour la réponse complète.');
-            } else {
-                alert('Erreur lors de la suppression de l\'événement. Voir console pour détails.');
-            }
-            return;
-        }
-    }
-
-    // Fallback: local
-    DataManager.deleteItem('events', id);
-    loadEvents();
-    loadDashboard();
-}
-
-// ===== NEWS =====
-async function loadNews() {
-    const tbody = document.getElementById('news-list');
-    const token = localStorage.getItem('auth_token');
-
-    if (token && window.apiService) {
-        try {
-            const res = await window.apiService.getActualites();
-            if (res && res.success && res.data) {
-                let items = [];
-                if (Array.isArray(res.data)) items = res.data;
-                else if (res.data.actualites) items = Array.isArray(res.data.actualites) ? res.data.actualites : (res.data.actualites.data || []);
-                else if (res.data.actualite) items = Array.isArray(res.data.actualite) ? res.data.actualite : (res.data.actualite.data || []);
-                else if (res.data.data && Array.isArray(res.data.data)) items = res.data.data;
-
-                if (!items || items.length === 0) {
-                    tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Aucune actualité</td></tr>';
-                    return;
-                }
-
-                tbody.innerHTML = items.map(item => `
-                    <tr>
-                        <td><strong>${escapeHtml(item.nom || item.title || '')}</strong></td>
-                        <td>${truncateText(escapeHtml(item.descriptions || item.content || ''), 50)}</td>
-                        <td>${item.created_at ? formatDate(item.created_at) : '-'}</td>
-                        <td>
-                            <div class="table-actions">
-                                <button class="btn-edit" onclick="editNewsArticle('${item.id || item.ID || ''}')" style="background: #28a745; color: white; border-color: #28a745;">Article</button>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="table-actions">
-                                <button class="btn-edit" onclick="openAddModal('news', '${item.id || item.ID || ''}')">Modifier</button>
-                                <button class="btn-danger" onclick="deleteNews('${item.id || item.ID || ''}')">Supprimer</button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
-                return;
-            }
-        } catch (err) {
-            console.warn('loadNews: backend fetch failed, falling back to local', err);
-        }
-    }
-
-    // Fallback: local storage
-    const news = DataManager.getItems('news');
-    if (!news || news.length === 0) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Aucune actualité</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = news.map(item => `
-        <tr>
-            <td><strong>${escapeHtml(item.title)}</strong></td>
-            <td>${truncateText(escapeHtml(item.content), 50)}</td>
-            <td>${item.created_at ? formatDate(item.created_at) : '-'}</td>
-            <td>
-                <div class="table-actions">
-                    <button class="btn-edit" onclick="editNewsArticle(${item.id})" style="background: #28a745; color: white; border-color: #28a745;">Article</button>
-                </div>
-            </td>
-            <td>
-                <div class="table-actions">
-                    <button class="btn-edit" onclick="openAddModal('news', ${item.id})">Modifier</button>
-                    <button class="btn-danger" onclick="deleteNews(${item.id})">Supprimer</button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function saveNews(e) {
-    e.preventDefault();
-
-    const token = localStorage.getItem('auth_token');
-
-    const newsImageEl = document.getElementById('newsImage');
-    const newsImageFile = newsImageEl && newsImageEl.files && newsImageEl.files[0] ? newsImageEl.files[0] : null;
-
-    const payload = {
-        nom: document.getElementById('newsTitle').value.trim(),
-        descriptions: document.getElementById('newsContent').value.trim(),
-        categorie: document.getElementById('newsCategory') ? document.getElementById('newsCategory').value : ''
-    };
-    if (newsImageFile) payload.photo = newsImageFile;
-    if (currentEditingId) payload.id = currentEditingId;
-
-    if (token && window.apiService) {
-        (async () => {
-            try {
-                // Client-side validation: ensure categorie is present and valid
-                const validCats = ['annonce', 'academique', 'social'];
-                if (!payload.categorie || !validCats.includes(payload.categorie)) {
-                    alert('Catégorie manquante ou invalide. Choisissez une catégorie valide.');
-                    return;
-                }
-
-                // If frontend provided a photo URL as string, remove it; only File objects should be sent
-                if (payload.photo && typeof payload.photo === 'string') delete payload.photo;
-
-                console.log('saveNews payload before API call:', payload, 'photoIsFile:', newsImageFile ? true : false);
-
-                let res;
-                if (currentEditingId) {
-                    res = await window.apiService.updateActualite(payload);
-                } else {
-                    res = await window.apiService.createActualite(payload);
-                }
-
-                if (!res.success) throw res.error;
-
-                closeModal('newsModal');
-                loadNews();
-                loadDashboard();
-                alert('Actualité enregistrée avec succès ✅');
-
-            } catch (err) {
-                console.error('Erreur API:', err);
-                alert('Erreur lors de l\'enregistrement ❌');
-            }
-        })();
-
-        return;
-    }
-
-    // If we have a token but no apiService, try direct fetch to backend endpoints
-    if (token && !window.apiService) {
-        (async () => {
-            try {
-                const categoryValue = document.getElementById('newsCategory') ? document.getElementById('newsCategory').value : '';
-
-                // If a file is selected, send multipart FormData
-                if (newsImageFile) {
-                    const fd = new FormData();
-                    fd.append('nom', payload.nom);
-                    fd.append('descriptions', payload.descriptions);
-                    fd.append('categorie', categoryValue);
-                    fd.append('photo', newsImageFile);
-                    if (currentEditingId) fd.append('id', currentEditingId);
-                    let url = currentEditingId ? 'http://127.0.0.1:8000/api/update-actualite' : 'http://127.0.0.1:8000/api/create-actualite';
-                    const resp = await fetch(url, { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: fd });
-                    let json = null; try { json = await resp.json(); } catch (e) { json = null; }
-                    if (!resp.ok) {
-                        console.error('create/update actualite (multipart) failed', { status: resp.status, body: json });
-                        const message = (json && (json.message || json.error)) ? (json.message || json.error) : ('status ' + resp.status);
-                        alert('Erreur API: ' + message);
-                        return;
-                    }
-                    closeModal('newsModal');
-                    await loadNews();
-                    loadDashboard();
-                    alert('Actualité enregistrée.');
-                    return;
-                }
-
-                // No file: send JSON as before
-                const body = {
-                    nom: payload.nom,
-                    descriptions: payload.descriptions,
-                    categorie: categoryValue
-                };
-                let url = 'http://127.0.0.1:8000/api/create-actualite';
-                let method = 'POST';
-                if (currentEditingId) {
-                    url = 'http://127.0.0.1:8000/api/update-actualite';
-                    method = 'POST';
-                    body.id = currentEditingId;
-                    body._method = 'PUT';
-                }
-                const resp = await fetch(url, {
-                    method,
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                    body: JSON.stringify(body)
-                });
-                let json = null; try { json = await resp.json(); } catch (e) { json = null; }
-                if (!resp.ok) {
-                    console.error('create/update actualite failed', { status: resp.status, body: json });
-                    const message = (json && (json.message || json.error)) ? (json.message || json.error) : ('status ' + resp.status);
-                    alert('Erreur API: ' + message);
-                    return;
-                }
-                closeModal('newsModal');
-                await loadNews();
-                loadDashboard();
-                alert('Actualité enregistrée.');
-                return;
-            } catch (err) {
-                console.error('Failed to save actualite via fetch', err);
-                alert('Erreur lors de l\'enregistrement de l\'actualité. Voir console.');
-            }
-        })();
-
-        return;
-    }
-
-    // Fallback: local storage
-    // Ensure local copy includes category for local fallback
-    payload.category = document.getElementById('newsCategory') ? document.getElementById('newsCategory').value : '';
-    if (currentEditingId) {
-        DataManager.updateItem('news', currentEditingId, payload);
-    } else {
-        DataManager.addItem('news', payload);
-    }
-
-    closeModal('newsModal');
-    loadNews();
-    loadDashboard();
-
-}
-
-function deleteNews(id) {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cette actualité ?')) return;
-
-    const token = localStorage.getItem('auth_token');
-
-    if (token && window.apiService) {
-        (async () => {
-            try {
-                const res = await window.apiService.deleteActualite({ id }); // ✅ correction ici
-
-                if (!res.success) throw res.error || 'Erreur API';
-
-                await loadNews();
-                loadDashboard();
-
-                alert('Actualité supprimée.');
-            } catch (err) {
-                console.error('Failed to delete actualite via API', err);
-                alert('Erreur lors de la suppression de l\'actualité.');
-            }
-        })();
-
-        // ⚠️ OPTIONNEL → tu peux le garder SI tu es dans une fonction
-        return;
-    }
-
-    // fallback local
-    DataManager.deleteItem('news', id);
-    loadNews();
-    loadDashboard();
-}
-
-// ===== VIDEOS =====
-function loadVideos() {
-    const videos = DataManager.getItems('videos');
-    const tbody = document.getElementById('videos-list');
-    
-    if (videos.length === 0) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="4">Aucune vidéo</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = videos.map(video => `
-        <tr>
-            <td><strong>${video.title}</strong></td>
-            <td><a href="${video.url}" target="_blank" style="color: var(--primary-color);">Voir vidéo</a></td>
-            <td>${capitalizeFirst(video.page)}</td>
-            <td>
-                <div class="table-actions">
-                    <button class="btn-edit" onclick="openAddModal('video', ${video.id})">Modifier</button>
-                    <button class="btn-danger" onclick="deleteVideo(${video.id})">Supprimer</button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function saveVideo(e) {
-    e.preventDefault();
-    
-    const video = {
-        title: document.getElementById('videoTitle').value,
-        url: document.getElementById('videoUrl').value,
-        page: document.getElementById('videoPage').value
-    };
-
-    if (currentEditingId) {
-        DataManager.updateItem('videos', currentEditingId, video);
-    } else {
-        DataManager.addItem('videos', video);
-    }
-
-    closeModal('videoModal');
-    loadVideos();
-    loadDashboard();
-}
-
-function deleteVideo(id) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette vidéo ?')) {
-        DataManager.deleteItem('videos', id);
-        loadVideos();
-        loadDashboard();
-    }
-}
-
-// ===== MESSAGES =====
-function loadMessages() {
-    const container = document.getElementById('messages-list');
-
-    // If admin is logged in (auth_token), fetch from backend
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-        fetch('http://127.0.0.1:8000/api/messages', {
-            headers: { 'Authorization': 'Bearer ' + token }
-        }).then(r => r.json()).then(json => {
-            const msgs = (json && json.data) ? json.data : [];
-            if (!msgs.length) {
-                container.innerHTML = '<div class="empty-state"><p>Aucun message</p></div>';
-                document.getElementById('stat-messages').textContent = 0;
-                return;
-            }
-
-            // Render cards with view + delete actions
-            container.innerHTML = msgs.map((m) => `
-                <div class="message-card" data-remote-id="${m.id}">
-                    <div class="message-header">
-                        <div>
-                            <div class="message-sender">${m.nom_complet || ''}</div>
-                            <div class="message-email">${m.email || ''}</div>
-                        </div>
-                        <div class="message-date">${formatDate(m.created_at || m.created)}</div>
-                    </div>
-                    <div class="message-subject">${m.subject || 'Pas de sujet'}</div>
-                    <div class="message-body">${m.message || ''}</div>
-                    <div style="margin-top:8px; display:flex; gap:8px;">
-                        <button class="btn-edit" data-action="view" data-id="${m.id}">Afficher</button>
-                        <button class="btn-danger" data-action="delete" data-id="${m.id}">Supprimer</button>
-                    </div>
-                </div>
-            `).join('');
-
-            // Save remote messages temporarily for viewMessageRemote
-            window.__remoteMessages = msgs;
-            // update dashboard message count
-            try { document.getElementById('stat-messages').textContent = msgs.length; } catch (e) {}
-
-            // Attach delegated handlers for view/delete
-            container.querySelectorAll('button[data-action="view"]').forEach(btn => {
-                btn.addEventListener('click', (ev) => {
-                    ev.stopPropagation();
-                    const id = btn.getAttribute('data-id');
-                    const msgsList = window.__remoteMessages || [];
-                    const idx = msgsList.findIndex(m => String(m.id) === String(id));
-                    if (idx !== -1) viewMessageRemote(idx);
-                });
-            });
-            container.querySelectorAll('button[data-action="delete"]').forEach(btn => {
-                btn.addEventListener('click', (ev) => {
-                    ev.stopPropagation();
-                    const id = btn.getAttribute('data-id');
-                    deleteMessageRemote(id);
-                });
-            });
-        }).catch(err => {
-            console.error('Failed to load messages from API', err);
-            // fallback to local storage
-            const messages = DataManager.getItems('messages');
-            renderLocalMessages(messages, container);
-        });
-        return;
-    }
-
-    // Fallback: local storage messages (demo)
-    const messages = DataManager.getItems('messages');
-    renderLocalMessages(messages, container);
-}
-
-function renderLocalMessages(messages, container) {
-    if (!messages || messages.length === 0) {
-        container.innerHTML = '<div class="empty-state"><p>Aucun message</p></div>';
-        try { document.getElementById('stat-messages').textContent = 0; } catch (e) {}
-        return;
-    }
-    container.innerHTML = messages.map(message => `
-        <div class="message-card" data-local-id="${message.id}">
-            <div class="message-header">
-                <div>
-                    <div class="message-sender">${message.name}</div>
-                    <div class="message-email">${message.email}</div>
-                </div>
-                <div class="message-date">${formatDate(message.date)}</div>
-            </div>
-            <div class="message-subject">${message.subject || 'Pas de sujet'}</div>
-            <div class="message-body">${message.message}</div>
-            <div style="margin-top:8px; display:flex; gap:8px;">
-                <button class="btn-edit" data-action="view-local" data-id="${message.id}">Afficher</button>
-                <button class="btn-danger" data-action="delete-local" data-id="${message.id}">Supprimer</button>
-            </div>
-        </div>
-    `).join('');
-
-    // Attach handlers
-    container.querySelectorAll('button[data-action="view-local"]').forEach(btn => {
-        btn.addEventListener('click', (ev) => {
-            ev.stopPropagation();
-            const id = btn.getAttribute('data-id');
-            viewMessage(Number(id));
-        });
-    });
-    container.querySelectorAll('button[data-action="delete-local"]').forEach(btn => {
-        btn.addEventListener('click', (ev) => {
-            ev.stopPropagation();
-            const id = Number(btn.getAttribute('data-id'));
-            if (!confirm('Confirmez-vous la suppression de ce message local ?')) return;
-            DataManager.deleteItem('messages', id);
-            renderLocalMessages(DataManager.getItems('messages'), container);
-            try { document.getElementById('stat-messages').textContent = DataManager.getItems('messages').length; } catch (e) {}
-        });
-    });
-}
-
-// Open remote message by index in __remoteMessages
-function viewMessageRemote(index) {
-    const msgs = window.__remoteMessages || [];
-    const m = msgs[index];
-    if (!m) return;
-    const detailDiv = document.getElementById('messageDetail');
-    detailDiv.innerHTML = `
-        <p><strong>De:</strong> ${m.nom_complet || ''}</p>
-        <p><strong>Email:</strong> <a href="mailto:${m.email}">${m.email}</a></p>
-        <p><strong>Date:</strong> ${formatDate(m.created_at || m.created)}</p>
-        <p><strong>Message:</strong></p>
-        <p style="white-space: pre-wrap; background: white; padding: 15px; border-radius: 6px; border: 1px solid var(--border-color);">${m.message || ''}</p>
-    `;
-    openModal('messageModal');
-}
-
-/**
- * Delete a remote message by id (API)
- */
-async function deleteMessageRemote(id) {
-    if (!confirm('Confirmez-vous la suppression de ce message ?')) return;
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-        alert('Action non autorisée. Veuillez vous connecter.');
-        return;
-    }
+    const list = document.getElementById('members-list') || document.getElementById('members');
+    if (!list) return;
 
     try {
-        const resp = await fetch(`http://127.0.0.1:8000/api/messages/${encodeURIComponent(id)}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
-        });
-        const json = await resp.json().catch(() => null);
-        if (!resp.ok) {
-            console.error('Delete message failed', { status: resp.status, body: json });
-            alert('Erreur lors de la suppression du message. Voir la console pour plus de détails.');
+      const data = await apiFetch('/members');
+      const members = Array.isArray(data[0]) ? data[0] : (Array.isArray(data) ? data : []);
+        window.__members = members;
+
+        if (!members.length) {
+                    list.innerHTML = '<tr><td colspan="7">Aucun membre enregistré.</td></tr>';
             return;
         }
 
-        // Remove from DOM
-        const el = document.querySelector(`[data-remote-id="${id}"]`);
-        if (el && el.parentNode) el.parentNode.removeChild(el);
+        list.innerHTML = members.map((m, idx) => {
+            const photo = m.photo ? (String(m.photo).startsWith('http') ? m.photo : STORAGE_URL + m.photo) : '../img/default-user.png';
+            const nom = m.nom || m.name || '';
+            const prenom = m.prenom || '';
+            const fullName = `${nom} ${prenom}`.trim() || (m.full_name || m.nom_complet || '—');
+            const poste = m.poste || m.position || m.title || '';
+            const email = m.email || m.mail || '';
+            const annee = m.annePoste || m.anneePoste || '';
+            const idVal = m.id || m.user_id || '';
 
-        // Update local cache and count
-        if (window.__remoteMessages) {
-            window.__remoteMessages = window.__remoteMessages.filter(m => String(m.id) !== String(id));
-            try { document.getElementById('stat-messages').textContent = window.__remoteMessages.length; } catch (e) {}
-        }
-
-        alert('Message supprimé.');
-    } catch (err) {
-        console.error('Error deleting message:', err);
-        alert('Erreur réseau lors de la suppression du message.');
+            return `
+            <tr>
+                <td>${escapeHtml(String(idVal))}</td>
+                <td><img src="${photo}" width="40" style="border-radius:50%"></td>
+                <td>${escapeHtml(fullName)}</td>
+                <td><span class="badge">${escapeHtml(poste || 'N/A')}</span></td>
+                <td>${escapeHtml(email || 'N/A')}</td>
+                <td>${escapeHtml(annee || 'N/A')}</td>
+                <td>
+                    <button class="btn-edit" onclick="editMember(${idx})">Modifier</button>
+                    <button class="btn-delete" onclick="deleteMember(${idVal})">Supprimer</button>
+                </td>
+            </tr>
+        `;
+        }).join('');
+    } catch (e) {
+        console.error('Erreur membres:', e);
+        list.innerHTML = '<tr><td colspan="6">Erreur de chargement.</td></tr>';
     }
 }
 
-function viewMessage(id) {
-    const messages = DataManager.getItems('messages');
-    const message = messages.find(m => m.id === id);
-    
-    if (message) {
-        const detailDiv = document.getElementById('messageDetail');
-        detailDiv.innerHTML = `
-            <p><strong>De:</strong> ${message.name}</p>
-            <p><strong>Email:</strong> <a href="mailto:${message.email}">${message.email}</a></p>
-            <p><strong>Téléphone:</strong> ${message.phone || 'Non fourni'}</p>
-            <p><strong>Sujet:</strong> ${message.subject || 'Pas de sujet'}</p>
-            <p><strong>Date:</strong> ${formatDate(message.date)}</p>
-            <p><strong>Message:</strong></p>
-            <p style="white-space: pre-wrap; background: white; padding: 15px; border-radius: 6px; border: 1px solid var(--border-color);">${message.message}</p>
+async function saveMember(e) {
+    e.preventDefault();
+
+    const id = (document.getElementById('memberId') && document.getElementById('memberId').value) ? document.getElementById('memberId').value.trim() : '';
+    const nom = document.getElementById('memberName').value.trim();
+    const prenom = document.getElementById('memberPrenom').value.trim();
+    const poste = document.getElementById('memberPosition').value.trim();
+    const annePoste = document.getElementById('memberAnnePoste').value.trim();
+    const descriptions = document.getElementById('memberDescriptions').value.trim();
+    const email = document.getElementById('memberEmail').value.trim();
+    const photoFile = document.getElementById('memberPhoto').files[0];
+
+    // Vérification des champs requis
+    if (!nom || !prenom || !email || !poste) {
+        alert("Veuillez renseigner au minimum Nom, Prénom, Email et Poste.");
+        return;
+    }
+
+    // Vérifier duplicata d'email côté client (prévenir l'erreur SQL UNIQUE)
+    try {
+        // Si on a un token, recharger la liste depuis l'API pour être à jour
+        if (localStorage.getItem('token')) {
+            try {
+                const mdata = await apiFetch('/members');
+                const fresh = Array.isArray(mdata[0]) ? mdata[0] : (Array.isArray(mdata) ? mdata : []);
+                window.__members = fresh;
+            } catch (e) {
+                console.warn('Impossible de rafraîchir la liste des membres avant validation', e);
+            }
+        }
+
+        if (window.__members && Array.isArray(window.__members)) {
+            const found = window.__members.find(m => m.email && String(m.email).trim().toLowerCase() === String(email).trim().toLowerCase());
+            if (found) {
+                // création -> email déjà utilisé
+                if (!id) {
+                    alert('Cet email est déjà utilisé par un autre membre.');
+                    return;
+                }
+                // modification -> si email appartient à un autre id
+                if (id && String(found.id) !== String(id)) {
+                    alert('Cet email est déjà utilisé par un autre membre.');
+                    return;
+                }
+            }
+        }
+    } catch (e) { console.warn('Client-side duplicate check failed', e); }
+
+    try {
+        // FormData obligatoire pour gérer les fichiers
+        const formData = new FormData();
+        formData.append('nom', nom);
+        formData.append('prenom', prenom);
+        // backend may expect English/alternate field names
+        formData.append('name', nom);
+        formData.append('poste', poste);
+        formData.append('annePoste', annePoste);
+        formData.append('anneePoste', annePoste);
+        formData.append('descriptions', descriptions);
+        formData.append('description', descriptions);
+        formData.append('email', email);
+        if (photoFile) formData.append('photo', photoFile);
+
+        // Debug: afficher les paires FormData envoyées
+        try {
+            console.log('Submitting create-membre FormData:');
+            for (const p of formData.entries()) console.log(p[0], p[1]);
+        } catch (e) { console.log('FormData log failed', e); }
+
+        const response = await fetch('http://127.0.0.1:8000/api/create-membre', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                // Ne PAS mettre 'Content-Type', FormData le gère
+            },
+            body: formData
+        });
+        const text = await response.text().catch(() => '');
+        let data;
+        try { data = text ? JSON.parse(text) : null; } catch (err) { data = { __raw: text }; }
+
+        if (!response.ok) {
+            console.error('saveMember error', data);
+            // détecter contrainte UNIQUE côté serveur (sqlite/mysql) et afficher message clair
+            const raw = (data && data.__raw) ? String(data.__raw) : (data && data.message ? String(data.message) : '');
+            if (raw.toLowerCase().includes('unique') || raw.toLowerCase().includes('unique constraint') || raw.toLowerCase().includes('users.email') || raw.includes('UNIQUE constraint failed')) {
+                alert('Cet email est déjà utilisé. Choisissez un autre email.');
+                return;
+            }
+            const msg = data && (data.message || data.error) ? (data.message || data.error) : (`Erreur ${response.status}`);
+            alert(msg);
+            return;
+        }
+
+        alert(data && data.message ? data.message : "Membre ajouté avec succès !");
+        closeModal('memberModal');
+        document.getElementById('memberForm').reset();
+        loadMembers(); // recharge la liste des membres
+
+    } catch (error) {
+        console.error('saveMember exception', error);
+        alert("Erreur lors de la création du membre.");
+    }
+}
+
+function editMember(index) {
+    const m = window.__members[index];
+    if (!m) return;
+
+    document.getElementById('memberModalTitle').textContent = 'Modifier le Membre';
+    document.getElementById('memberId').value = m.id || m.user_id || '';
+    document.getElementById('memberName').value = m.nom || m.name || '';
+    document.getElementById('memberPrenom').value = m.prenom || '';
+    document.getElementById('memberEmail').value = m.email || m.mail || '';
+    document.getElementById('memberPosition').value = m.poste || m.position || m.title || '';
+    document.getElementById('memberAnnePoste').value = m.annePoste || m.anneePoste || '';
+    document.getElementById('memberDescriptions').value = m.descriptions || m.description || '';
+
+    const preview = document.getElementById('photoPreview');
+    if (preview && m.photo) {
+        preview.src = (String(m.photo).startsWith('http') ? m.photo : STORAGE_URL + m.photo);
+        preview.style.display = 'block';
+    }
+
+    openModal('memberModal');
+}
+
+async function deleteMember(id) {
+    if (!confirm('Supprimer ce membre ?')) return;
+
+    const formData = new FormData();
+    formData.append('id', id);
+    formData.append('_method', 'DELETE');
+
+    try {
+        await apiFetch('/delete-membre', {
+            method: 'POST',
+            body: formData
+        });
+        loadMembers();
+        loadDashboard();
+    } catch (e) {
+        alert(e.message);
+    }
+}
+// --- GESTION DES MESSAGES ---
+async function loadMessages() {
+    const container = document.getElementById('messages-list');
+    if (!container) return;
+
+    try {
+        const data = await apiFetch('/messages');
+        const messages = normalizeMessagesPayload(data);
+        window.__messages = messages;
+
+        if (!messages.length) {
+            container.innerHTML = '<div class="empty-state">Aucun message reçu.</div>';
+            return;
+        }
+
+        container.innerHTML = messages.map((msg, idx) => `
+            <div class="message-card" style="border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px; background:#fff;">
+                <h4>${escapeHtml(msg.nom_complet || 'Visiteur')}</h4>
+                <p>${escapeHtml(msg.message.substring(0, 100))}...</p>
+                <button class="btn-secondary" onclick="viewMessageDetail(${idx})">Lire</button>
+                <button class="btn-danger" style="background:#e74c3c; color:white; border:none; padding:5px; border-radius:4px;" onclick="deleteMessage(${msg.id})">Supprimer</button>
+            </div>
+        `).join('');
+    } catch (e) {
+        container.innerHTML = 'Erreur messages.';
+    }
+}
+
+function viewMessageDetail(idx) {
+    const msg = window.__messages[idx];
+    const detail = document.getElementById('messageDetail');
+    if (msg && detail) {
+        detail.innerHTML = `
+            <p><strong>De:</strong> ${escapeHtml(msg.nom_complet)} (${escapeHtml(msg.email)})</p>
+            <p><strong>Message:</strong><br>${escapeHtml(msg.message)}</p>
         `;
         openModal('messageModal');
     }
 }
 
-function saveMessage() {
-    const form = document.querySelector('.contact-form'); // Adjust selector as needed
-    if (!form) return;
-
-    const message = {
-        name: form.querySelector('[name="name"]')?.value || '',
-        email: form.querySelector('[name="email"]')?.value || '',
-        phone: form.querySelector('[name="phone"]')?.value || '',
-        subject: form.querySelector('[name="subject"]')?.value || '',
-        message: form.querySelector('[name="message"]')?.value || '',
-        date: new Date().toISOString().split('T')[0]
-    };
-
-    DataManager.addItem('messages', message);
-    form.reset();
-    alert('Message envoyé avec succès!');
-    loadMessages();
-    loadDashboard();
+async function deleteMessage(id) {
+    if (!confirm('Supprimer ce message ?')) return;
+    try {
+        await apiFetch(`/messages/${id}`, { method: 'DELETE' });
+        loadMessages();
+        loadDashboard();
+    } catch (e) { alert(e.message); }
 }
 
-// ===== MODAL FUNCTIONS =====
-function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    modal.classList.add('show');
-    document.body.style.overflow = 'hidden';
+// --- DASHBOARD STATS ---
+async function loadDashboard() {
+    try {
+        const data = await apiFetch('/dash');
+
+        document.getElementById('stat-members').textContent = data.nb_membre || 0;
+        document.getElementById('stat-events').textContent = data.nb_event || 0;
+        document.getElementById('stat-news').textContent = data.nb_actu || 0;
+        document.getElementById('stat-messages').textContent = data.nb_message || 0;
+
+    } catch (e) { console.error('Erreur Dashboard:', e); }
 }
 
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    modal.classList.remove('show');
-    document.body.style.overflow = 'auto';
-    currentEditingId = null;
-    currentEditingCategory = null;
-}
+// --- UTILS ---
+function openModal(id) { document.getElementById(id).classList.add('show'); }
 
-// ===== UTILITY FUNCTIONS =====
-function formatDate(dateString) {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('fr-FR', options);
-}
-
-function truncateText(text, length) {
-    return text.length > length ? text.substring(0, length) + '...' : text;
-}
-
-function escapeHtml(text) {
-    if (text === undefined || text === null) return '';
-    return String(text).replace(/[&<>"']/g, function (s) {
-        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[s];
-    });
-}
-
-function capitalizeFirst(text) {
-    return text.charAt(0).toUpperCase() + text.slice(1);
-}
-
-function updateCurrentDate() {
-    const dateElement = document.getElementById('current-date');
-    const options = { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    };
-    const now = new Date().toLocaleDateString('fr-FR', options);
-    if (dateElement) dateElement.textContent = now;
-}
-
-function logout() {
-    if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('auth_user');
-        window.location.href = 'login.html';
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.classList.remove('show');
+        const form = modal.querySelector('form');
+        if (form) form.reset();
+        const preview = modal.querySelector('img[id$="Preview"]');
+        if (preview) preview.style.display = 'none';
     }
 }
 
-// ===== EVENT & NEWS DETAILS =====
-function editEventDetails(id) {
-    const events = DataManager.getItems('events');
-    const event = events.find(e => e.id === id);
-    if (event) {
-        localStorage.setItem('editEventId', id);
-        window.open('event-details.html?id=' + id, '_blank');
+function openAddModal(type) {
+    if (type === 'member') {
+        document.getElementById('memberModalTitle').textContent = 'Ajouter un Membre';
+        document.getElementById('memberId').value = '';
+        openModal('memberModal');
+        return;
+    }
+    if (type === 'event') {
+        const modal = document.getElementById('eventModal');
+        if (modal) {
+            document.getElementById('eventModalTitle').textContent = 'Ajouter un Événement';
+            const form = document.getElementById('eventForm'); if (form) form.reset();
+            openModal('eventModal');
+        }
+        return;
+    }
+    if (type === 'news') {
+        const modal = document.getElementById('newsModal');
+        if (modal) {
+            document.getElementById('newsModalTitle').textContent = 'Ajouter une Actualité';
+            const form = document.getElementById('newsForm'); if (form) form.reset();
+            const hid = document.getElementById('newsId'); if (hid) hid.value = '';
+            openModal('newsModal');
+        }
+        return;
     }
 }
 
-function editNewsArticle(id) {
-    const news = DataManager.getItems('news');
-    const item = news.find(n => n.id === id);
-    if (item) {
-        localStorage.setItem('editNewsId', id);
-        window.open('actualite-details.html?id=' + id, '_blank');
+// --- GESTION DES ACTUALITES ---
+// --- GESTION DES EVENEMENTS ---
+async function loadEvents() {
+    const list = document.getElementById('events-list');
+    if (!list) return;
+    try {
+        const res = await apiService.getEvents();
+        if (!res.success) throw new Error(res.error && res.error.message ? res.error.message : 'Erreur API');
+        const data = res.data || {};
+        // backend returns { evenement: [...] } via EventRessource::collection
+        const events = Array.isArray(data.evenement) ? data.evenement : (Array.isArray(data.data) ? data.data : []);
+        window.__events = events;
+
+        if (!events.length) {
+            list.innerHTML = '<tr><td colspan="8">Aucun événement.</td></tr>';
+            return;
+        }
+
+        list.innerHTML = events.map((ev, idx) => {
+            const photo = ev.photo || '../img/default-event.png';
+            const title = ev.nom || ev.nom_event || ev.titre || ev.title || '';
+            const date = ev.date_evenement || ev.date_event || ev.date || ev.created_at || '';
+            const lieu = ev.lieu || ev.location || '';
+            const desc = ev.descriptions || ev.description || ev.description_event || '';
+            const idVal = ev.id || ev.event_id || '';
+            return `
+                <tr>
+                    <td>${escapeHtml(String(idVal))}</td>
+                    <td><img src="${photo}" width="60" style="border-radius:6px; max-height:60px; object-fit:cover;" /></td>
+                    <td>${escapeHtml(title)}</td>
+                    <td>${escapeHtml(date)}</td>
+                    <td>${escapeHtml(lieu)}</td>
+                    <td>${escapeHtml(desc.substring ? desc.substring(0,120) : desc)}</td>
+                    <td><button class="btn-secondary" onclick="viewEventDetails(${idx})">Détails</button></td>
+                    <td>
+                        <button class="btn-edit" onclick="editEvent(${idx})">Modifier</button>
+                        <button class="btn-delete" onclick="deleteEvent(${idVal})">Supprimer</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+    } catch (e) {
+        console.error('Erreur chargement evenements', e);
+        list.innerHTML = '<tr><td colspan="6">Erreur de chargement.</td></tr>';
     }
 }
 
-// ===== DATA LOADING =====
-function loadAllData() {
-    loadDashboard();
-    loadMessages();
+async function saveEvent(e) {
+    e.preventDefault();
+    const id = (document.getElementById('eventId') && document.getElementById('eventId').value) ? document.getElementById('eventId').value.trim() : '';
+    const titre = document.getElementById('eventTitle').value.trim();
+    const date = document.getElementById('eventDate').value;
+    const lieu = document.getElementById('eventLocation').value.trim();
+    const type = document.getElementById('eventType').value;
+    const description = document.getElementById('eventDescription').value.trim();
+    const image = document.getElementById('eventImage').files[0];
+
+    if (!titre || !date || !lieu) {
+        alert('Veuillez renseigner Titre, Date et Lieu.');
+        return;
+    }
+
+    try {
+        // map frontend fields to backend expected names
+        const payload = {
+            nom_event: titre,
+            description_event: description,
+            date_event: date,
+            type: type,
+            lieu: lieu
+        };
+        if (image) payload.photo = image;
+        if (id) payload.id = id;
+
+        let res;
+        if (id) res = await apiService.updateEvenement(payload);
+        else res = await apiService.createEvenement(payload);
+
+        if (!res.success) throw new Error(res.error && res.error.message ? res.error.message : 'Erreur API');
+
+        alert(res.data && res.data.message ? res.data.message : (id ? 'Événement modifié' : 'Événement créé'));
+        closeModal('eventModal');
+        const form = document.getElementById('eventForm'); if (form) form.reset();
+        loadEvents();
+        loadDashboard();
+    } catch (err) {
+        console.error('saveEvent error', err);
+        alert(err.message || 'Erreur lors de l\'enregistrement');
+    }
 }
 
-// Export functions for global access
-window.openAddModal = openAddModal;
-window.closeModal = closeModal;
-window.saveActivity = saveActivity;
-window.deleteActivity = deleteActivity;
-window.saveMember = saveMember;
-window.deleteMember = deleteMember;
-window.saveEvent = saveEvent;
-window.deleteEvent = deleteEvent;
-window.saveNews = saveNews;
-window.deleteNews = deleteNews;
-window.viewMessage = viewMessage;
-window.logout = logout;
-window.switchSection = switchSection;
-window.editEventDetails = editEventDetails;
-window.editNewsArticle = editNewsArticle;
+function editEvent(index) {
+    const ev = (window.__events && window.__events[index]) ? window.__events[index] : null;
+    if (!ev) return;
+    document.getElementById('eventModalTitle').textContent = 'Modifier un Événement';
+    document.getElementById('eventId').value = ev.id || ev.event_id || '';
+    document.getElementById('eventTitle').value = ev.nom || ev.nom_event || ev.titre || ev.title || '';
+    document.getElementById('eventDate').value = ev.date_evenement || ev.date_event || ev.date || '';
+    document.getElementById('eventLocation').value = ev.lieu || ev.location || '';
+    document.getElementById('eventType').value = ev.type || ev.event_type || document.getElementById('eventType').value;
+    document.getElementById('eventDescription').value = ev.descriptions || ev.description || ev.description_event || '';
+    const preview = document.getElementById('eventImagePreview');
+    if (preview && ev.photo) { preview.src = (String(ev.photo).startsWith('http') ? ev.photo : STORAGE_URL + ev.photo); preview.style.display = 'block'; }
+    openModal('eventModal');
+}
+
+async function deleteEvent(id) {
+    if (!confirm('Supprimer cet événement ?')) return;
+    try {
+        const res = await apiService.deleteEvenement({ id });
+        if (!res.success) throw new Error(res.error && res.error.message ? res.error.message : 'Erreur API');
+        loadEvents();
+        loadDashboard();
+    } catch (e) {
+        console.error('deleteEvent', e);
+        alert(e.message || 'Erreur suppression');
+    }
+}
+async function loadNews() {
+    const list = document.getElementById('news-list');
+    if (!list) return;
+    try {
+        const res = await apiService.getActualites();
+        if (!res.success) throw new Error(res.error && res.error.message ? res.error.message : 'Erreur API');
+        const data = res.data || {};
+        const actualites = Array.isArray(data.actualites) ? data.actualites : (Array.isArray(data.data) ? data.data : []);
+        window.__actualites = actualites;
+
+        if (!actualites.length) {
+            list.innerHTML = '<tr><td colspan="7">Aucune actualité.</td></tr>';
+            return;
+        }
+
+        list.innerHTML = actualites.map((a, idx) => {
+            const idVal = a.id || a.actu_id || '';
+            const nom = a.nom || a.title || '';
+            const content = a.descriptions || a.description || '';
+            const categorie = a.categorie || '';
+            const photo = a.photo ? (String(a.photo).startsWith('http') ? a.photo : STORAGE_URL + a.photo) : '../img/default-news.png';
+            const preview = content && content.substring ? content.substring(0, 200) : content;
+            const detailsUrl = `actualite-details.html?id=${encodeURIComponent(idVal)}`;
+            return `
+                <tr>
+                    <td>${escapeHtml(String(idVal))}</td>
+                    <td><img src="${photo}" alt="${escapeHtml(nom)}" width="80" style="border-radius:6px; object-fit:cover; border:1px solid #ddd;" /></td>
+                    <td>${escapeHtml(nom)}</td>
+                    <td title="${escapeHtml(content)}">${escapeHtml(preview)}</td>
+                    <td>${escapeHtml(categorie)}</td>
+                    <td><a class="btn-primary" href="${detailsUrl}">Article</a></td>
+                    <td>
+                        <button class="btn-edit" onclick="editNews(${idx})">Modifier</button>
+                        <button class="btn-delete" onclick="deleteNews(${idVal})">Supprimer</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+    } catch (e) {
+        console.error('Erreur chargement actualites', e);
+        list.innerHTML = '<tr><td colspan="5">Erreur de chargement.</td></tr>';
+    }
+}
+
+async function saveNews(e) {
+    e.preventDefault();
+    const id = (document.getElementById('newsId') && document.getElementById('newsId').value) ? document.getElementById('newsId').value.trim() : '';
+    const nom = document.getElementById('newsTitle').value.trim();
+    const descriptions = document.getElementById('newsContent').value.trim();
+    const categorie = document.getElementById('newsCategory').value;
+    const photoFile = document.getElementById('newsImage').files[0];
+    const dateInput = document.getElementById('newsDate') ? document.getElementById('newsDate').value : '';
+
+    if (!nom || !descriptions || !categorie) {
+        alert('Veuillez remplir le titre, le contenu et la catégorie.');
+        return;
+    }
+
+    try {
+        const payload = { nom, descriptions, categorie };
+        if (dateInput) payload.date = dateInput;
+        if (photoFile) payload.photo = photoFile;
+        if (id) payload.id = id;
+
+        let res;
+        if (id) {
+            // update
+            res = await apiService.updateActualite(payload);
+        } else {
+            res = await apiService.createActualite(payload);
+        }
+
+        if (!res.success) throw new Error(res.error && res.error.message ? res.error.message : 'Erreur API');
+
+        alert(res.data && res.data.message ? res.data.message : (id ? 'Actualité modifiée' : 'Actualité créée'));
+        closeModal('newsModal');
+        const form = document.getElementById('newsForm'); if (form) form.reset();
+        loadNews();
+        loadDashboard();
+    } catch (err) {
+        console.error('saveNews error', err);
+        alert(err.message || 'Erreur lors de l\'enregistrement.');
+    }
+}
+
+function editNews(index) {
+    const a = (window.__actualites && window.__actualites[index]) ? window.__actualites[index] : null;
+    if (!a) return;
+    document.getElementById('newsModalTitle').textContent = 'Modifier l\'actualité';
+    document.getElementById('newsId').value = a.id || a.actu_id || '';
+    document.getElementById('newsTitle').value = a.nom || a.title || '';
+    document.getElementById('newsContent').value = a.descriptions || a.description || '';
+    const cat = document.getElementById('newsCategory'); if (cat) cat.value = a.categorie || cat.value;
+    const dateInput = document.getElementById('newsDate'); if (dateInput) dateInput.value = a.created_at ? a.created_at.split('T')[0] : (a.date || '');
+    const preview = document.getElementById('newsImagePreview');
+    if (preview && a.photo) {
+        preview.src = (String(a.photo).startsWith('http') ? a.photo : STORAGE_URL + a.photo);
+        preview.style.display = 'block';
+    }
+    openModal('newsModal');
+}
+
+async function deleteNews(id) {
+    if (!confirm('Supprimer cette actualité ?')) return;
+    try {
+        const res = await apiService.deleteActualite(id);
+        if (!res.success) throw new Error(res.error && res.error.message ? res.error.message : 'Erreur API');
+        loadNews();
+        loadDashboard();
+    } catch (e) {
+        console.error('deleteNews', e);
+        alert(e.message || 'Erreur suppression');
+    }
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function normalizeMessagesPayload(data) {
+    if (Array.isArray(data)) return data;
+    if (data.mail && Array.isArray(data.mail)) return data.mail;
+    if (data.data && Array.isArray(data.data)) return data.data;
+    return [];
+}
+
+
+
+function viewEventDetails(index) {
+    const ev = (window.__events && window.__events[index]) ? window.__events[index] : null;
+    if (!ev) return;
+    const title = ev.nom || ev.nom_event || ev.titre || ev.title || '';
+    const date = ev.date_evenement || ev.date_event || ev.date || '';
+    const lieu = ev.lieu || ev.location || '';
+    const desc = ev.descriptions || ev.description || ev.description_event || '';
+    const photo = ev.photo ? (String(ev.photo).startsWith('http') ? ev.photo : STORAGE_URL + ev.photo) : '';
+
+    const titleEl = document.getElementById('eventDetailTitle'); if (titleEl) titleEl.textContent = title || 'Détail événement';
+    const dateEl = document.getElementById('eventDetailDate'); if (dateEl) dateEl.textContent = date;
+    const lieuEl = document.getElementById('eventDetailLieu'); if (lieuEl) lieuEl.textContent = lieu;
+    const descEl = document.getElementById('eventDetailDescription'); if (descEl) descEl.textContent = desc;
+    const photoEl = document.getElementById('eventDetailPhoto');
+    if (photoEl) {
+        if (photo) { photoEl.src = photo; photoEl.style.display = 'block'; } else { photoEl.style.display = 'none'; }
+    }
+
+    const editBtn = document.getElementById('eventDetailEditBtn');
+    if (editBtn) {
+        editBtn.onclick = function () { closeModal('eventDetailModal'); editEvent(index); };
+    }
+
+    openModal('eventDetailModal');
+}
+
+async function logout() {
+    try {
+        await apiFetch('/logout', { method: 'POST' });
+    } catch (e) {
+        console.error(e);
+    }
+
+    localStorage.removeItem('token');
+    window.location.href = 'login.html';
+}
+
+// Video admin controls
+function setupVideoAdminControls() {
+    const video = document.getElementById('adminPageVideo');
+    const pickBtn = document.getElementById('adminPickVideoBtn');
+    const fileInput = document.getElementById('adminVideoFileInput');
+    const urlInput = document.getElementById('adminVideoUrlInput');
+    const setUrlBtn = document.getElementById('adminSetVideoUrlBtn');
+    const uploadBtn = document.getElementById('adminUploadVideoBtn');
+    const deleteBtn = document.getElementById('adminDeleteVideoBtn');
+    const msg = document.getElementById('adminVideoMsg');
+    if (!video) return;
+
+    function showMsg(text, isError) {
+        if (!msg) return; msg.textContent = text || '';
+        msg.style.color = isError ? '#c0392b' : '#2c3e50';
+    }
+
+    if (pickBtn && fileInput) pickBtn.addEventListener('click', () => fileInput.click());
+
+    if (fileInput) {
+        fileInput.addEventListener('change', () => {
+            const f = fileInput.files && fileInput.files[0];
+            if (!f) return;
+            const url = URL.createObjectURL(f);
+            video.src = url; video.load();
+            showMsg('Aperçu prêt. Cliquez Téléverser pour envoyer au serveur.', false);
+        });
+    }
+
+    if (setUrlBtn && urlInput) {
+        setUrlBtn.addEventListener('click', () => {
+            const u = (urlInput.value || '').trim();
+            if (!u) { showMsg('Entrez une URL valide.', true); return; }
+            video.src = u; video.load();
+            showMsg('Vidéo définie depuis l’URL (aperçu). Cliquez Téléverser si vous voulez la rendre permanente.', false);
+        });
+    }
+
+    if (uploadBtn) {
+        uploadBtn.addEventListener('click', async () => {
+            const f = fileInput.files && fileInput.files[0];
+            const urlVal = (urlInput.value || '').trim();
+            if (!f && !urlVal) { showMsg('Choisissez un fichier ou entrez une URL avant de téléverser.', true); return; }
+            showMsg('Téléversement en cours...', false);
+            try {
+                // prefer file upload if present
+                if (f) {
+                    const fd = new FormData(); fd.append('video', f);
+                    const data = await apiFetch('/upload-page-video', { method: 'POST', body: fd });
+                    // backend should return { url: '...' }
+                    const remote = (data && (data.url || data.path)) ? (data.url || data.path) : null;
+                    if (remote) video.src = remote;
+                    showMsg('Téléversement réussi.', false);
+                } else if (urlVal) {
+                    // if user provided URL, send to backend to persist (if API supports)
+                    const body = { url: urlVal };
+                    await apiFetch('/set-page-video-url', { method: 'POST', body: JSON.stringify(body) });
+                    video.src = urlVal;
+                    showMsg('URL enregistrée côté serveur (si prise en charge).', false);
+                }
+                video.load();
+                loadDashboard();
+            } catch (e) {
+                console.error('Upload page video error', e);
+                showMsg('Échec du téléversement: ' + (e.message || e), true);
+            }
+        });
+    }
+
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', async () => {
+            if (!confirm('Supprimer la vidéo de la page Événements ?')) return;
+            try {
+                await apiFetch('/delete-page-video', { method: 'DELETE' });
+                video.pause(); video.removeAttribute('src'); video.load();
+                showMsg('Vidéo supprimée côté serveur (si disponible).', false);
+                loadDashboard();
+            } catch (e) {
+                console.warn('Server delete failed', e);
+                // still remove locally
+                video.pause(); video.removeAttribute('src'); video.load();
+                showMsg('Vidéo supprimée localement. Suppression serveur échouée.', true);
+            }
+        });
+    }
+}
