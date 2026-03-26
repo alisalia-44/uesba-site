@@ -128,7 +128,15 @@
            </div>
         </div>
    </header>
-
+    <div class="mobile-menu" id="mobileMenu" style="width: auto;height: auto; ">
+      <nav>
+          <button class="mobile-nav-link " data-page="index.html">Accueil</button>
+          <button class="mobile-nav-link " data-page="actualites.html">Actualités</button>
+          <button class="mobile-nav-link" data-page="evenements.html">Événements</button>
+          <button class="mobile-nav-link active" data-page="apropos.html">À Propos</button>
+          <button class="mobile-nav-link" data-page="contact.html">Contact</button>
+      </nav>
+   </div>    
     <main class="max-w-6xl mx-auto px-4 py-12 space-y-24">
 
         <!-- Section Notre Histoire -->
@@ -874,33 +882,27 @@
                 grid.innerHTML = items.map(m => `
                     <div class="card overflow-hidden group">
                         <div class="relative">
-                            <img src="${resolvePhoto(m.photo || m.image || m.src || m.avatar)}" alt="${escapeHtml(m.nom || m.name || '')}" class="profile-img">
+                            <img src="${resolvePhoto(m.photo || m.image || m.src || m.avatar)}" alt="${escapeHtml((m.nom || m.name || '') + ' ' + (m.prenom || ''))}" class="profile-img">
                             <div class="absolute top-4 right-4 text-yellow-400">
                                 <i class="fas fa-star fa-2x"></i>
                             </div>
                             <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 text-white">
-                                <h4 class="text-xl font-bold">${escapeHtml(m.nom || m.name || '')}</h4>
-                                <p class="text-yellow-400 text-sm font-semibold">${escapeHtml(m.poste || m.position || '')}</p>
+                                <h4 class="text-xl font-bold">${escapeHtml((m.nom || m.name || '') + (m.prenom ? ' ' + m.prenom : ''))}</h4>
+                                <p class="text-sm text-gray-200 mb-1">${escapeHtml((m.descriptions || m.description || '').length > 90 ? (m.descriptions || m.description || '').slice(0, 87) + '...' : (m.descriptions || m.description || ''))}</p>
+                                <p class="text-yellow-400 text-sm font-semibold">${escapeHtml(m.postes || m.poste || m.position || '')}</p>
                             </div>
                         </div>
                         <div class="p-6 space-y-4">
-                            <div class="flex items-center text-sm">
-                                <i class="fas fa-book text-emerald-700 mr-3 w-5"></i>
-                                <div>
-                                    <p class="text-xs text-gray-400 uppercase">Spécialité</p>
-                                    <p class="font-medium">${escapeHtml(m.specialite || m.specialty || '')}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center text-sm">
-                                <i class="fas fa-university text-emerald-700 mr-3 w-5"></i>
-                                <div>
-                                    <p class="text-xs text-gray-400 uppercase">Université</p>
-                                    <p class="font-medium">${escapeHtml(m.universite || m.university || '')}</p>
-                                </div>
-                            </div>
                             <a href="mailto:${escapeHtml(m.email || '')}" class="text-emerald-700 text-sm flex items-center">
                                 <i class="fas fa-envelope mr-2"></i> ${escapeHtml(m.email || '')}
                             </a>
+                            <div class="flex items-start text-sm mt-2">
+                                <i class="fas fa-info-circle text-emerald-700 mr-3 w-5 mt-1"></i>
+                                <div>
+                                    <p class="text-xs text-gray-400 uppercase">Description</p>
+                                    <p class="font-medium">${escapeHtml(m.descriptions || m.description || m.about || '')}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `).join('');

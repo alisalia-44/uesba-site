@@ -50,13 +50,13 @@
         </div>
    </header>
 
-   <div class="mobile-menu" id="mobileMenu">
+   <div class="mobile-menu" id="mobileMenu" style="width: auto;height: auto; ">
      <nav>
-        <a class="mobile-nav-link" href="index.html">Accueil</a>
-        <a class="mobile-nav-link active" href="actualites.html">Actualités</a>
-        <a class="mobile-nav-link" href="evenements.html">Événements</a>
-        <a class="mobile-nav-link" href="apropos.html">À Propos</a>
-        <a class="mobile-nav-link" href="contact.html">Contact</a>
+        <a class="mobile-nav-link" data-page="index.html">Accueil</a>
+        <a class="mobile-nav-link " data-page="actualites.html">Actualités</a>
+        <a class="mobile-nav-link active" data-page="evenements.html">Événements</a>
+        <a class="mobile-nav-link" data-page="apropos.html">À Propos</a>
+        <a class="mobile-nav-link" data-page="contact.html">Contact</a>
      </nav>
    </div>
  
@@ -69,10 +69,10 @@
                    
                 </div>
                 <div style="margin-bottom: 2rem;">
-                    <span style="font-size: 1.2rem; font-weight: 500;">Statut</span>
+                 <span style="font-size: 1.2rem; font-weight: 500;">Statut</span>
                     <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                        <button class="status-btn" data-status="tout">Tous</button>
-                        <button class="status-btn active" data-status="avenir">À venir</button>
+                        <button class="status-btn active" data-status="tout">Tous</button>
+                        <button class="status-btn " data-status="avenir">À venir</button>
                         <button class="status-btn" data-status="encours">En cours</button>
                         <button class="status-btn" data-status="passes">Passés</button>
                     </div>

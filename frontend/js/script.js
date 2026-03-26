@@ -592,11 +592,11 @@ if (slides.length > 0) {
                                 </div>
                                 <div class="news-content">
                                     <h3 style="display:flex; align-items:center; gap:8px; margin:0;">
-                                        <img src="https://img.icons8.com/ios-glyphs/20/000000/news.png" alt="icon" style="width:18px; height:18px;"> 
+                                        <img src="../images/icon-17.svg" alt="icon" style="width:18px; height:18px;"> 
                                         ${escapeHtml(title)}
                                     </h3>
                                     <p style="display:flex; align-items:flex-start; gap:8px; margin:0.6rem 0 1rem 0;">
-                                        <img src="https://img.icons8.com/ios-glyphs/16/888888/document--v1.png" alt="icon-desc" style="width:14px; height:14px; margin-top:3px;">
+                                        <img src="../images/icon-16.svg" alt="icon-desc" style="width:14px; height:14px; margin-top:3px;">
                                         ${escapeHtml(desc)}
                                     </p>
                                     <a href="actualite-details.html?id=${nid}" class="news-btn">Lire l'Article</a>

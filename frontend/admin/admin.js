@@ -150,7 +150,8 @@ async function loadMembers() {
             const nom = m.nom || m.name || '';
             const prenom = m.prenom || '';
             const fullName = `${nom} ${prenom}`.trim() || (m.full_name || m.nom_complet || '—');
-            const poste = m.poste || m.position || m.title || '';
+            const poste = m.poste ||'';
+            const descriptions = m.descriptions || m.description || '';
             const email = m.email || m.mail || '';
             const annee = m.annePoste || m.anneePoste || '';
             const idVal = m.id || m.user_id || '';
@@ -161,6 +162,7 @@ async function loadMembers() {
                 <td><img src="${photo}" width="40" style="border-radius:50%"></td>
                 <td>${escapeHtml(fullName)}</td>
                 <td><span class="badge">${escapeHtml(poste || 'N/A')}</span></td>
+                <td title="${escapeHtml(descriptions)}">${escapeHtml(descriptions.substring ? descriptions.substring(0, 100) : descriptions)}</td>
                 <td>${escapeHtml(email || 'N/A')}</td>
                 <td>${escapeHtml(annee || 'N/A')}</td>
                 <td>
@@ -172,7 +174,7 @@ async function loadMembers() {
         }).join('');
     } catch (e) {
         console.error('Erreur membres:', e);
-        list.innerHTML = '<tr><td colspan="6">Erreur de chargement.</td></tr>';
+        list.innerHTML = '<tr><td colspan="7">Erreur de chargement.</td></tr>';
     }
 }
 
@@ -182,15 +184,15 @@ async function saveMember(e) {
     const id = (document.getElementById('memberId') && document.getElementById('memberId').value) ? document.getElementById('memberId').value.trim() : '';
     const nom = document.getElementById('memberName').value.trim();
     const prenom = document.getElementById('memberPrenom').value.trim();
-    const poste = document.getElementById('memberPosition').value.trim();
+    const poste = (document.getElementById('memberPoste') ? document.getElementById('memberPoste').value.trim() : (document.getElementById('memberPosition') ? document.getElementById('memberPosition').value.trim() : ''));
     const annePoste = document.getElementById('memberAnnePoste').value.trim();
     const descriptions = document.getElementById('memberDescriptions').value.trim();
     const email = document.getElementById('memberEmail').value.trim();
     const photoFile = document.getElementById('memberPhoto').files[0];
 
     // Vérification des champs requis
-    if (!nom || !prenom || !email || !poste) {
-        alert("Veuillez renseigner au minimum Nom, Prénom, Email et Poste.");
+    if (!nom || !prenom || !email ) {
+        alert("Veuillez renseigner au minimum Nom, Prénom,  et Email .");
         return;
     }
 
@@ -237,7 +239,12 @@ async function saveMember(e) {
         formData.append('descriptions', descriptions);
         formData.append('description', descriptions);
         formData.append('email', email);
-        if (photoFile) formData.append('photo', photoFile);
+        if (photoFile) {
+            // append under the expected backend name
+            formData.append('photo', photoFile);
+            // also append under the input name as a fallback for some setups
+            try { formData.append('memberPhoto', photoFile); } catch(e) { /* ignore */ }
+        }
 
         // Debug: afficher les paires FormData envoyées
         try {

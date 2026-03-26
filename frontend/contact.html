@@ -24,7 +24,7 @@
 
                 <nav class="desktop-nav">
                     <a class="nav-link" href="index.html">Accueil</a>
-                    <a class="nav-link active" href="actualites.html">Actualités</a>
+                    <a class="nav-link" href="actualites.html">Actualités</a>
                     <a class="nav-link" href="evenements.html">Événements</a>
                     <a class="nav-link" href="apropos.html">À Propos</a>
                     <a class="nav-link active" href="contact.html">Contact</a>
@@ -40,13 +40,13 @@
         </div>
    </header>
 
-   <div class="mobile-menu" id="mobileMenu">
+   <div class="mobile-menu" id="mobileMenu" style="width: auto;height: auto; ">
      <nav>
-        <a class="mobile-nav-link" href="index.html">Accueil</a>
-        <a class="mobile-nav-link active" href="actualites.html">Actualités</a>
-        <a class="mobile-nav-link" href="evenements.html">Événements</a>
-        <a class="mobile-nav-link" href="apropos.html">À Propos</a>
-        <a class="mobile-nav-link active" href="contact.html">Contact</a>
+        <a class="mobile-nav-link" data-page="index.html">Accueil</a>
+        <a class="mobile-nav-link " data-page="actualites.html">Actualités</a>
+        <a class="mobile-nav-link" data-page="evenements.html">Événements</a>
+        <a class="mobile-nav-link" data-page="apropos.html">À Propos</a>
+        <a class="mobile-nav-link active" data-page="contact.html">Contact</a>
      </nav>
    </div>
    
@@ -195,7 +195,7 @@ document.getElementById('contactForm').addEventListener('submit', async function
             return;
         }
 
-        alert(`Merci ${name}!\n\nVotre message a été envoyé avec succès.`);
+        // confirmation affichée globalement dans le script principal; garder seulement le reset
         document.getElementById('contactForm').reset();
     } catch (error) {
         console.error('Contact submit error:', error);
