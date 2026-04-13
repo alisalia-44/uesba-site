@@ -578,25 +578,32 @@ if (slides.length > 0) {
                         return;
                     }
 
+                    function badgeClassFor(cat) {
+                        if (!cat) return 'badge-blue';
+                        const c = String(cat).toLowerCase();
+                        if (c.includes('év') || c.includes('evenement') || c.includes('événements') || c.includes('événement') || c.includes('évènements') || c.includes('évènement')) return 'badge-green';
+                        if (c.includes('annonce') || c.includes('annonces')) return 'badge-blue';
+                        if (c.includes('acad') || c.includes('academique') || c.includes('académique')) return 'badge-yellow';
+                        return 'badge-blue';
+                    }
+
                     newsGrid.innerHTML = list.map(item => {
                         const photo = resolvePhoto(item.photo);
                         const categorie = item.categorie || '';
+                        const badgeCls = badgeClassFor(categorie);
                         const title = item.nom || item.title || '';
                         const desc = (item.descriptions || item.descript || '').slice(0, 220);
                         const nid = encodeURIComponent(item.id || item.ID || item._id || '');
                         return `
                             <article class="news-card" data-category="${escapeHtml(categorie)}">
-                                <div class="news-image news-image-badge">
-                                    <span class="news-badge badge-green">${escapeHtml(categorie || 'Actualité')}</span>
+                                    <div class="news-image news-image-badge">
+                                    <span class="news-badge ${badgeCls}">${escapeHtml(categorie || 'Actualité')}</span>
                                     <img src="${photo}" alt="${escapeHtml(title)}">
                                 </div>
                                 <div class="news-content">
-                                    <h3 style="display:flex; align-items:center; gap:8px; margin:0;">
-                                        <img src="../images/icon-17.svg" alt="icon" style="width:18px; height:18px;"> 
-                                        ${escapeHtml(title)}
-                                    </h3>
+                                    <h3 style="margin:0; font-weight:700; font-size:1.1rem">${escapeHtml(title)}</h3>
                                     <p style="display:flex; align-items:flex-start; gap:8px; margin:0.6rem 0 1rem 0;">
-                                        <img src="../images/icon-16.svg" alt="icon-desc" style="width:14px; height:14px; margin-top:3px;">
+                                        <img src="../images/icon-16.svg" alt="icon-desc" style="width:auto; height:14px; margin-top:3px;">
                                         ${escapeHtml(desc)}
                                     </p>
                                     <a href="actualite-details.html?id=${nid}" class="news-btn">Lire l'Article</a>

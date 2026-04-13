@@ -259,6 +259,35 @@ body {
     .hero1-center-content { padding: 24px 12px; }
 }
 
+/* Mobile: make news categories scroll vertically and touch-friendly */
+@media (max-width: 640px) {
+    .news-tabs {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start; /* don't stretch children to full width */
+        gap: 10px !important;
+        max-height: 44vh; /* allow vertical scroll if many categories */
+        overflow-y: auto;
+        padding-right: 6px;
+    }
+    .news-tab {
+        width: auto;
+        display: inline-block; /* size to content */
+        text-align: left;
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-size: 16px;
+    }
+   
+    .news-tab.active {
+       
+        background: #198754;
+        color: #fff;
+        box-shadow: 0 8px 20px rgba(25,135,84,0.12);
+    }
+    .news-grid { gap: 18px; }
+}
+
 .mobile-menu-btn:hover {
     transform: scale(1.1);
 }
@@ -468,7 +497,7 @@ body {
     transform: scale(0.95);
 }
 
-/* Activities Section */
+
 /* DGCOB Encadré Styles */
 .dgcob-box {
     background: #fff;
@@ -627,6 +656,11 @@ body {
     grid-template-columns: 1fr;
     gap: 32px;
 }
+/* make all grid rows equal height so cards line up */
+.news-grid {
+    grid-auto-rows: 1fr;
+    align-items: stretch;
+}
 @media (min-width: 700px) {
     .news-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -646,6 +680,7 @@ body {
     flex-direction: column;
     transition: box-shadow 0.2s, transform 0.2s;
     border: 1.5px solid #e5e7eb;
+    height: 100%;
 }
 .news-card:hover {
     box-shadow: 0 8px 32px rgba(25,135,84,0.13);
@@ -657,7 +692,7 @@ body {
     overflow: hidden;
 }
 .news-image-badge img {
-    width: 100%;
+    width: 200%;
     height: 180px;
     object-fit: cover;
     display: block;
@@ -836,6 +871,9 @@ body {
     opacity: 0.95;
 }
 
+
+.no-icon::before { content: none !important; }
+
 .container h2,
 .container h3 {
     display: inline-flex;
@@ -964,6 +1002,44 @@ body {
     padding: 96px 0;
     overflow: hidden;
 }
+
+/* Members / Bureau cards */
+.member-section {
+    padding: 48px 0;
+    background: #f8fafc;
+}
+.member-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+@media (min-width:700px) { .member-grid { grid-template-columns: repeat(2,1fr); } }
+@media (min-width:1024px) { .member-grid { grid-template-columns: repeat(3,1fr); } }
+.member-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    align-items: center;
+}
+.member-avatar {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+.member-info {
+    flex: 1;
+}
+.member-name { font-weight:700; font-size:1.05rem; color:#0f172a; }
+.member-position { color:#059669; font-weight:600; margin-top:4px; }
+.member-desc { color:#475569; font-size:0.95rem; margin-top:8px; }
+.member-email { display:inline-block; margin-top:8px; color:#0f172a; font-weight:600; text-decoration:none; }
+
 
 .section-pattern {
     position: absolute;
@@ -1522,17 +1598,20 @@ body {
 }
 
 .news-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 32px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+    grid-auto-rows: 1fr;
+    align-items: stretch;
 }
 
 .news-card {
-  background: white;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+    height: 100%;
 }
 
 .news-card:hover {
@@ -1540,17 +1619,10 @@ body {
   transform: translateY(-5px);
 }
 
-.news-image {
-  height: 200px;
-  overflow: hidden;
-}
-
-.news-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s;
-}
+.news-image { overflow: hidden; }
+.news-image img { width:100%; height:220px; object-fit:cover; transition: transform 0.5s; }
+@media (min-width:1024px) { .news-image img { height:300px; } }
+@media (max-width:640px) { .news-image img { height:200px; } }
 
 .news-card:hover .news-image img {
   transform: scale(1.1);
@@ -2154,6 +2226,42 @@ body {
         font-size: 14px;
     }
 
+    /* Shared member card (used on apropos and homepage) */
+    .member-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    .member-card {
+        display: flex;
+        gap: 12px;
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+        align-items: center;
+    }
+    .member-avatar {
+        width: 96px;
+        height: 96px;
+        flex: 0 0 96px;
+        object-fit: cover;
+        border-radius: 50%;
+        margin: 12px;
+    }
+    .member-info { padding: 12px 16px; flex:1 }
+    .member-name { font-size: 1.05rem; font-weight:700; margin-bottom:6px }
+    .member-position { color:#198754; font-weight:600; margin-bottom:8px }
+    .member-desc { color:#555; font-size:0.95rem; margin-bottom:8px }
+    .member-email { color:#0b5; font-size:0.9rem; text-decoration:none }
+
+    @media (min-width: 768px) {
+        .member-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 1024px) {
+        .member-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
     .footer-content {
         grid-template-columns: repeat(3, 1fr);
     }
@@ -2189,6 +2297,35 @@ body {
         grid-template-columns: repeat(3, 1fr);
     }
 }
+
+/* Mobile improvements for 'Actualités Récentes' carousel */
+@media (max-width: 640px) {
+    .carousel-container { padding: 0 8px; }
+    .carousel-track { gap: 12px; }
+
+    /* Force news card to stack vertically on small screens */
+    .carousel-item .bg-white { display: flex; flex-direction: column !important; min-height: auto !important; }
+    .carousel-item .md\:w-2\/5, .carousel-item .md\:w-3\/5 { width: 100% !important; }
+    .carousel-item .h-64 { height: 220px !important; }
+
+    .carousel-item h3 { font-size: 1.15rem !important; line-height: 1.25; }
+    .carousel-item p { font-size: 0.95rem !important; color: #4b5563; }
+    .carousel-item .p-8, .carousel-item .p-10 { padding: 16px !important; }
+
+    /* Make action button full width and touch-friendly */
+    .carousel-item button { width: 100%; padding: 12px 16px; font-size: 1rem; }
+
+    /* Reduce image overlay badge size */
+    .carousel-item .absolute.top-4.left-4 { top: 8px; left: 8px; }
+    .carousel-item .absolute.top-4.left-4 .text-xs { font-size: 11px; padding: 6px 10px; }
+
+    /* Hide large outside nav controls on small screens */
+    .carousel-container + button, .carousel-container ~ button, .carousel-container > button, .absolute.-left-5, .absolute.-right-5 { display: none !important; }
+
+    /* Tighter section spacing */
+    section.events-section, section { padding-top: 20px; padding-bottom: 20px; }
+    .section .btn-top-right { top: 8px; }
+}
 /* pages details */
 .page-wrapper {
     background: #f8f9fa;
@@ -2201,6 +2338,70 @@ body {
     margin: 0 auto;
     padding-top: 2.5rem;
 }
+
+/* ===== Responsive tweaks: members, news, events ===== */
+
+/* Members / Bureau images and cards */
+#bureau .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+@media (min-width: 768px) {
+    #bureau .grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.card-custom img,
+.card img,
+.executive-image img,
+.profile-img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.card-custom img.rounded-full,
+.card-custom img.w-16,
+.card-custom img.h-16 {
+    width: 64px !important;
+    height: 64px !important;
+    object-fit: cover !important;
+    border-radius: 50% !important;
+}
+
+@media (max-width: 480px) {
+    .card-custom img.rounded-full,
+    .card-custom img.w-16,
+    .card-custom img.h-16 {
+        width: 48px !important;
+        height: 48px !important;
+    }
+    .profile-img { height: 180px !important; }
+}
+/* images card: make news images full-width and responsive */
+.news-grid { gap: 18px; }
+.news-image, .news-image-badge { width: 100%; overflow: hidden; border-radius: 12px 12px 0 0; }
+.news-image img, .news-image-badge img { width: 100%; height: 220px; object-fit: cover; object-position: center; display:block; }
+@media (min-width: 1024px) { .news-image img, .news-image-badge img { height: 300px; } }
+@media (max-width: 640px) { .news-image img, .news-image-badge img { height: 200px; } }
+
+/* Events grid: override inline widths set by JS to be responsive */
+#events-grid { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+#events-grid > div {
+    box-sizing: border-box;
+    flex: 1 1 100%;
+    max-width: 100%;
+    width: 100% !important;
+}
+@media (min-width: 700px) {
+    #events-grid > div { flex: 0 0 calc(50% - 16px); width: calc(50% - 16px) !important; max-width: calc(50% - 16px); }
+}
+@media (min-width: 1024px) {
+    #events-grid > div { flex: 0 0 calc(33.333% - 16px); width: calc(33.333% - 16px) !important; max-width: calc(33.333% - 16px); }
+}
+
+/* small improvements: make event cards and news cards adapt inside their containers */
+#events-grid img, .news-card img { width: 100%; height: auto; display: block; }
 
 /* HERO */
 .hero {

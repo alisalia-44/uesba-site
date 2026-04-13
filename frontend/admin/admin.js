@@ -121,6 +121,13 @@ async function apiFetch(endpoint, options = {}) {
     }
 
     if (!response.ok) {
+        // Token invalide ou expiré → rediriger vers login
+        if (response.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = 'login.html';
+            return;
+        }
+
         const msg = data && data.errors ? Object.values(data.errors).flat().join('\n') : (data && (data.message || data.error) ? (data.message || data.error) : `Erreur ${response.status} ${response.statusText}`);
         const err = new Error(msg);
         err.status = response.status;
@@ -246,41 +253,44 @@ async function saveMember(e) {
             try { formData.append('memberPhoto', photoFile); } catch(e) { /* ignore */ }
         }
 
-        // Debug: afficher les paires FormData envoyées
-        try {
-            console.log('Submitting create-membre FormData:');
-            for (const p of formData.entries()) console.log(p[0], p[1]);
-        } catch (e) { console.log('FormData log failed', e); }
+            // Debug: afficher les paires FormData envoyées
+            try {
+                console.log('Submitting create-membre FormData:');
+                for (const p of formData.entries()) console.log(p[0], p[1]);
+            } catch (e) { console.log('FormData log failed', e); }
 
-        const response = await fetch('http://127.0.0.1:8000/api/create-membre', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-                // Ne PAS mettre 'Content-Type', FormData le gère
-            },
-            body: formData
-        });
-        const text = await response.text().catch(() => '');
-        let data;
-        try { data = text ? JSON.parse(text) : null; } catch (err) { data = { __raw: text }; }
-
-        if (!response.ok) {
-            console.error('saveMember error', data);
-            // détecter contrainte UNIQUE côté serveur (sqlite/mysql) et afficher message clair
-            const raw = (data && data.__raw) ? String(data.__raw) : (data && data.message ? String(data.message) : '');
-            if (raw.toLowerCase().includes('unique') || raw.toLowerCase().includes('unique constraint') || raw.toLowerCase().includes('users.email') || raw.includes('UNIQUE constraint failed')) {
-                alert('Cet email est déjà utilisé. Choisissez un autre email.');
+            // Use apiFetch helper which applies auth header and handles FormData
+            try {
+                const result = await apiFetch('/create-membre', { method: 'POST', body: formData });
+                const message = (result && result.message) ? result.message : 'Membre ajouté avec succès !';
+                alert(message);
+                closeModal('memberModal');
+                document.getElementById('memberForm').reset();
+                await loadMembers(); // recharge la liste des membres
+                return;
+            } catch (err) {
+                console.error('saveMember error', err);
+                // apiFetch throws Error with err.raw when response not ok
+                if (err && err.raw) {
+                    // If backend returned validation errors
+                    const raw = err.raw;
+                    if (raw.errors) {
+                        const msgs = Object.values(raw.errors).flat().join('\n');
+                        alert(msgs);
+                        return;
+                    }
+                    // raw may be { __raw: '<html>...</html>' } or { message: '...' }
+                    const plain = raw.__raw ? String(raw.__raw) : (raw.message || raw.error || JSON.stringify(raw));
+                    if (plain.toLowerCase().includes('unique') || plain.includes('users.email') || plain.includes('UNIQUE constraint')) {
+                        alert('Cet email est déjà utilisé. Choisissez un autre email.');
+                        return;
+                    }
+                    alert(plain);
+                    return;
+                }
+                alert(err.message || 'Erreur lors de la création du membre.');
                 return;
             }
-            const msg = data && (data.message || data.error) ? (data.message || data.error) : (`Erreur ${response.status}`);
-            alert(msg);
-            return;
-        }
-
-        alert(data && data.message ? data.message : "Membre ajouté avec succès !");
-        closeModal('memberModal');
-        document.getElementById('memberForm').reset();
-        loadMembers(); // recharge la liste des membres
 
     } catch (error) {
         console.error('saveMember exception', error);

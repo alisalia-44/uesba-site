@@ -4,240 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion Admin - UESBA</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="admin.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .form-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 50px 40px;
-            max-width: 450px;
-            width: 100%;
-            animation: slideUp 0.6s ease;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .form-header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-
-        .form-header h1 {
-            font-size: 28px;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .form-header p {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 15px;
-            background: #f8f9fa;
-            transition: all 0.3s ease;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-        }
-
-        .message {
-            margin-bottom: 20px;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            display: none;
-        }
-
-        .error { background: #fadbd8; color: #c0392b; border-left: 4px solid #c0392b; }
-        .success { background: #d5f4e6; color: #27ae60; border-left: 4px solid #27ae60; }
-
-        .message.show { display: block; }
-
-        button {
-            width: 100%;
-            padding: 13px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 15px;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-        }
-
-        button:active { transform: translateY(0); }
-
-        .link-text {
-            text-align: center;
-            font-size: 13px;
-            color: #666;
-        }
-
-        .link-text a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 700;
-        }
-
-        .link-text a:hover { text-decoration: underline; }
-
-        @media (max-width: 500px) {
-            .form-container { padding: 30px 20px; }
-            .form-header h1 { font-size: 24px; }
-        }
+        .login-body { background: #1a202c; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Segoe UI', sans-serif; }
+        .login-card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 400px; }
+        .login-card h2 { text-align: center; color: #2d3748; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #4a5568; font-weight: 600; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; outline: none; transition: border-color 0.2s; }
+        .form-group input:focus { border-color: #4299e1; }
+        .btn-login { width: 100%; background: #3182ce; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; transition: background 0.2s; }
+        .btn-login:hover { background: #2b6cb0; }
+        .error-msg { color: #e53e3e; background: #fff5f5; padding: 10px; border-radius: 4px; margin-bottom: 20px; display: none; text-align: center; font-size: 14px; }
     </style>
 </head>
-<body>
-    <div class="form-container">
-        <div class="form-header">
-            <h1>🔓 Connexion</h1>
-            <p>Admin UESBA</p>
-        </div>
-
-        <div class="message error" id="errorMsg"></div>
-        <div class="message success" id="successMsg"></div>
+<body class="login-body">
+    <div class="login-card">
+        <h2>UESBA Admin</h2>
+        
+        <div id="error-container" class="error-msg"></div>
 
         <form id="loginForm">
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" placeholder="votre@email.com" required>
+                <label for="email">Email Professionnel</label>
+                <input type="email" id="email" name="email" required placeholder="admin@uesba.dz">
             </div>
-
             <div class="form-group">
                 <label for="password">Mot de passe</label>
-                <input type="password" id="password" placeholder="Min. 8 caractères" required minlength="8">
+                <input type="password" id="password" name="password" required placeholder="••••••••">
             </div>
-
-            <button type="submit">Se connecter</button>
+            <button type="submit" class="btn-login">Se connecter au panneau</button>
         </form>
-
-        <div class="link-text">
-            Pas de compte ? <a href="register.html">Créer un compte</a>
-        </div>
     </div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        // Si déjà connecté, aller directement à admin
+        if (localStorage.getItem('token')) {
+            window.location.href = 'admin.html';
+        }
+
+        const LOGIN_URL = 'http://127.0.0.1:8000/api/login';
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value.trim();
+            
+            const errorContainer = document.getElementById('error-container');
+            const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            const errorMsg = document.getElementById('errorMsg');
-            const successMsg = document.getElementById('successMsg');
-            errorMsg.classList.remove('show');
-            successMsg.classList.remove('show');
-
-            // Validation côté client
-            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-                errorMsg.textContent = '❌ Email invalide';
-                errorMsg.classList.add('show');
-                return;
-            }
-
-            if (password.length < 8) {
-                errorMsg.textContent = '❌ Le mot de passe doit contenir au moins 8 caractères';
-                errorMsg.classList.add('show');
-                return;
-            }
+            // Cacher l'erreur précédente
+            errorContainer.style.display = 'none';
 
             try {
-                // Appel API vers votre backend Laravel
-                const response = await fetch('http://127.0.0.1:8000/api/login', {
+                const response = await fetch(LOGIN_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify({ email, password })
                 });
 
                 const data = await response.json();
 
-                if (!response.ok) {
-                    errorMsg.textContent = '❌ ' + (data.message || 'Erreur de connexion');
-                    errorMsg.classList.add('show');
-                    console.error('Login error response:', data);
-                    return;
+                if (response.ok && data.token) {
+                    // 1. Sauvegarder le Token (utilisé par admin.js via localStorage.getItem('token'))
+                    localStorage.setItem('token', data.token);
+                    
+                    // 2. Optionnel: Sauvegarder les infos de l'admin
+                    if(data.user) localStorage.setItem('user', JSON.stringify(data.user));
+
+                    // 3. Redirection vers admin.html
+                    window.location.href = 'admin.html';
+                } else {
+                    // Affichage de l'erreur renvoyée par le backend Laravel
+                    errorContainer.textContent = data.message || "Identifiants invalides";
+                    errorContainer.style.display = 'block';
                 }
-
-                // Accept several possible token keys returned by different backends
-                const token = data.token || data.access_token || data.plainTextToken || (data.data && (data.data.token || data.data.access_token));
-                if (!token) {
-                    errorMsg.textContent = '❌ Impossible de récupérer le token depuis la réponse du serveur.';
-                    errorMsg.classList.add('show');
-                    console.error('Login success but no token in response:', data);
-                    return;
-                }
-
-                // store token under `auth_token` to match frontend/js/api.js interceptor
-                localStorage.setItem('token', token);
-                // store user if present
-                const user = data.user || data.data?.user || null;
-                if (user) localStorage.setItem('auth_user', JSON.stringify(user));
-
-                successMsg.textContent = '✅ Connexion réussie! Redirection...';
-                successMsg.classList.add('show');
-
-                // redirect reliably
-                window.location.assign('admin.html');
             } catch (error) {
-                errorMsg.textContent = '❌ Erreur de connexion au serveur';
-                errorMsg.classList.add('show');
-                console.error('Erreur:', error);
+                errorContainer.textContent = "Impossible de contacter le serveur.";
+                errorContainer.style.display = 'block';
+                console.error("Erreur Login:", error);
             }
         });
-
-        // Redirect if already logged in
-        if (localStorage.getItem('token')) {
-            window.location.href = 'admin.html';
-        }
     </script>
 </body>
 </html>

@@ -163,15 +163,25 @@
 
             <div class="grid md:grid-cols-2 gap-8 items-stretch">
                 <!-- Carte Ambassadeur -->
-                <div class="card overflow-hidden flex flex-col">
-                    <div class="relative h-80 bg-gray-300">
+                <div class="card p-8 border-accent-red space-y-8 flex flex-col justify-between">
+                    <div class="relative h-100 bg-gray-300 rounded-lg overflow-hidden">
                         <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="M. Yacouba OUEDRAOGO" class="w-full h-full object-cover grayscale contrast-125">
+
                         <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent text-white">
-                            <h3 class="text-xl font-bold">⭐ Son Excellence</h3>
-                            <p class="text-yellow-400 font-bold">M. Yacouba OUEDRAOGO</p>
-                            <p class="text-sm opacity-90">Ambassadeur du Burkina Faso en Algérie</p>
+                            <div class="flex items-end space-x-4">
+                                <div class="text-yellow-400 text-3xl md:text-4xl leading-none">★</div>
+                                <div>
+                                    <h3 class="text-2xl md:text-3xl font-extrabold">Son Excellence</h3>
+                                    <p class="text-yellow-400 font-bold text-xl md:text-2xl mt-1">M. Yacouba OUEDRAOGO</p>
+                                    <p class="text-sm opacity-90 mt-1">Ambassadeur du Burkina Faso en Algérie</p>
+                                </div>
+                            </div>
+                        </div>
+                       <div class="absolute top-4 right-4 bg-yellow-400 text-white p-2 rounded-full shadow-lg">
+                            <i class="fas fa-star"></i>
                         </div>
                     </div>
+
                     <div class="bg-emerald-800 p-6 text-white italic text-center">
                         "Au service de la communauté burkinabè en Algérie, nous œuvrons pour renforcer les liens d'amitié et de coopération entre nos deux pays frères."
                         <div class="mt-2 text-yellow-400">★</div>
@@ -180,7 +190,7 @@
 
                 <!-- Coordonnées -->
                 <div class="card p-8 border-accent-red space-y-8 flex flex-col justify-between">
-                    <div class="relative h-48 bg-gray-100 rounded-lg overflow-hidden">
+                    <div class="relative h-64 bg-gray-100 rounded-lg overflow-hidden">
                         <img src="https://images.unsplash.com/photo-1526772662000-3f88f10405ff?w=800" alt="Façade Ambassade" class="w-full h-full object-cover">
                         <div class="absolute top-4 right-4 bg-yellow-400 text-white p-2 rounded-full shadow-lg">
                             <i class="fas fa-star"></i>
@@ -291,371 +301,9 @@
             </div>
         </section>
 
-        <!-- Bureau Exécutif -->
-        <section class="space-y-12" id="bureau">
-            <div class="text-center">
-                <h2 class="text-4xl font-bold">⭐ Bureau Exécutif Actuel ⭐</h2>
-                <p class="text-gray-500 font-medium">Mandat 2025-2026</p>
-            </div>
-            
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Salia ALI -->
-                <div class="card overflow-hidden group">
-                    <div class="relative">
-                        <img src="images/Presi.jpeg" alt="Salia ALI" class="profile-img">
-                        <div class="absolute top-4 right-4 text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </div>
-                        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 text-white">
-                            <h4 class="text-xl font-bold">SALIA ALI</h4>
-                            <p class="text-yellow-400 text-sm font-semibold">Président</p>
-                        </div>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        <div class="flex items-center text-sm">
-                            <i class="fas fa-book text-emerald-700 mr-3 w-5"></i>
-                            <div>
-                                <p class="text-xs text-gray-400 uppercase">Spécialité</p>
-                                <p class="font-medium">LICENCE EN INFORMATIQUE</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center text-sm">
-                            <i class="fas fa-university text-emerald-700 mr-3 w-5"></i>
-                            <div>
-                                <p class="text-xs text-gray-400 uppercase">Université</p>
-                                <p class="font-medium">INSFP de Relizane </p>
-                            </div>
-                        </div>
-                        <a href="mailto:alimansoursalia@gmail.com" class="text-emerald-700 text-sm flex items-center">
-                            <i class="fas fa-envelope mr-2"></i> alimansoursalia@gmail.com
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Job -->
-                <div class="card overflow-hidden group border-t-4 border-green-800">
-                    <div class="relative">
-                        <img src="images/chrgorg.jpeg" alt="Job" class="profile-img">
-                        <div class="absolute top-4 right-4 text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </div>
-                        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 text-white">
-                            <h4 class="text-xl font-bold">ILBOUDO Job</h4>
-                            <p class="text-yellow-400 text-sm font-semibold">Chargé de l'Organisation</p>
-                        </div>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        <div class="flex items-center text-sm">
-                            <i class="fas fa-graduation-cap text-emerald-700 mr-3 w-5"></i>
-                            <div>
-                                <p class="text-xs text-gray-400 uppercase">Spécialité</p>
-                                <p class="font-medium">LICENCE EN ELECTRONIQUE INDUSTRIELLE</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center text-sm">
-                            <i class="fas fa-university text-emerald-700 mr-3 w-5"></i>
-                            <div>
-                                <p class="text-xs text-gray-400 uppercase">Université</p>
-                                <p class="font-medium">INSFP de Relizane </p>
-                            </div>
-                        </div>
-                        <a href="mailto:jobilboudo489@gmail.com" class="text-emerald-700 text-sm flex items-center">
-                            <i class="fas fa-envelope mr-2"></i> jobilboudo489@gmail.com
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Yili -->
-                <div class="card overflow-hidden group">
-                    <div class="relative">
-                        <img src="images/affuniv.jpeg" alt="Yili" class="profile-img">
-                        <div class="absolute top-4 right-4 text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </div>
-                        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 text-white">
-                            <h4 class="text-xl font-bold">OUATTARA Yili Fadila</h4>
-                            <p class="text-yellow-400 text-sm font-semibold">Chargé Académique</p>
-                        </div>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        <div class="flex items-center text-sm">
-                            <i class="fas fa-laptop-code text-emerald-700 mr-3 w-5"></i>
-                            <div>
-                                <p class="text-xs text-gray-400 uppercase">Spécialité</p>
-                                <p class="font-medium">LICENCE EN LANGUE ANGLAISE</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center text-sm">
-                            <i class="fas fa-university text-emerald-700 mr-3 w-5"></i>
-                            <div>
-                                <p class="text-xs text-gray-400 uppercase">Université</p>
-                                <p class="font-medium">Université Ziane Achour de Djelfa</p>
-                            </div>
-                        </div>
-                        <a href="mailto:fadilaouattara43@gmail.com" class="text-emerald-700 text-sm flex items-center">
-                            <i class="fas fa-envelope mr-2"></i> fadilaouattara43@gmail.com
-                        </a>
-                    </div>
-                </div>
-                <!-- Sia Raoul -->
-                <div class="card overflow-hidden group">
-                    <div class="relative">
-                        <img src="images/raoul.jpeg" alt="Sia Raoul" class="profile-img" style="background-position:top;">
-                        <div class="absolute top-4 right-4 text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </div>
-                        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 text-white">
-                            <h4 class="text-xl font-bold">Sia Raoul</h4>
-                            <p class="text-yellow-400 text-sm font-semibold">Trésorier Général</p>
-                        </div>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        <div class="flex items-center text-sm">
-                            <i class="fas fa-book text-emerald-700 mr-3 w-5"></i>
-                            <div>
-                                <p class="text-xs text-gray-400 uppercase">Spécialité</p>
-                                <p class="font-medium">Licence en informatique </p>
-                            </div>
-                        </div>
-                        <div class="flex items-center text-sm">
-                            <i class="fas fa-university text-emerald-700 mr-3 w-5"></i>
-                            <div>
-                                <p class="text-xs text-gray-400 uppercase">Université</p>
-                                <p class="font-medium">Université de Boumerdes</p>
-                            </div>
-                        </div>
-                        <a href="mailto:tresorier@uesba-dz.org" class="text-emerald-700 text-sm flex items-center">
-                            <i class="fas fa-envelope mr-2"></i> tresorier@uesba-dz.org
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Cheick Oumar -->
-                <div class="card overflow-hidden group border-t-4 border-green-800">
-                    <div class="relative">
-                        <img src="images/omar.jpeg" alt="Cheick Oumar" class="profile-img" style="background-position:center;">
-                        <div class="absolute top-4 right-4 text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </div>
-                        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 text-white">
-                            <h4 class="text-xl font-bold"> SOMA  Dilomama Cheick Oumar</h4>
-                            <p class="text-yellow-400 text-sm font-semibold">Vice-Président</p>
-                        </div>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        <div class="flex items-center text-sm">
-                            <i class="fas fa-graduation-cap text-emerald-700 mr-3 w-5"></i>
-                            <div>
-                                <p class="text-xs text-gray-400 uppercase">Spécialité</p>
-                                <p class="font-medium">Licence en Génie Mécanique  </p>
-                            </div>
-                        </div>
-                        <div class="flex items-center text-sm">
-                            <i class="fas fa-university text-emerald-700 mr-3 w-5"></i>
-                            <div>
-                                <p class="text-xs text-gray-400 uppercase">Université</p>
-                                <p class="font-medium">Université des frères Mentouri Constantine 1 </p>
-                            </div>
-                        </div>
-                        <a href="mailto:somac9385@gmail.com" class="text-emerald-700 text-sm flex items-center">
-                            <i class="fas fa-envelope mr-2"></i> somac9385@gmail.com
-                        </a>
-                    </div>
-                </div>
-
-                <!--  KABRE Pegwendé Patrice-->
-                <div class="card overflow-hidden group">
-                    <div class="relative">
-                        <img src="images/patrice.jpeg" alt="KABRE Pegwendé Patrice" class="profile-img">
-                        <div class="absolute top-4 right-4 text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </div>
-                        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 text-white">
-                            <h4 class="text-xl font-bold">KABRE Pegwendé Patrice</h4>
-                            <p class="text-yellow-400 text-sm font-semibold">Responsable de Communication</p>
-                        </div>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        <div class="flex items-center text-sm">
-                            <i class="fas fa-laptop-code text-emerald-700 mr-3 w-5"></i>
-                            <div>
-                                <p class="text-xs text-gray-400 uppercase">Spécialité</p>
-                                <p class="font-medium">Licence en langue Française</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center text-sm">
-                            <i class="fas fa-university text-emerald-700 mr-3 w-5"></i>
-                            <div>
-                                <p class="text-xs text-gray-400 uppercase">Université</p>
-                                <p class="font-medium">Université Abderrahmane Mira de Béjaïa</p>
-                            </div>
-                        </div>
-                        <a href="mailto:peguend-wende-patrice.kabre@langue.univ-bejaia.dz" class="text-emerald-700 text-sm flex items-center">
-                            <i class="fas fa-envelope mr-2"></i> peguend-wende-patrice.kabre@langue.univ-bejaia.dz
-                        </a>
-                    </div>
-                </div>
-                <!--  TOU ICHAM-->
-                <div class="card overflow-hidden group">
-                    <div class="relative">
-                        <img src="images/icham.jpeg" alt="TOU ICHAM" class="profile-img">
-                        <div class="absolute top-4 right-4 text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </div>
-                        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 text-white">
-                            <h4 class="text-xl font-bold">TOU ICHAM</h4>
-                            <p class="text-yellow-400 text-sm font-semibold">Coordinateur exécutif de l'UESBA</p>
-                        </div>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        <div class="flex items-center text-sm">
-                            <i class="fas fa-laptop-code text-emerald-700 mr-3 w-5"></i>
-                            <div>
-                                <p class="text-xs text-gray-400 uppercase">Spécialité</p>
-                                <p class="font-medium">Licence en l Électrotechnique </p>
-                            </div>
-                        </div>
-                        <div class="flex items-center text-sm">
-                            <i class="fas fa-university text-emerald-700 mr-3 w-5"></i>
-                            <div>
-                                <p class="text-xs text-gray-400 uppercase">Université</p>
-                                <p class="font-medium">Université de Laghouat </p>
-                            </div>
-                        </div>
-                        <a href="mailto:peguend-wende-patrice.kabre@langue.univ-bejaia.dz" class="text-emerald-700 text-sm flex items-center">
-                            <i class="fas fa-envelope mr-2"></i> espoirtou28@gmail.com
-                        </a>
-                    </div>
-                </div>
-                <!--  KOUDOUGOU SIMON-->
-                <div class="card overflow-hidden group">
-                    <div class="relative">
-                        <img src="images/affstg.jpeg" alt="KOUDOUGOU SIMON" class="profile-img">
-                        <div class="absolute top-4 right-4 text-yellow-400">
-                            <i class="fas fa-star fa-2x"></i>
-                        </div>
-                        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 text-white">
-                            <h4 class="text-xl font-bold">KOUDOUGOU Bangueba SIMON</h4>
-                            <p class="text-yellow-400 text-sm font-semibold">Chargé des affaires stagiaires </p>
-                        </div>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        <div class="flex items-center text-sm">
-                            <i class="fas fa-laptop-code text-emerald-700 mr-3 w-5"></i>
-                            <div>
-                                <p class="text-xs text-gray-400 uppercase">Spécialité</p>
-                                <p class="font-medium">Licence en Conducteur des travaux publics</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center text-sm">
-                            <i class="fas fa-university text-emerald-700 mr-3 w-5"></i>
-                            <div>
-                                <p class="text-xs text-gray-400 uppercase">Université</p>
-                                <p class="font-medium">Institut national  draa ben khedda</p>
-                            </div>
-                        </div>
-                        <a href="mailto: banguebasimonkoudougou@gmail.com" class="text-emerald-700 text-sm flex items-center">
-                            <i class="fas fa-envelope mr-2"></i>  banguebasimonkoudougou@gmail.com
-                        </a>
-                    </div>
-                </div>
-
-            </div>
-        </section>
+        
  
-        <!-- Anciens Bureaux -->
-        <section class="space-y-12">
-            <div class="text-center space-y-2">
-                <h2 class="text-4xl font-bold">Anciens Bureaux</h2>
-                <p class="text-gray-500">Honorons ceux qui ont contribué à bâtir l'UESBA</p>
-            </div>
-            
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Ancien 1 -->
-                <div class="card-custom p-6 border-left-red flex flex-col space-y-4">
-                    <div class="flex items-center space-x-4">
-                        <img src="images/ancienpre.jpeg" class="w-16 h-16 rounded-full object-cover border-2 border-red-100">
-                        <div>
-                            <p class="font-bold">KIENDREBEOGO MARCELIN</p>
-                            <p class="text-red-600 text-xs font-bold uppercase">Ex-Président</p>
-                            <p class="text-[10px] text-gray-400">Mandat 2024-2025</p>
-                        </div>
-                    </div>
-                    <div class="space-y-2 text-sm">
-                        <p class="text-gray-600"><span class="font-semibold text-gray-800">Spécialité:</span> Maintenance industrielle</p>
-                        <p class="text-gray-600"><span class="font-semibold text-gray-800">Université:</span> INSFP Mohamed Ayyache de El-Khroub de  Constantine</p>
-                    </div>
-                    <a href="mailto :kiendrebeogomarcellin230@gmail.com" class="text-[11px] text-gray-400 mt-auto"><i class="fas fa-envelope mr-1"></i> kiendrebeogomarcellin230@gmail.com</a>
-                </div>
-
-                <!-- Ancien 2 -->
-                <div class="card-custom p-6 border-left-red flex flex-col space-y-4">
-                    <div class="flex items-center space-x-4">
-                        <img src="images/ancienvicepre.jpeg" class="w-16 h-16 rounded-full object-cover border-2 border-red-100">
-                        <div>
-                            <p class="font-bold">TIENDREBEOGO MOUKAILA</p>
-                            <p class="text-red-600 text-xs font-bold uppercase">Ex- Vice President</p>
-                            <p class="text-[10px] text-gray-400">Mandat 2024-2025</p>
-                        </div>
-                    </div>
-                    <div class="space-y-2 text-sm">
-                        <p class="text-gray-600"><span class="font-semibold text-gray-800">Spécialité:</span> Météorologie </p>
-                        <p class="text-gray-600"><span class="font-semibold text-gray-800">Université:</span> Institut Hydrométéorologique de Formation et de Recherche (IHFR).</p>
-                    </div>
-                    <a href="mailto :moukailatiendrebeogo305@gmail.com" class="text-[11px] text-gray-400 mt-auto"><i class="fas fa-envelope mr-1"></i>  moukailatiendrebeogo305@gmail.com</a>
-                </div>
-
-                <!-- Ancien 3 -->
-                <div class="card-custom p-6 border-left-red flex flex-col space-y-4">
-                    <div class="flex items-center space-x-4">
-                        <img src="images/isaac.jpeg" class="w-16 h-16 rounded-full object-cover border-2 border-red-100">
-                        <div>
-                            <p class="font-bold">NACOULMA Teegawende yabyoure Isaac </p>
-                            <p class="text-red-600 text-xs font-bold uppercase">Ex-Chargé de la communication</p>
-                            <p class="text-[10px] text-gray-400">Mandat 2024-2025</p>
-                        </div>
-                    </div>
-                    <div class="space-y-2 text-sm">
-                        <p class="text-gray-600"><span class="font-semibold text-gray-800">Spécialité:</span> Électrotechnique </p>
-                        <p class="text-gray-600"><span class="font-semibold text-gray-800">Université:</span> INSFP de draa el bordj de Bouira</p>
-                    </div>
-                    <a href="mailto:nacoulmaisaac67@gmail.com" class="text-[11px] text-gray-400 mt-auto"><i class="fas fa-envelope mr-1"></i> nacoulmaisaac67@gmail.com</a>
-                </div>
-                <!-- Ancien 4 -->
-                <div class="card-custom p-6 border-left-red flex flex-col space-y-4">
-                    <div class="flex items-center space-x-4">
-                        <img src="images/aicha.jpeg" class="w-16 h-16 rounded-full object-cover border-2 border-red-100">
-                        <div>
-                            <p class="font-bold">DIARRA Aicha</p>
-                            <p class="text-red-600 text-xs font-bold uppercase">Ex-Chargée de l’organisation</p>
-                            <p class="text-[10px] text-gray-400">Mandat 2024-2025</p>
-                        </div>
-                    </div>
-                    <div class="space-y-2 text-sm">
-                        <p class="text-gray-600"><span class="font-semibold text-gray-800">Spécialité:</span> Neant</p>
-                        <p class="text-gray-600"><span class="font-semibold text-gray-800">Université:</span> Université de Laghouat</p>
-                    </div>
-                    <a href="mailto:diarra.aicha@gmail.com" class="text-[11px] text-gray-400 mt-auto"><i class="fas fa-envelope mr-1"></i> diarra.aicha@gmail.com</a>
-                </div>
-                <!-- Ancien 5 -->
-                <div class="card-custom p-6 border-left-red flex flex-col space-y-4">
-                    <div class="flex items-center space-x-4">
-                        <img src="images/ancientresorier.jpeg" class="w-16 h-16 rounded-full object-cover border-2 border-red-100">
-                        <div>
-                            <p class="font-bold">SAWADOGO Razack</p>
-                            <p class="text-red-600 text-xs font-bold uppercase">Ex-Trésorier Général</p>
-                            <p class="text-[10px] text-gray-400">Mandat 2024-2025</p>
-                        </div>
-                    </div>
-                    <div class="space-y-2 text-sm">
-                        <p class="text-gray-600"><span class="font-semibold text-gray-800">Spécialité:</span> Agronomie</p>
-                        <p class="text-gray-600"><span class="font-semibold text-gray-800">Université:</span> INSFP BOUGARA.  </p>
-                    </div>
-                    <a href="mailto:razacksawadogo2018@gmail.com" class="text-[11px] text-gray-400 mt-auto"><i class="fas fa-envelope mr-1"></i> razacksawadogo2018@gmail.com</a>
-                </div>
-               
-            </div>
-        </section>
+        
 
         <!-- Nos Activités -->
         <section class="space-y-8">
@@ -869,7 +517,11 @@
                         if (resp.ok) {
                             const json = await resp.json().catch(()=>null);
                             if (json) {
-                                if (Array.isArray(json)) items = json;
+                                // backend currently returns [ $membres ] (array wrapped in array)
+                                if (Array.isArray(json)) {
+                                    if (json.length > 0 && Array.isArray(json[0])) items = json[0];
+                                    else items = json;
+                                }
                                 else if (json.membres) items = Array.isArray(json.membres) ? json.membres : (json.membres.data || []);
                                 else if (json.data && Array.isArray(json.data)) items = json.data;
                             }
@@ -880,29 +532,13 @@
                 if (!items || items.length === 0) return; // keep static fallback
 
                 grid.innerHTML = items.map(m => `
-                    <div class="card overflow-hidden group">
-                        <div class="relative">
-                            <img src="${resolvePhoto(m.photo || m.image || m.src || m.avatar)}" alt="${escapeHtml((m.nom || m.name || '') + ' ' + (m.prenom || ''))}" class="profile-img">
-                            <div class="absolute top-4 right-4 text-yellow-400">
-                                <i class="fas fa-star fa-2x"></i>
-                            </div>
-                            <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 text-white">
-                                <h4 class="text-xl font-bold">${escapeHtml((m.nom || m.name || '') + (m.prenom ? ' ' + m.prenom : ''))}</h4>
-                                <p class="text-sm text-gray-200 mb-1">${escapeHtml((m.descriptions || m.description || '').length > 90 ? (m.descriptions || m.description || '').slice(0, 87) + '...' : (m.descriptions || m.description || ''))}</p>
-                                <p class="text-yellow-400 text-sm font-semibold">${escapeHtml(m.postes || m.poste || m.position || '')}</p>
-                            </div>
-                        </div>
-                        <div class="p-6 space-y-4">
-                            <a href="mailto:${escapeHtml(m.email || '')}" class="text-emerald-700 text-sm flex items-center">
-                                <i class="fas fa-envelope mr-2"></i> ${escapeHtml(m.email || '')}
-                            </a>
-                            <div class="flex items-start text-sm mt-2">
-                                <i class="fas fa-info-circle text-emerald-700 mr-3 w-5 mt-1"></i>
-                                <div>
-                                    <p class="text-xs text-gray-400 uppercase">Description</p>
-                                    <p class="font-medium">${escapeHtml(m.descriptions || m.description || m.about || '')}</p>
-                                </div>
-                            </div>
+                    <div class="member-card">
+                        <img class="member-avatar" src="${resolvePhoto(m.photo || m.image || m.src || m.avatar)}" alt="${escapeHtml((m.nom || m.name || '') + ' ' + (m.prenom || ''))}">
+                        <div class="member-info">
+                            <div class="member-name">${escapeHtml((m.nom || m.name || '') + (m.prenom ? ' ' + m.prenom : ''))}</div>
+                            <div class="member-position">${escapeHtml(m.postes || m.poste || m.position || '')}</div>
+                            <div class="member-desc">${escapeHtml((m.descriptions || m.decriptions || m.description || '').slice(0,160))}</div>
+                            <a class="member-email" href="mailto:${escapeHtml(m.email || '')}">${escapeHtml(m.email || '')}</a>
                         </div>
                     </div>
                 `).join('');

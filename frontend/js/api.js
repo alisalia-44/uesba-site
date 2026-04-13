@@ -90,6 +90,17 @@ const apiService = {
 	// Misc
 	async getMailList() { return await this._request('/mail-list'); },
 	
+	// Members (membres du bureau)
+	async getMembres() { return await this._request('/members'); },
+
+	async createMembre(payload = {}) {
+		const fd = new FormData(); _appendFormData(fd, payload); return await this._request('/create-membre', { method: 'POST', body: fd });
+	},
+
+	async updateMembre(payload = {}) { const fd = new FormData(); _appendFormData(fd, payload); fd.append('_method','PUT'); return await this._request('/update-membre', { method: 'POST', body: fd }); },
+
+	async deleteMembre(id) { const fd = new FormData(); fd.append('id', id); fd.append('_method','DELETE'); return await this._request('/delete-membre', { method: 'POST', body: fd }); },
+
 	async sendMail() { return await this._request('/send-mail'); }
 };
 
