@@ -15,60 +15,66 @@ use Mail;
 
 class UserController extends Controller
 {
-    public function AjouterMembre(request $request)
-    {
-        $user = $request->user();
-        if (!$user) {
-            return response()->json([
-                'message' => 'connexion requise'
-            ]);
-        }
-        $validator = Validator::make($request->all(), [
-            'photo' => 'nullable|mimes:*',
-            'nom' => 'required|string',
-            'prenom' => 'required|string',
-            'poste' => 'nullable|string',
-            'annePoste' => 'nullable|string',
-            'descriptions' => 'nullable|string',
-            'email'=>'required|email'
+public function AjouterMembre(Request $request)
+{
+    $authUser = $request->user();
+
+    if (!$authUser) {
+        return response()->json([
+            'message' => 'connexion requise'
+        ], 401);
+    }
+
+    $validator = Validator::make($request->all(), [
+        'photo' => 'nullable|file|mimes:jpg,jpeg,png|max:10240',
+        'nom' => 'required|string',
+        'prenom' => 'required|string',
+        'poste' => 'nullable|string',
+        'annePoste' => 'nullable|string',
+        'descriptions' => 'nullable|string',
+        'email' => 'required|email'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'message' => 'renseigner tous les champs'
+        ], 400);
+    }
+
+    try {
+
+        $user = User::create([
+            'email' => $request->email,
+            'name' => $request->nom,
+            'prenom' => $request->prenom,
+            'annePoste' => $request->annePoste ?? null,
+            'descriptions' => $request->descriptions ?? null,
+            'postes' => $request->poste,
+            'password' => bcrypt(Str::random(10))
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'renseigner tous les champs'
-            ], 400);
-        }
-        try {
-            $x = User::latest();
+        // Upload image
+        if ($request->hasFile('photo')) {
+            $fileup = new FileUpload();
+            $name = $fileup->UploadFile($request->file('photo'), 'photo');
 
-            $user = User::create([
-                'email' => $request->email,
-                'name' => $request->nom,
-                'prenom' => $request->prenom,
-                'annePoste' => $request->annePoste ? $request->annePoste : null,
-                'decriptions' => $request->descriptions ? $request->descriptions : null,
-                'postes'=>$request->poste,
-                'password'=>'null'
+            $user->update([
+                'photo' => $name
             ]);
-            if (isset($request->photo) && $request->file('photo')) {
-                $fileup = new FileUpload();
-                $name = $fileup->UploadFile($request->file, 'photo');
-                $user->update([
-                    'photo' => $name ? $name : null,
-                ]);
-            }
-
-            $user->assignRole('membres_bureaux');
-
-            return response()->json([
-                'message' => 'membre ajouter avec succes'
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 500);
         }
+
+        $user->assignRole('membres_bureaux');
+
+        return response()->json([
+            'message' => 'membre ajouté avec succès'
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => $e->getMessage()
+        ], 500);
     }
+}
     public function SupprimerMembre(request $request)
     {
         $user = $request->user();
