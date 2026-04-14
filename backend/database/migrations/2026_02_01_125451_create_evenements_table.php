@@ -14,6 +14,12 @@ return new class extends Migration
         Schema::create('evenements', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->string('nom');
+            $table->string('descriptions');
+            $table->dateTime('date_evenement');
+            $table->enum('type',['presentiel','En_ligne']);
+            $table->string('lieu');
+            $table->string('photo')->nullable();
         });
     }
 

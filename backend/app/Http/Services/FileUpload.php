@@ -7,21 +7,29 @@ use Illuminate\Support\Str;
 class FileUpload
 {
 
-    protected function UploadFile($file, $folderName)
+    public function UploadFile($file, $folderName)
     {
-        $maxzize = 10 * 1024 * 1024;
+        if (!$file) {
+            return null;
+        }
 
-        if ($file->getSize() > $maxzize) {
+        $maxsize = 10 * 1024 * 1024;
+
+        if ($file->getSize() > $maxsize) {
             return false;
         }
 
         $extension = $file->getClientOriginalExtension();
 
-
         $name = 'uesba_' . time() . '_' . Str::random(8) . '.' . $extension;
 
         $file->storeAs($folderName, $name, 'public');
 
-        return $name;
+        // return path relative to storage/app/public so we can build a storage URL later
+        return $folderName . '/' . $name;
     }
+
+    // public function DeleteFile($file, $folderName)
+    // {
+    // }
 }
