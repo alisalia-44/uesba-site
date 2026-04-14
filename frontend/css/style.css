@@ -1197,6 +1197,12 @@ body {
     margin-bottom: 8px;
 }
 
+.executive-details p {
+    font-size: 13px;
+    color: #4a5568;
+    line-height: 1.4;
+}
+
 .detail {
     display: flex;
     align-items: flex-start;
@@ -2295,6 +2301,12 @@ body {
 
     .news-grid {
         grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1280px) {
+    .executive-grid {
+        grid-template-columns: repeat(4, 1fr);
     }
 }
 

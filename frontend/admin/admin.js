@@ -1,3 +1,7 @@
+// Vérification de l'authentification
+if (!localStorage.getItem('token')) {
+    window.location.href = 'login.html';
+}
 const BASE_URL = 'http://127.0.0.1:8000/api';
 const STORAGE_URL = 'http://127.0.0.1:8000/storage/';
 
@@ -5,6 +9,8 @@ const STORAGE_URL = 'http://127.0.0.1:8000/storage/';
 let currentEditingId = null;
 window.__members = [];
 window.__messages = [];
+let isLoadingDashboard = false;
+let isLoadingMessages = false;
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function () {
@@ -340,19 +346,21 @@ async function deleteMember(id) {
 }
 // --- GESTION DES MESSAGES ---
 async function loadMessages() {
+    if (isLoadingMessages) return;
+    isLoadingMessages = true;
     const container = document.getElementById('messages-list');
-    if (!container) return;
-
+    if (!container) {
+        isLoadingMessages = false;
+        return;
+    }
     try {
         const data = await apiFetch('/messages');
         const messages = normalizeMessagesPayload(data);
         window.__messages = messages;
-
         if (!messages.length) {
             container.innerHTML = '<div class="empty-state">Aucun message reçu.</div>';
             return;
         }
-
         container.innerHTML = messages.map((msg, idx) => `
             <div class="message-card" style="border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px; background:#fff;">
                 <h4>${escapeHtml(msg.nom_complet || 'Visiteur')}</h4>
@@ -363,6 +371,8 @@ async function loadMessages() {
         `).join('');
     } catch (e) {
         container.innerHTML = 'Erreur messages.';
+    } finally {
+        isLoadingMessages = false;
     }
 }
 
@@ -389,6 +399,8 @@ async function deleteMessage(id) {
 
 // --- DASHBOARD STATS ---
 async function loadDashboard() {
+    if (isLoadingDashboard) return;
+    isLoadingDashboard = true;
     try {
         const data = await apiFetch('/dash');
 
@@ -398,6 +410,9 @@ async function loadDashboard() {
         document.getElementById('stat-messages').textContent = data.nb_message || 0;
 
     } catch (e) { console.error('Erreur Dashboard:', e); }
+    finally {
+        isLoadingDashboard = false;
+    }
 }
 
 // --- UTILS ---

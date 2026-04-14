@@ -39,11 +39,13 @@
     </div>
 
     <script>
-        // Si déjà connecté, aller directement à admin
-        if (localStorage.getItem('token')) {
-            window.location.href = 'admin.html';
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('token');
 
+    if (token) {
+        window.location.replace('admin.html');
+    }
+});
         const LOGIN_URL = 'http://127.0.0.1:8000/api/login';
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -71,12 +73,10 @@
                 if (response.ok && data.token) {
                     // 1. Sauvegarder le Token (utilisé par admin.js via localStorage.getItem('token'))
                     localStorage.setItem('token', data.token);
-                    
                     // 2. Optionnel: Sauvegarder les infos de l'admin
                     if(data.user) localStorage.setItem('user', JSON.stringify(data.user));
-
-                    // 3. Redirection vers admin.html
-                    window.location.href = 'admin.html';
+                    // 3. Redirection vers admin.html avec un petit délai pour garantir l'écriture du token
+                    window.location.replace('admin.html');
                 } else {
                     // Affichage de l'erreur renvoyée par le backend Laravel
                     errorContainer.textContent = data.message || "Identifiants invalides";
