@@ -1445,11 +1445,18 @@ body {
     background: #000;
     color: white;
     padding: 48px 0;
+    width: 100%;
+}
+
+.footer-container {
+    width: 100%;
+    padding: 0 40px;
+    box-sizing: border-box;
 }
 
 .footer-content {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 32px;
     margin-bottom: 32px;
 }
