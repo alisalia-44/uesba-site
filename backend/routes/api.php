@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->group(function () {
     //routes pour reserver au admin 
     Route::middleware('isAdmin')->group(function () {
+        route::get('/roles',[UserController::class,'getroles']);
         route::get('/dash', [HomeController::class, 'Dash']);
         Route::post('/logout', [AuthController::class, 'LogOut']);
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Services\FileUpload;
 use App\Http\Services\MailService;
 use App\Models\messages;
+use App\Models\roles;
 use Exception;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -275,5 +276,13 @@ class UserController extends Controller
         return response()->json([
             'membres' => $membres
         ], 200);
+    }
+
+    public function getroles (){
+        $roles = roles::all();
+        
+        return response()->json([
+           'roles'=> $roles
+        ]);
     }
 }

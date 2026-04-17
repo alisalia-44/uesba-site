@@ -18,7 +18,7 @@ class HomeController extends Controller
 
       
         $membre = User::whereHas('roles', function ($q) {
-            $q->where('name', 'utilisateurs');
+            $q->where('name', 'membres_bureaux');
         })->count();
 
         return response()->json([
