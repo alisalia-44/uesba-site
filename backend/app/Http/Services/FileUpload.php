@@ -3,33 +3,52 @@
 namespace App\Http\Services;
 
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class FileUpload
 {
-
     public function UploadFile($file, $folderName)
     {
         if (!$file) {
             return null;
         }
 
-        $maxsize = 10 * 1024 * 1024;
+     
+        $maxSize = 10 * 1024 * 1024;
 
-        if ($file->getSize() > $maxsize) {
+        if ($file->getSize() > $maxSize) {
             return false;
         }
 
+       
         $extension = $file->getClientOriginalExtension();
 
+       
         $name = 'uesba_' . time() . '_' . Str::random(8) . '.' . $extension;
 
-        $file->storeAs($folderName, $name, 'public');
+      
+        $path = $folderName . '/' . $name;
 
-        // return path relative to storage/app/public so we can build a storage URL later
-        return $folderName . '/' . $name;
+  
+        Storage::disk('public')->putFileAs(
+            $folderName,
+            $file,
+            $name
+        );
+
+        return $path;
     }
 
-    // public function DeleteFile($file, $folderName)
-    // {
-    // }
+    public function DeleteFile($path)
+    {
+        if (!$path) {
+            return false;
+        }
+
+        if (Storage::disk('public')->exists($path)) {
+            return Storage::disk('public')->delete($path);
+        }
+
+        return false;
+    }
 }
