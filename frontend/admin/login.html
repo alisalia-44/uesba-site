@@ -38,56 +38,69 @@
         </form>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('token');
+   <script>
+    const LOGIN_URL = 'http://127.0.0.1:8000/api/login';
 
-    if (token) {
-        window.location.replace('admin.html');
-    }
-});
-        const LOGIN_URL = 'http://127.0.0.1:8000/api/login';
+    // Anti-boucle : si on vient d'admin.html, ne pas revérifier
+    (async function () {
+        if (window.__loginChecked) return;
+        window.__loginChecked = true;
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const errorContainer = document.getElementById('error-container');
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+        const token = localStorage.getItem('token');
+        if (!token) return; // Pas de token → rester ici
 
-            // Cacher l'erreur précédente
-            errorContainer.style.display = 'none';
-
-            try {
-                const response = await fetch(LOGIN_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.token) {
-                    // 1. Sauvegarder le Token (utilisé par admin.js via localStorage.getItem('token'))
-                    localStorage.setItem('token', data.token);
-                    // 2. Optionnel: Sauvegarder les infos de l'admin
-                    if(data.user) localStorage.setItem('user', JSON.stringify(data.user));
-                    // 3. Redirection vers admin.html avec un petit délai pour garantir l'écriture du token
-                    window.location.replace('admin.html');
-                } else {
-                    // Affichage de l'erreur renvoyée par le backend Laravel
-                    errorContainer.textContent = data.message || "Identifiants invalides";
-                    errorContainer.style.display = 'block';
+        try {
+            const resp = await fetch('http://127.0.0.1:8000/api/dash', {
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Accept': 'application/json'
                 }
-            } catch (error) {
-                errorContainer.textContent = "Impossible de contacter le serveur.";
-                errorContainer.style.display = 'block';
-                console.error("Erreur Login:", error);
+            });
+
+            if (resp.ok) {
+                window.location.replace('admin.html');
+            } else {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
             }
-        });
-    </script>
+        } catch (e) {
+            console.warn('Serveur inaccessible, on reste sur login.');
+        }
+    })();
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const errorContainer = document.getElementById('error-container');
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        errorContainer.style.display = 'none';
+
+        try {
+            const response = await fetch(LOGIN_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.token) {
+                localStorage.setItem('token', data.token);
+                if (data.user) localStorage.setItem('user', JSON.stringify(data.user));
+                window.location.replace('admin.html');
+            } else {
+                errorContainer.textContent = data.message || 'Identifiants invalides';
+                errorContainer.style.display = 'block';
+            }
+        } catch (error) {
+            errorContainer.textContent = 'Impossible de contacter le serveur.';
+            errorContainer.style.display = 'block';
+        }
+    });
+</script>
 </body>
 </html>
