@@ -1,7 +1,17 @@
-// Vérification de l'authentification
-if (!localStorage.getItem('token')) {
-    window.location.href = 'login.html';
-}
+// Vérification de l'authentification 
+let _isRedirecting = false;
+
+(function () {
+    if (window.__authChecked) return;
+    window.__authChecked = true;
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+        _isRedirecting = true;
+        window.location.replace('login.html');
+        throw new Error('NO_TOKEN');
+    }
+})();
 const BASE_URL = 'http://127.0.0.1:8000/api';
 const STORAGE_URL = 'http://127.0.0.1:8000/storage/';
 
@@ -126,20 +136,14 @@ async function apiFetch(endpoint, options = {}) {
         data = { __raw: text };
     }
 
-    if (!response.ok) {
-        // Token invalide ou expiré → rediriger vers login
-        if (response.status === 401) {
-            localStorage.removeItem('token');
-            window.location.href = 'login.html';
-            return;
-        }
-
-        const msg = data && data.errors ? Object.values(data.errors).flat().join('\n') : (data && (data.message || data.error) ? (data.message || data.error) : `Erreur ${response.status} ${response.statusText}`);
-        const err = new Error(msg);
-        err.status = response.status;
-        err.raw = data;
-        throw err;
-    }
+  if (response.status === 401) {
+    if (_isRedirecting) return;
+    _isRedirecting = true;
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.replace('login.html');
+    return;
+}
     return data;
 }
 
@@ -403,6 +407,7 @@ async function loadDashboard() {
     isLoadingDashboard = true;
     try {
         const data = await apiFetch('/dash');
+        if (!data) return; // redirection déjà déclenchée (401)
 
         document.getElementById('stat-members').textContent = data.nb_membre || 0;
         document.getElementById('stat-events').textContent = data.nb_event || 0;
@@ -742,7 +747,7 @@ async function logout() {
     }
 
     localStorage.removeItem('token');
-    window.location.href = 'login.html';
+    window.location.replace('login.html');
 }
 
 // Video admin controls

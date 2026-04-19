@@ -10,21 +10,22 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    public function Dash(Request $request){
+    public function Dash(Request $request)
+    {
         $event = evenements::count();
-        $membre = User::all()->filter(function($m){
-            $m->hasRole('utilisateurs');
-            return $m;
-        })->count();
         $actu = actualites::count();
         $mes = messages::count();
 
-        return response()->json([
-            'nb_event'=>$event ?? 0,
-            'nb_membre'=>$membre ?? 0,
-            'nb_actu'=>$actu ?? 0,
-            'nb_message'=>$mes ?? 0
-        ]);
+      
+        $membre = User::whereHas('roles', function ($q) {
+            $q->where('name', 'membres_bureaux');
+        })->count();
 
+        return response()->json([
+            'nb_event' => $event ?? 0,
+            'nb_membre' => $membre ?? 0,
+            'nb_actu' => $actu ?? 0,
+            'nb_message' => $mes ?? 0
+        ], 200);
     }
 }
