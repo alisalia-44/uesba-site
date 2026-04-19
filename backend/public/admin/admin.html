@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panneau Admin - UESBA</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar">
+        <div class="admin-logo">
+            <h2>UESBA Admin</h2>
+        </div>
+        <nav class="admin-nav">
+            <button class="nav-btn active" data-section="dashboard">
+                <span class="icon">📊</span>
+                <span>Tableau de bord</span>
+            </button>
+           
+            <button class="nav-btn" data-section="members">
+                <span class="icon">👥</span>
+                <span>Membres Bureau</span>
+            </button>
+            <button class="nav-btn" data-section="events">
+                <span class="icon">📅</span>
+                <span>Événements</span>
+            </button>
+            <button class="nav-btn" data-section="news">
+                <span class="icon">📰</span>
+                <span>Actualités</span>
+            </button>
+            <button class="nav-btn" data-section="messages">
+                <span class="icon">💬</span>
+                <span>Messages</span>
+            </button>
+        </nav>
+        <div class="admin-footer">
+            <button class="btn-logout" onclick="logout()">Déconnexion</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="header-content">
+                <h1 id="page-title">Tableau de bord</h1>
+                <div class="header-actions">
+                    <span class="user-info">Admin</span>
+                    <span class="current-date" id="current-date"></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="admin-content">
+            
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="admin-section active">
+                <div class="dashboard-grid">
+                    
+                    <div class="stats-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <h3>Membres</h3>
+                            <p class="stat-number" id="stat-members">0</p>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-content">
+                            <h3>Événements</h3>
+                            <p class="stat-number" id="stat-events">0</p>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stat-icon">📰</div>
+                        <div class="stat-content">
+                            <h3>Actualités</h3>
+                            <p class="stat-number" id="stat-news">0</p>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stat-icon">💬</div>
+                        <div class="stat-content">
+                            <h3>Messages</h3>
+                            <p class="stat-number" id="stat-messages">0</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            
+            <!-- Members Section -->
+            <section id="members-section" class="admin-section">
+                <div class="section-header">
+                    <h2>Gestion des Membres du Bureau</h2>
+                    <button class="btn-primary" onclick="openAddModal('member')">+ Nouveau Membre</button>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Photo</th>
+                                <th>Nom et Prénom</th>
+                                <th>Poste</th>
+                                <th>Descriptions</th>
+                                <th>Email</th>
+                                <th>Année</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="members-list">
+                            <tr class="empty-row">
+                                <td colspan="7">Aucun membre</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                            <!-- Event Detail Modal -->
+                    <div id="eventDetailModal" class="modal">
+                        <div class="modal-content modal-large">
+                            <span class="close" onclick="closeModal('eventDetailModal')">&times;</span>
+                            <h2 id="eventDetailTitle">Détail de l'événement</h2>
+                            <div id="eventDetailContent">
+                                <div style="display:flex; gap:16px; align-items:flex-start;">
+                                    <img id="eventDetailPhoto" src="" alt="photo" style="max-width:220px; display:none; border-radius:6px; border:1px solid #ddd;" />
+                                    <div>
+                                        <p><strong>Date:</strong> <span id="eventDetailDate"></span></p>
+                                        <p><strong>Lieu:</strong> <span id="eventDetailLieu"></span></p>
+                                        <p id="eventDetailDescription" style="white-space:pre-wrap; margin-top:8px;"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-actions" style="margin-top:12px;">
+                                <button class="btn-primary" id="eventDetailEditBtn">Modifier</button>
+                                <button class="btn-secondary" onclick="closeModal('eventDetailModal')">Fermer</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Events Section -->
+            <section id="events-section" class="admin-section">
+                <div class="section-header">
+                    <h2>Gestion des Événements</h2>
+                    <button class="btn-primary" onclick="openAddModal('event')">+ Nouvel Événement</button>
+                </div>
+                
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Photo</th>
+                                <th>Titre</th>
+                                <th>Date</th>
+                                <th>Lieu</th>
+                                <th>Description</th>
+                                <th>Détails</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="events-list">
+                            <tr class="empty-row">
+                                <td colspan="8">Aucun événement</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                   
+                </div>
+                 
+            </section>
+
+            <!-- News Section -->
+            <section id="news-section" class="admin-section">
+                <div class="section-header">
+                    <h2>Gestion des Actualités</h2>
+                    <button class="btn-primary" onclick="openAddModal('news')">+ Nouvelle Actualité</button>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Photo</th>
+                                <th>Nom</th>
+                                <th>Descriptions</th>
+                                <th>Catégorie</th>
+                                <th>Détails</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="news-list">
+                            <tr class="empty-row">
+                                <td colspan="7">Aucune actualité</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                   
+                </div>
+                
+            </section>
+
+            <!-- Messages Section -->
+            <section id="messages-section" class="admin-section">
+                <div class="section-header">
+                    <h2>Messages des Visiteurs</h2>
+                </div>
+                <div class="messages-container" id="messages-list">
+                    <div class="empty-state">
+                        <p>Aucun message</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modals -->
+   
+
+    <!-- Member Modal -->
+    <div id="memberModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('memberModal')">&times;</span>
+            <h2 id="memberModalTitle">Ajouter un Membre</h2>
+            <form id="memberForm">
+                <input type="hidden" id="memberId">
+                <div class="form-group">
+                    <label for="memberName">Nom *</label>
+                    <input type="text" id="memberName" required>
+                </div>
+                <div class="form-group">
+                    <label for="memberPrenom">Prénom *</label>
+                    <input type="text" id="memberPrenom" required>
+                </div>
+                <div class="form-group">
+                    <label for="memberPosition">Poste *</label>
+                    <input type="text" id="memberPosition" required>
+                </div>
+                <div class="form-group">
+                    <label for="memberAnnePoste">Année du poste</label>
+                    <input type="text" id="memberAnnePoste" placeholder="ex: 2023">
+                </div>
+                <div class="form-group">
+                    <label for="memberDescriptions">Descriptions</label>
+                    <textarea id="memberDescriptions" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="memberEmail">Email</label>
+                    <input type="email" id="memberEmail">
+                </div>
+                 <div class="form-group">
+                    <label for="memberPhoto">Photo (fichier)</label>
+                    <input type="file" id="memberPhoto" accept="image/*">
+                    <div style="margin-top:8px;">
+                        <img id="photoPreview" src="" alt="Aperçu" style="max-width:120px; display:none; border-radius:6px; border:1px solid #ddd;" />
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Enregistrer</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal('memberModal')">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Event Modal -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('eventModal')">&times;</span>
+            <h2 id="eventModalTitle">Ajouter un Événement</h2>
+            <form id="eventForm" onsubmit="saveEvent(event)">
+                <input type="hidden" id="eventId">
+                <div class="form-group">
+                    <label for="eventTitle">Titre *</label>
+                    <input type="text" id="eventTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventDate">Date *</label>
+                    <input type="date" id="eventDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventLocation">Lieu *</label>
+                    <input type="text" id="eventLocation" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventType">Type *</label>
+                    <select id="eventType" required>
+                        <option value="presentiel">Présentiel</option>
+                        <option value="En_ligne">En ligne</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="eventDescription">Description *</label>
+                    <textarea id="eventDescription" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="eventImage">Image (fichier)</label>
+                    <input type="file" id="eventImage" accept="image/*">
+                    <div style="margin-top:8px;">
+                        <img id="eventImagePreview" src="" alt="Aperçu" style="max-width:200px; display:none; border-radius:6px; border:1px solid #ddd;" />
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Enregistrer</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal('eventModal')">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- News Modal -->
+    <div id="newsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('newsModal')">&times;</span>
+            <h2 id="newsModalTitle">Ajouter une Actualité</h2>
+            <form id="newsForm" onsubmit="saveNews(event)">
+                <input type="hidden" id="newsId">
+                <div class="form-group">
+                    <label for="newsTitle">Titre *</label>
+                    <input type="text" id="newsTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="newsContent">Contenu *</label>
+                    <textarea id="newsContent" rows="6" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="newsDate">Date *</label>
+                    <input type="date" id="newsDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="newsCategory">Catégorie *</label>
+                   <select id="newsCategory" required>
+                        <option value="annonce">Annonces</option>
+                        <option value="academique">Académique</option>
+                        <option value="social">Social</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="newsImage">Image (fichier)</label>
+                    <input type="file" id="newsImage" accept="image/*">
+                    <div style="margin-top:8px;">
+                        <img id="newsImagePreview" src="" alt="Aperçu" style="max-width:200px; display:none; border-radius:6px; border:1px solid #ddd;" />
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Enregistrer</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal('newsModal')">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Message Detail Modal -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close" onclick="closeModal('messageModal')">&times;</span>
+            <h2>Détail du Message</h2>
+            <div id="messageDetail" class="message-detail"></div>
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" onclick="closeModal('messageModal')">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="../js/api.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

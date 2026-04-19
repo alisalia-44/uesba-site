@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détails Actualité - UESBA</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+   <header id="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">
+                    <div class="logo-image">
+                        <img src="images/img.jpeg" alt="">
+                    </div>
+                    <div class="logo-text desktop">
+                        <h1>UESBA</h1>
+                        <p>Union des Étudiants  et Stagiaires Burkinabè en Algerie</p>
+                    </div>
+                    
+                </a>
+
+                <nav class="desktop-nav">
+                    <a class="nav-link" href="index.html">Accueil</a>
+                    <a class="nav-link active" href="actualites.html">Actualités</a>
+                    <a class="nav-link" href="evenements.html">Événements</a>
+                    <a class="nav-link" href="apropos.html">À Propos</a>
+                    <a class="nav-link" href="contact.html">Contact</a>
+                </nav>
+
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                   <img src="https://img.icons8.com/ios-filled/32/198754/menu--v1.png" alt="Menu" class="menu-icon">
+                    <svg class="close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+           </div>
+        </div>
+   </header>
+   <div class="mobile-menu" id="mobileMenu" style="width: auto;height: auto; ">
+      <nav>
+          <button class="mobile-nav-link " data-page="index.html">Accueil</button>
+          <button class="mobile-nav-link active" data-page="actualites.html">Actualités</button>
+          <button class="mobile-nav-link" data-page="evenements.html">Événements</button>
+          <button class="mobile-nav-link" data-page="apropos.html">À Propos</button>
+          <button class="mobile-nav-link" data-page="contact.html">Contact</button>
+      </nav>
+   </div>    
+    <main class="container" style="padding: 2rem 1rem; max-width: 900px;">
+        <button onclick="window.history.back()" class="back-btn">← Retour</button>
+        <div id="news-detail" style="margin-top:1rem;"></div>
+    </main>
+
+    <script>
+        (async function(){
+            function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>'"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":"&#39;",'"':'&quot;'})[c]); }
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            const container = document.getElementById('news-detail');
+            if(!id){ container.innerHTML = '<p>Identifiant d\'actualité manquant.</p>'; return; }
+
+            try{
+                let article = null;
+                if(window.apiService && window.apiService.getActualiteDetail){
+                    const res = await window.apiService.getActualiteDetail(id);
+                    if(res && res.success && res.data){
+                        article = res.data.actualite || res.data.actualite || res.data || null;
+                        if(article && article.data && Array.isArray(article.data)) article = article.data[0];
+                    }
+                }
+
+                if(!article){
+                    try{
+                        let resp = await fetch('http://127.0.0.1:8000/api/actualite/' + encodeURIComponent(id));
+                        if(!resp.ok){ resp = await fetch('http://127.0.0.1:8000/api/actualite/' + encodeURIComponent(id), { method: 'POST' }); }
+                        if(resp && resp.ok){ const json = await resp.json().catch(()=>null); if(json) article = json.actualite || json.data || json; }
+                    }catch(e){ console.error('detail fetch fallback failed', e); }
+                }
+
+                if(!article){
+                    const data = JSON.parse(localStorage.getItem('adminData')||'{}');
+                    const news = data.news || [];
+                    article = news.find(x=> String(x.id)===String(id)) || news.find(x=> String(x.ID)===String(id));
+                }
+
+                if(!article){ container.innerHTML = '<p>Actualité introuvable.</p>'; return; }
+
+                const title = escapeHtml(article.titre || article.title || article.nom || '');
+                const date = escapeHtml(article.date || article.created_at || '');
+                const content = escapeHtml(article.contenu || article.content || article.description || '');
+                const photo = escapeHtml(article.photo || article.image || 'images/img.jpeg');
+
+                container.innerHTML = `
+                    <article style="background:#fff;padding:1.5rem;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.08)">
+                        <img src="${photo}" alt="${title}" style="width:100%;height:380px;object-fit:cover;border-radius:8px;">
+                        <h1 style="margin-top:1rem">${title}</h1>
+                        <p style="color:#666;margin-bottom:0.5rem">${date}</p>
+                        <div style="white-space:pre-wrap;margin-top:1rem;color:#333">${content}</div>
+                    </article>
+                `;
+            }catch(err){ console.error(err); container.innerHTML = '<p>Erreur lors du chargement de l\'actualité.</p>'; }
+        })();
+    </script>
+    <footer class="footer">
+     <div class="container">
+        <div class="footer-content">
+            <div class="footer-column">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                      ⭐  
+                    </div>
+                    <h3>UESBA</h3>
+                </div>
+                <p>Union des Étudiants et Stagiaires Burkinabè en Algérie - Solidarité, Excellence, Unité</p>
+            </div>
+
+            <div class="footer-column">
+                <h4>Contact</h4>
+                <div class="contact-item">
+                    <img src="https://img.icons8.com/ios-filled/24/198754/marker.png" alt="Location">
+                    <p>Alger, Algérie</p>
+                </div>
+                <div class="contact-item">
+                    <img src="https://img.icons8.com/ios-filled/24/198754/phone.png" alt="Phone">
+                    <p>+213 0670462357</p>
+                </div>
+                <div class="contact-item">
+                    <img src="https://img.icons8.com/ios-filled/24/198754/new-post.png" alt="Email">
+                    <p>info.uesba@gmail.com</p>
+                </div>
+            </div>
+        <div class="footer-column">
+                <h4>Suivez-nous sur nos differents réseaux</h4>
+                <div class="social-links">
+                    <a href="https://www.facebook.com/share/1DLUmWxuC2/?mibextid=wwXIfr" aria-label="Facebook">
+                        <img src="https://img.icons8.com/color/32/000000/facebook-new.png" alt="Facebook">
+                    </a>
+                   <a href="https://www.tiktok.com/@uesba_?_r=1&_t=ZS-94RGRiQQBmq" aria-label="TikTok">
+                        <img src="https://img.icons8.com/color/32/000000/tiktok.png" alt="TikTok">
+                    </a>
+                    <a href="https://www.linkedin.com/company/uesba-officiel/" aria-label="LinkedIn">
+                        <img src="https://img.icons8.com/color/32/000000/linkedin.png" alt="LinkedIn">
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="developers">
+                <p><strong>Site développé par :</strong></p>
+                <p>SIA RAOUL • ALI SALIA • TALL SOULEYMANE • BA YOBI</p>
+            </div>
+            <div class="footer-legal">
+                <p>© 2026 UESBA. Tous droits réservés.</p>
+                <div class="legal-links">
+                    <a href="#">Mentions Légales</a>
+                    <a href="#">Politique de Confidentialité</a>
+                </div>
+            </div>
+        </div>
+      </div>
+    </footer>
+</body>
+</html>
