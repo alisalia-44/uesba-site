@@ -11,9 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->boolean("is_ancien")->default('false');
+        Schema::create('messages', function (Blueprint $table) {
+            $table->id();
+            $table->string('nom_complet');
+            $table->string('email');
+            $table->text('message');
+            $table->timestamps();
         });
+           
     }
 
     /**
@@ -21,8 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('messages');
     }
 };
