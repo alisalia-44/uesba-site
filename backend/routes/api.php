@@ -45,7 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/set-member-past', [UserController::class, 'SetMemberPast']);
     });
 
-
+route::get('/members',[UserController::class,'GetMembers']);
 
     // routes reserver les ulisateurs lambda connectes
 
@@ -60,4 +60,4 @@ Route::get('evenements', [EvenementsController::class, 'GetEvents']);
 Route::post("evenement/{id}", [EvenementsController::class, 'DetailEvent']);
 Route::get('/actualites', [ActualitesController::class, 'GetActualites']);
 Route::post('/actualite/{id}', [ActualitesController::class, 'DetailActualite']);
-route::get('/members',[UserController::class,'GetMembers']);
+
