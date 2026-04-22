@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion Admin - UESBA</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="admin.css">
+    <style>
+        .login-body { background: #1a202c; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Segoe UI', sans-serif; }
+        .login-card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 400px; }
+        .login-card h2 { text-align: center; color: #2d3748; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #4a5568; font-weight: 600; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; outline: none; transition: border-color 0.2s; }
+        .form-group input:focus { border-color: #4299e1; }
+        .btn-login { width: 100%; background: #3182ce; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; transition: background 0.2s; }
+        .btn-login:hover { background: #2b6cb0; }
+        .error-msg { color: #e53e3e; background: #fff5f5; padding: 10px; border-radius: 4px; margin-bottom: 20px; display: none; text-align: center; font-size: 14px; }
+    </style>
+</head>
+<body class="login-body">
+    <div class="login-card">
+        <h2>UESBA Admin</h2>
+        
+        <div id="error-container" class="error-msg"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email Professionnel</label>
+                <input type="email" id="email" name="email" required placeholder="admin@uesba.dz">
+            </div>
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" required placeholder="••••••••">
+            </div>
+            <button type="submit" class="btn-login">Se connecter au panneau</button>
+        </form>
+    </div>
+
+   <script>
+    const LOGIN_URL = 'http://127.0.0.1:8000/api/login';
+
+    // Anti-boucle : si on vient d'admin.html, ne pas revérifier
+    (async function () {
+        if (window.__loginChecked) return;
+        window.__loginChecked = true;
+
+        const token = localStorage.getItem('token');
+        if (!token) return; // Pas de token → rester ici
+
+        try {
+            const resp = await fetch('http://127.0.0.1:8000/api/dash', {
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (resp.ok) {
+                window.location.replace('admin.html');
+            } else {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+            }
+        } catch (e) {
+            console.warn('Serveur inaccessible, on reste sur login.');
+        }
+    })();
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const errorContainer = document.getElementById('error-container');
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        errorContainer.style.display = 'none';
+
+        try {
+            const response = await fetch(LOGIN_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.token) {
+                localStorage.setItem('token', data.token);
+                if (data.user) localStorage.setItem('user', JSON.stringify(data.user));
+                window.location.replace('admin.html');
+            } else {
+                errorContainer.textContent = data.message || 'Identifiants invalides';
+                errorContainer.style.display = 'block';
+            }
+        } catch (error) {
+            errorContainer.textContent = 'Impossible de contacter le serveur.';
+            errorContainer.style.display = 'block';
+        }
+    });
+</script>
+</body>
+</html>
